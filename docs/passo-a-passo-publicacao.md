@@ -245,6 +245,7 @@ Se algo falhar, veja a tabela de problemas abaixo.
 | Sintoma | Causa provável | O que fazer |
 |---|---|---|
 | `/api/v1/saude` demora ou dá erro logo depois de publicar | Plano gratuito acordando | Aguarde 1 a 2 minutos e tente de novo |
+| O endereço da API mostra a **página padrão do Azure** ("Your web app is running and waiting for your content") e o *Fluxo de log* avisa *"found 2 '.runtimeconfig.json'"* | Sobras de uma publicação antiga na pasta do app (`Viteme.Tests.runtimeconfig.json`) | O workflow da `main` do `viteme-api` limpa a pasta e fixa `dotnet Viteme.Api.dll`: rode *Publicar API no Azure > Run workflow*. Na hora, dá para pôr `dotnet Viteme.Api.dll` em *Configurações > Configuração > Comando de inicialização* |
 | API sobe e cai (erro 500.30, ou "Application Error") | Falta `Jwt__Chave` ou `ConnectionStrings__Default`, ou a chave tem menos de 32 caracteres | Confira as variáveis no passo 3.6 e o *Fluxo de log* |
 | `/api/v1/eventos` dá erro de banco | Texto de conexão errado, senha errada ou tabelas não criadas | Confira o passo 1; teste a conexão; confirme o `schema.sql` |
 | Erro de certificado ao conectar no banco | Falta `Trust Server Certificate=true` | Acrescente ao texto de conexão |
