@@ -17,7 +17,7 @@ Prefixo `/api/v1`. Convenções do backend: `viteme-api/.claude/planning/api/con
 |---|---|
 | 400 | `errors` por campo exibidos nos próprios campos do formulário (CT61) |
 | 401 | Renovar token uma vez; se falhar, ir ao login. Em E02: "e-mail ou senha incorretos" (mensagem genérica) |
-| 403 | "Você não tem acesso a esta área" |
+| 403 | "Você não tem acesso a esta área". Em E03/E04, `REQUISICAO_NAO_PERMITIDA` indica cabeçalho `X-Requested-With` ausente ou origem não configurada na API (erro de configuração) |
 | 404 | "Não encontrado" (também para evento oculto/rascunho/recurso alheio) |
 | 409, 422 | Mensagem com o texto de `detail`; ação conforme `codigo` (tabela abaixo) |
 | 412 | `VERSAO_DESATUALIZADA`: oferecer recarregar o evento |

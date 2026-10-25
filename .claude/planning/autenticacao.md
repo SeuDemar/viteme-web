@@ -23,7 +23,8 @@ A especificação previa `SameSite=Strict` (frontend e API no mesmo site). A equ
 
 Observações:
 - Navegadores com bloqueio de cookies de terceiros (Safari, Firefox estrito, Chrome com restrições) podem **não enviar** cookie `SameSite=None` entre sites diferentes. Se a demonstração rodar em domínios diferentes e a sessão não restaurar, a saída é hospedar frontend e API sob o mesmo domínio registrável (que também funciona com `None`) ou usar proxy reverso. Registrado em PW2.
-- A mudança na API (cookie, cabeçalho e `Origin`) **não está feita**; ver [pendencias.md](pendencias.md), PW2.
+- A mudança na API (cookie, cabeçalho e `Origin`) **já está feita** (D47 no `viteme-api`); ver [pendencias.md](pendencias.md), PW2. Sem o cabeçalho `X-Requested-With: viteme-web` ou com `Origin` diferente de `Cors__OrigemFrontend`, E03 e E04 respondem 403 `REQUISICAO_NAO_PERMITIDA`; o frontend deve tratar isso como erro de configuração, não como sessão expirada.
+- **Várias abas:** reutilizar um refresh já revogado derruba todas as sessões do usuário (P40 da API), então a renovação deve ser feita por uma aba só e compartilhada com as outras (Web Locks ou `BroadcastChannel`); ver PW10.
 
 ## 3. Papéis na interface
 O token **não contém papéis**; o papel depende do evento e é verificado pela API a cada requisição. A interface:

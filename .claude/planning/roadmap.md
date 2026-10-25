@@ -42,4 +42,4 @@ Convenções: branch por funcionalidade + PR com revisão; commits pequenos com 
 - Conferir os requisitos de frontend em `entrega-3.md` do backend: navegação, formulários, validações, consumo dos endpoints, exibição, tratamento de erros e fluxo completo.
 
 ## Dependências na API
-Antes de W1 funcionar fora do `localhost`, a API precisa da mudança de cookie/CSRF (PW2). Para W3 na demonstração, definir como simular o pagamento (PW5).
+A API já tem a mudança de cookie/CSRF (PW2, D47); falta validá-la na hospedagem real. Para W3 na demonstração, definir como simular o pagamento (PW5).
