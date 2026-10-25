@@ -6,6 +6,6 @@
   "compatibility_date": "2025-10-01",
   "vars": {
     // Endereço da API (sem barra final). Troque aqui e faça um novo deploy.
-    "API_ORIGIN": "https://SUA-API.onrender.com"
+    "API_ORIGIN": "https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net"
   }
 }
