@@ -398,7 +398,7 @@ export function GestaoEventoPage() {
       <section className="cartao cartao--destaque espaco-topo">
         <h2 style={{ fontSize: 20, fontWeight: 700 }}>{evento.titulo}</h2>
         <p className="cartao__meta">
-          {inscritos !== null ? `${inscritos} inscritos • ` : ''}
+          {inscritos !== null ? `${inscritos} ${inscritos === 1 ? 'inscrito' : 'inscritos'} • ` : ''}
           {evento.capacidade !== null ? `${evento.capacidade} vagas` : 'Vagas ilimitadas'} • {dataNumerica(evento.dataInicio)}
         </p>
         {organizador && !encerrado && (

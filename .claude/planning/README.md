@@ -29,5 +29,5 @@ SPA em **React + TypeScript (Vite)** que consome a API REST do Viteme em `/api/v
 
 - Planejamento escrito a partir do PDF (seções 5 e 6) e da API implementada.
 - Etapas W0–W5 do [roadmap.md](roadmap.md) concluídas: as 12 telas (T01–T12) seguem o Figma e estão integradas à API; 40 testes passando, inclusive CT58–CT63 ([testes-execucao.md](testes-execucao.md)).
-- **Não validado:** o frontend ainda não foi executado contra a API real com banco; os testes e as capturas usam a API simulada.
+- **Validado com a API real** (PostgreSQL + ASP.NET Core) em Chromium: 39 de 39 passos ([validacao-api-real.md](../../docs/validacao-api-real.md)). **Não validado:** sites diferentes com cookie `SameSite=None`, HTTPS, Firefox/Safari, rate limiting, pagamento e SMS reais.
 - Próximo passo: W6 (validação ponta a ponta, hospedagem, guia de uso) e as pendências PW1, PW11 e PW12 de [pendencias.md](pendencias.md).

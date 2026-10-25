@@ -35,9 +35,9 @@ Convenções: branch por funcionalidade + PR com revisão; commits pequenos com 
 
 ## W6 — Fechamento (Entrega 3)  ⏳ em aberto
 
-> **Feito:** CI (lint, tipos, testes e build), README com instruções, evidência dos testes de 2026-10-25. **Falta:** validar com a API real e o banco, Playwright (opcional), CSP na hospedagem, guia de uso e roteiro de demonstração em `docs/`, hospedagem e teste do cookie entre sites.
+> **Feito:** CI (lint, tipos, testes e build), README com instruções, evidência dos testes, **validação ponta a ponta com a API real e o banco (39/39, [validacao-api-real.md](../../docs/validacao-api-real.md))**, roteiro Playwright em `e2e/`. **Falta:** CSP na hospedagem, guia de uso e roteiro de demonstração em `docs/`, hospedagem e teste do cookie entre sites diferentes, Firefox/Safari.
 - Rodar **todos** os testes e preencher [testes-execucao.md](testes-execucao.md); [bugs.md](bugs.md) completo.
-- (Opcional) Playwright: inscrição gratuita, criação e alteração de evento.
+- ~~(Opcional) Playwright~~: feito como roteiro de validação (`npm run e2e`), mas fora do CI porque precisa de API e banco.
 - Responsividade e acessibilidade conferidas contra o Figma; CSP configurada na hospedagem.
 - README completo (descrição, como executar, tecnologias, estrutura, ambiente, uso) e `docs/` com o guia de uso e roteiro de demonstração.
 - Publicação do frontend e checagem do cookie de sessão no ambiente da demonstração.

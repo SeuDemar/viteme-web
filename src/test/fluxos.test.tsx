@@ -222,6 +222,29 @@ describe('notificações e perfil', () => {
     await waitFor(() => expect(marcadas).toBe(true))
   })
 
+  it('salvar o perfil mostra a confirmação e atualiza o nome no cabeçalho', async () => {
+    const { handlers } = sessaoRestauravel()
+    let corpo: Record<string, unknown> | null = null
+    servidor.use(
+      http.put(rota('/usuarios/me'), async ({ request }) => {
+        corpo = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json({ ...perfilExemplo, nome: 'Maria Souza' })
+      }),
+      ...handlers,
+    )
+    const usuario = userEvent.setup()
+    renderizarApp('/perfil')
+
+    const nome = await screen.findByLabelText('Nome')
+    await usuario.clear(nome)
+    await usuario.type(nome, 'Maria Souza')
+    await usuario.click(screen.getByRole('button', { name: 'Salvar perfil' }))
+
+    expect(await screen.findByText('Perfil atualizado.')).toBeInTheDocument()
+    expect(corpo).toMatchObject({ nome: 'Maria Souza', telefone: '+5544999999999' })
+    expect(await screen.findAllByText('Maria Souza')).not.toHaveLength(0)
+  })
+
   it('CTW15 — o aceite de SMS fica desabilitado sem telefone verificado', async () => {
     const { handlers } = sessaoRestauravel()
     servidor.use(http.get(rota('/usuarios/me'), () => HttpResponse.json({ ...perfilExemplo, telefoneVerificado: false })), ...handlers)

@@ -209,7 +209,8 @@ export function PerfilPage() {
       ) : consulta.isError ? (
         <Erro erro={mapearErro(consulta.error)} aoTentarNovamente={() => consulta.refetch()} />
       ) : (
-        <FormularioPerfil key={`${consulta.data.nome}|${consulta.data.telefone}`} perfil={consulta.data} />
+        // A chave é só o id: remontar ao salvar apagaria a mensagem de confirmação do formulário.
+        <FormularioPerfil key={consulta.data.id} perfil={consulta.data} />
       )}
     </main>
   )
