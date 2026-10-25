@@ -6,7 +6,7 @@ import type { MinhaInscricao, SituacaoInscricoes } from '../../api/tipos'
 import { Carregando, Erro, Vazio } from '../../components/Estados'
 import { Confirmacao, Modal } from '../../components/Modal'
 import { SeloStatusInscricao } from '../../components/Selo'
-import { dataLonga, dataNumerica, hora, minutosRestantes } from '../../lib/formatar'
+import { dataLonga, dataNumerica, hora, minutosRestantes, paraNomeDeArquivo } from '../../lib/formatar'
 import { mapearErro } from '../../lib/erros'
 import { useTitulo } from '../../lib/formulario'
 import { useAgora } from '../../lib/useAgora'
@@ -72,7 +72,7 @@ function ItemInscricao({ inscricao, agora, aoComprovante, aoCancelar }: { inscri
     setBaixando(true)
     setErro(null)
     try {
-      await baixarCertificado(inscricao.id, `certificado-${inscricao.evento.titulo.toLowerCase().replace(/\W+/g, '-')}.pdf`)
+      await baixarCertificado(inscricao.id, `certificado-${paraNomeDeArquivo(inscricao.evento.titulo)}.pdf`)
     } catch (e) {
       setErro(mapearErro(e).mensagem)
     } finally {

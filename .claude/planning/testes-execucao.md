@@ -1,6 +1,6 @@
 # Registro de execução dos testes
 
-Última execução: **2026-10-25**, `npm test` (Vitest 5, React Testing Library, MSW 3, jsdom): **49 testes em 4 arquivos, todos passando**. Evidência: [`docs/evidencias/vitest-2026-10-25.txt`](../../docs/evidencias/vitest-2026-10-25.txt). Lint (`eslint`), tipos (`tsc --noEmit`) e build (`vite build`) também passam. MSW roda com `onUnhandledFrame: 'error'`: qualquer chamada sem handler reprova o teste.
+Última execução: **2026-10-25**, `npm test` (Vitest 5, React Testing Library, MSW 3, jsdom): **64 testes em 5 arquivos, todos passando**. Evidência: [`docs/evidencias/vitest-2026-10-25.txt`](../../docs/evidencias/vitest-2026-10-25.txt). Lint (`eslint`), tipos (`tsc --noEmit`) e build (`vite build`) também passam. MSW roda com `onUnhandledFrame: 'error'`: qualquer chamada sem handler reprova o teste.
 
 ## Casos do PDF (CT58–CT63)
 
@@ -36,14 +36,14 @@
 | CTW19 | Check-in | Passou | Maiúsculas, 12 caracteres, `CHECKIN_JA_REALIZADO` |
 | CTW22 | Validar certificado público | Passou | Válido, 404 e navegação pelo formulário |
 | CTW23 | Falha na renovação do token | Passou | Coberto pelo segundo teste de CT60 |
-| CTW11 | Certificado disponível/indisponível | Pendente | Download de PDF não testado |
-| CTW14 | Verificação de telefone com contador de 60 s | Pendente | |
-| CTW20 | Cancelar evento | Pendente | |
-| CTW21 | Denunciar evento | Pendente | |
-| CTW24 | Erros 429, 500 e de rede | Parcial | `mapearErro` testado em `lib.test.ts`; falta teste de tela |
-| CTW25 | Estados carregando/vazio/erro | Pendente | Verificados só visualmente |
+| CTW11 | Certificado disponível/indisponível | Corrigido | `complementares.test.tsx`. Achou um bug: o erro da API no download (resposta em Blob) virava mensagem genérica; corrigido em `baixarCertificado`. O nome do PDF agora sai sem acentos |
+| CTW14 | Verificação de telefone com contador de 60 s | Passou | Envio, reenvio bloqueado, confirmação, código errado no campo e 429 `AGUARDE_NOVO_CODIGO` |
+| CTW20 | Cancelar evento | Passou | Motivo validado no cliente; corpo enviado; seção some após cancelar |
+| CTW21 | Denunciar evento | Passou | Motivo obrigatório, descrição obrigatória em "Outro", 409 de denúncia repetida |
+| CTW24 | Erros 429, 500 e de rede | Passou | 500 com "Tentar novamente", falha de rede e 429 no login |
+| CTW25 | Estados carregando/vazio/erro | Passou | Carregando → vazio no mural; vazio em Minhas inscrições; limite de erro (tela que falha não deixa a página em branco) |
 
-Total de testes automáticos: **49** (inclui o teste de regressão do perfil e 8 testes do repasse de `/api/*` em `edge/proxy.test.ts`). Também há testes unitários de formatadores e do mapeamento de erros (`src/lib/lib.test.ts`) e um teste do menu mobile.
+Total de testes automáticos: **64** (inclui os campos `inscricoesAbertas`, `capacidade` e `inscritos` da API, o teste de regressão do perfil e 8 testes do repasse de `/api/*` em `edge/proxy.test.ts`). Também há testes unitários de formatadores e do mapeamento de erros (`src/lib/lib.test.ts`) e um teste do menu mobile.
 
 ## Validação ponta a ponta com a API real
 

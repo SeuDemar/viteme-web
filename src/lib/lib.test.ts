@@ -1,7 +1,7 @@
 import { AxiosError } from 'axios'
 import { describe, expect, it } from 'vitest'
 import { mapearErro } from './erros'
-import { alteradoRecentemente, dataCurta, hora, mascararTelefone, minutosRestantes, moeda, telefoneDeE164, telefoneParaE164 } from './formatar'
+import { alteradoRecentemente, dataCurta, hora, mascararTelefone, minutosRestantes, moeda, paraNomeDeArquivo, telefoneDeE164, telefoneParaE164 } from './formatar'
 
 describe('formatadores', () => {
   it('telefone: máscara e conversão de/para E.164', () => {
@@ -24,6 +24,10 @@ describe('formatadores', () => {
     expect(hora(d)).toBe('19h')
     expect(hora(new Date(2026, 10, 12, 19, 30))).toBe('19h30')
     expect(moeda(25)).toMatch(/R\$\s?25,00/)
+  })
+
+  it('nome de arquivo sem acentos nem símbolos', () => {
+    expect(paraNomeDeArquivo('Semana Acadêmica: Inovação & Tecnologia!')).toBe('semana-academica-inovacao-tecnologia')
   })
 
   it('minutos restantes da reserva', () => {

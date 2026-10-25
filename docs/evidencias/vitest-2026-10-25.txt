@@ -1,58 +1,76 @@
 
  RUN  v5.0.5 /home/user/viteme-web
 
+ ✓ src/test/complementares.test.tsx > mural e meus eventos (campos novos da API) > card mostra "Inscrições encerradas" quando a API informa inscricoesAbertas = false 280ms
+ ✓ src/test/fluxos.test.tsx > login e cadastro > CTW01 — credenciais erradas mostram mensagem genérica e reabilitam o botão 551ms
+ ✓ src/test/complementares.test.tsx > mural e meus eventos (campos novos da API) > Meus eventos mostra inscritos e vagas restantes 364ms
+ ✓ src/test/casos-frontend.test.tsx > CT58 — validação do formulário de cadastro > mostra mensagens nos campos e não envia a requisição 628ms
+ ✓ src/test/fluxos.test.tsx > login e cadastro > CTW02 — conta bloqueada (423) informa o bloqueio temporário 152ms
+ ✓ src/test/fluxos.test.tsx > login e cadastro > CTW03 — e-mail já cadastrado (409) aparece no campo e-mail 173ms
+ ✓ src/test/complementares.test.tsx > certificado nas minhas inscrições > CTW11 — com certificado disponível, baixa o PDF; sem, não mostra o botão 452ms
+ ✓ src/test/complementares.test.tsx > certificado nas minhas inscrições > CTW11 — erro ao gerar o certificado aparece no item 80ms
+ ✓ src/test/fluxos.test.tsx > login e cadastro > cadastro válido envia o telefone em E.164 e entra automaticamente 264ms
+ ✓ src/test/casos-frontend.test.tsx > CT59 — rota protegida > redireciona o visitante ao login e volta à rota após autenticar 793ms
+ ✓ src/test/casos-frontend.test.tsx > CT60 — renovação automática do token > renova o token expirado e repete a requisição sem perder a ação 47ms
+ ✓ src/test/fluxos.test.tsx > inscrição e pagamento > CTW04 — inscrição gratuita confirma e mostra o código de check-in 398ms
+ ✓ src/test/casos-frontend.test.tsx > CT60 — renovação automática do token > leva ao login quando a renovação falha 57ms
+ ✓ src/test/complementares.test.tsx > verificação do telefone > CTW14 — envia o código, bloqueia o reenvio por 60 s e confirma 471ms
+ ✓ src/test/fluxos.test.tsx > inscrição e pagamento > CTW05 — visitante é levado ao login e volta ao evento 168ms
+ ✓ src/test/fluxos.test.tsx > inscrição e pagamento > CTW08 — evento lotado desabilita a inscrição e explica o motivo 29ms
+ ✓ src/test/complementares.test.tsx > verificação do telefone > CTW14 — código errado aparece no campo e "aguarde" (429) inicia o contador 116ms
+ ✓ src/test/fluxos.test.tsx > inscrição e pagamento > CTW09 — organizador não vê o botão de inscrição, e sim a gestão 49ms
+ ✓ src/test/fluxos.test.tsx > inscrição e pagamento > CTW06/CTW07 — inscrição paga vai ao pagamento e o polling leva a Minhas inscrições ao aprovar 174ms
+ ✓ src/test/fluxos.test.tsx > inscrição e pagamento > CTW10 — cancelar a inscrição pede confirmação e informa o estorno 79ms
+ ✓ src/test/fluxos.test.tsx > inscrição e pagamento > CTW10 — fora do prazo (422) mostra a mensagem da API 68ms
+ ✓ src/test/fluxos.test.tsx > notificações e perfil > CTW12 — o sino mostra o número de não lidas 30ms
+ ✓ src/test/casos-frontend.test.tsx > CT61 — erros da API nos campos > mostra os erros 400 nos campos correspondentes 538ms
+ ✓ src/test/casos-frontend.test.tsx > CT62 — destaque de alteração no mural > exibe o selo "Alterado" no card do evento alterado nas últimas 72 horas 37ms
+ ✓ src/test/casos-frontend.test.tsx > CT63 — recarregar a página logado > chama E03 ao iniciar e restaura a sessão sem novo login 53ms
+ ✓ src/test/casos-frontend.test.tsx > CT63 — recarregar a página logado > envia o cabeçalho X-Requested-With exigido pela API em /auth/renovar 25ms
+ ✓ src/test/complementares.test.tsx > cancelar evento e denunciar > CTW20 — cancelar evento exige motivo e chama a API 498ms
+ ✓ src/test/complementares.test.tsx > cancelar evento e denunciar > CTW21 — denúncia exige motivo, descrição quando "Outro" e informa denúncia repetida 235ms
+ ✓ src/test/complementares.test.tsx > erros e estados de tela > CTW24 — erro 500 no mural mostra a mensagem e "Tentar novamente" recarrega 47ms
+ ✓ src/test/complementares.test.tsx > erros e estados de tela > CTW24 — falha de rede mostra a mensagem de conexão 24ms
+ ✓ src/test/fluxos.test.tsx > notificações e perfil > CTW13 — marcar todas como lidas chama a API 356ms
+ ✓ src/test/complementares.test.tsx > erros e estados de tela > CTW24 — 429 no login mostra o detalhe da API 116ms
+ ✓ src/test/complementares.test.tsx > erros e estados de tela > CTW25 — mostra "Carregando" e depois o estado vazio 70ms
+ ✓ src/test/complementares.test.tsx > erros e estados de tela > CTW25 — Minhas inscrições vazia oferece explorar eventos 30ms
+ ✓ src/test/complementares.test.tsx > falha inesperada na tela > o limite de erro mostra uma mensagem em vez da página em branco 7ms
  ✓ src/lib/lib.test.ts > formatadores > telefone: máscara e conversão de/para E.164 1ms
- ✓ src/lib/lib.test.ts > formatadores > selo "Alterado" vale por 72 horas (RN13) 0ms
- ✓ src/lib/lib.test.ts > formatadores > datas, horas e moeda em português do Brasil 10ms
+ ✓ src/lib/lib.test.ts > formatadores > selo "Alterado" vale por 72 horas (RN13) 1ms
+ ✓ src/lib/lib.test.ts > formatadores > datas, horas e moeda em português do Brasil 9ms
+ ✓ src/lib/lib.test.ts > formatadores > nome de arquivo sem acentos nem símbolos 0ms
  ✓ src/lib/lib.test.ts > formatadores > minutos restantes da reserva 0ms
  ✓ src/lib/lib.test.ts > mapearErro > usa o detail em 409/422 e preserva o código de negócio 1ms
  ✓ src/lib/lib.test.ts > mapearErro > devolve os erros por campo do 400 0ms
  ✓ src/lib/lib.test.ts > mapearErro > erro de rede vira SEM_CONEXAO 0ms
  ✓ src/lib/lib.test.ts > mapearErro > 500 não expõe detalhes internos 0ms
- ✓ src/test/fluxos.test.tsx > login e cadastro > CTW01 — credenciais erradas mostram mensagem genérica e reabilitam o botão 375ms
- ✓ src/test/casos-frontend.test.tsx > CT58 — validação do formulário de cadastro > mostra mensagens nos campos e não envia a requisição 481ms
- ✓ src/test/fluxos.test.tsx > login e cadastro > CTW02 — conta bloqueada (423) informa o bloqueio temporário 153ms
+ ✓ src/test/fluxos.test.tsx > notificações e perfil > salvar o perfil mostra a confirmação e atualiza o nome no cabeçalho 404ms
+ ✓ src/test/fluxos.test.tsx > notificações e perfil > CTW15 — o aceite de SMS fica desabilitado sem telefone verificado 49ms
+ ✓ src/test/fluxos.test.tsx > gestão do evento > CTW16 — o motivo da alteração só aparece em evento publicado quando um campo relevante muda 381ms
+ ✓ src/test/fluxos.test.tsx > gestão do evento > CTW17 — edição concorrente (412) oferece recarregar 88ms
  ✓ edge/proxy.test.ts > montarRequisicaoParaApi > mantém caminho, query e método, trocando só a origem 2ms
- ✓ edge/proxy.test.ts > montarRequisicaoParaApi > repassa Authorization, Cookie, Origin e X-Requested-With, mas não cabeçalhos de conexão 3ms
+ ✓ edge/proxy.test.ts > montarRequisicaoParaApi > repassa Authorization, Cookie, Origin e X-Requested-With, mas não cabeçalhos de conexão 2ms
  ✓ edge/proxy.test.ts > montarRequisicaoParaApi > define o IP do cliente a partir do cabeçalho da Cloudflare e ignora X-Forwarded-For enviado pelo cliente 1ms
  ✓ edge/proxy.test.ts > montarRequisicaoParaApi > sem IP da Cloudflare não repassa o X-Forwarded-For do cliente 1ms
  ✓ edge/proxy.test.ts > montarRequisicaoParaApi > mantém o corpo das requisições com payload 1ms
  ✓ edge/proxy.test.ts > repassarParaApi > repassa para a API e devolve a resposta (inclusive Set-Cookie) 2ms
  ✓ edge/proxy.test.ts > repassarParaApi > devolve 502 quando a API não responde 1ms
  ✓ edge/proxy.test.ts > repassarParaApi > devolve 500 claro quando API_ORIGIN não está configurada 1ms
- ✓ src/test/casos-frontend.test.tsx > CT59 — rota protegida > redireciona o visitante ao login e volta à rota após autenticar 211ms
- ✓ src/test/casos-frontend.test.tsx > CT60 — renovação automática do token > renova o token expirado e repete a requisição sem perder a ação 45ms
- ✓ src/test/casos-frontend.test.tsx > CT60 — renovação automática do token > leva ao login quando a renovação falha 38ms
- ✓ src/test/fluxos.test.tsx > login e cadastro > CTW03 — e-mail já cadastrado (409) aparece no campo e-mail 214ms
- ✓ src/test/fluxos.test.tsx > login e cadastro > cadastro válido envia o telefone em E.164 e entra automaticamente 233ms
- ✓ src/test/fluxos.test.tsx > inscrição e pagamento > CTW04 — inscrição gratuita confirma e mostra o código de check-in 83ms
- ✓ src/test/casos-frontend.test.tsx > CT61 — erros da API nos campos > mostra os erros 400 nos campos correspondentes 248ms
- ✓ src/test/casos-frontend.test.tsx > CT62 — destaque de alteração no mural > exibe o selo "Alterado" no card do evento alterado nas últimas 72 horas 35ms
- ✓ src/test/casos-frontend.test.tsx > CT63 — recarregar a página logado > chama E03 ao iniciar e restaura a sessão sem novo login 47ms
- ✓ src/test/casos-frontend.test.tsx > CT63 — recarregar a página logado > envia o cabeçalho X-Requested-With exigido pela API em /auth/renovar 23ms
- ✓ src/test/fluxos.test.tsx > inscrição e pagamento > CTW05 — visitante é levado ao login e volta ao evento 135ms
- ✓ src/test/fluxos.test.tsx > inscrição e pagamento > CTW08 — evento lotado desabilita a inscrição e explica o motivo 32ms
- ✓ src/test/fluxos.test.tsx > inscrição e pagamento > CTW09 — organizador não vê o botão de inscrição, e sim a gestão 56ms
- ✓ src/test/fluxos.test.tsx > inscrição e pagamento > CTW06/CTW07 — inscrição paga vai ao pagamento e o polling leva a Minhas inscrições ao aprovar 152ms
- ✓ src/test/fluxos.test.tsx > inscrição e pagamento > CTW10 — cancelar a inscrição pede confirmação e informa o estorno 70ms
- ✓ src/test/fluxos.test.tsx > inscrição e pagamento > CTW10 — fora do prazo (422) mostra a mensagem da API 61ms
- ✓ src/test/fluxos.test.tsx > notificações e perfil > CTW12 — o sino mostra o número de não lidas 32ms
- ✓ src/test/fluxos.test.tsx > notificações e perfil > CTW13 — marcar todas como lidas chama a API 48ms
- ✓ src/test/fluxos.test.tsx > notificações e perfil > salvar o perfil mostra a confirmação e atualiza o nome no cabeçalho 76ms
- ✓ src/test/fluxos.test.tsx > notificações e perfil > CTW15 — o aceite de SMS fica desabilitado sem telefone verificado 35ms
- ✓ src/test/fluxos.test.tsx > gestão do evento > CTW16 — o motivo da alteração só aparece em evento publicado quando um campo relevante muda 75ms
- ✓ src/test/fluxos.test.tsx > gestão do evento > CTW17 — edição concorrente (412) oferece recarregar 86ms
- ✓ src/test/fluxos.test.tsx > gestão do evento > CTW18 — colaborador vê inscritos e check-in, mas não cancelar nem gerenciar programação 52ms
- ✓ src/test/fluxos.test.tsx > gestão do evento > CTW19 — check-in converte o código para maiúsculas e trata erros da API 135ms
- ✓ src/test/fluxos.test.tsx > gestão do evento > código de check-in com tamanho errado é barrado no cliente 66ms
- ✓ src/test/fluxos.test.tsx > certificado público > CTW22 — valida um certificado sem login 24ms
- ✓ src/test/fluxos.test.tsx > certificado público > CTW22 — código desconhecido mostra "Certificado não encontrado" 23ms
- ✓ src/test/fluxos.test.tsx > certificado público > digitar o código leva à rota de validação 53ms
+ ✓ src/test/fluxos.test.tsx > gestão do evento > CTW18 — colaborador vê inscritos e check-in, mas não cancelar nem gerenciar programação 350ms
+ ✓ src/test/fluxos.test.tsx > gestão do evento > CTW19 — check-in converte o código para maiúsculas e trata erros da API 133ms
+ ✓ src/test/fluxos.test.tsx > gestão do evento > código de check-in com tamanho errado é barrado no cliente 68ms
+ ✓ src/test/fluxos.test.tsx > certificado público > CTW22 — valida um certificado sem login 25ms
+ ✓ src/test/fluxos.test.tsx > certificado público > CTW22 — código desconhecido mostra "Certificado não encontrado" 20ms
+ ✓ src/test/fluxos.test.tsx > certificado público > digitar o código leva à rota de validação 50ms
  ✓ src/test/fluxos.test.tsx > navegação > rota inexistente mostra a página 404 11ms
- ✓ src/test/fluxos.test.tsx > navegação > no mobile o menu hambúrguer abre e fecha a gaveta de navegação 40ms
+ ✓ src/test/fluxos.test.tsx > navegação > no mobile o menu hambúrguer abre e fecha a gaveta de navegação 39ms
 
- Test Files  4 passed (4)
-      Tests  49 passed (49)
-   Start at  15:58:26
-   Duration  3.37s (tests 51%, environment 32%, setup 11%, import 4%, transform 2%)
+ Test Files  5 passed (5)
+      Tests  64 passed (64)
+   Start at  17:52:29
+   Duration  5.10s (tests 70%, environment 20%, setup 6%, import 2%, transform 1%)
+
+    Isolate  5 workers spawned · ~605ms startup each (spawn + environment, per file)
+             at least ~403ms faster with isolate: false — reuses workers across files instead of one per file
 

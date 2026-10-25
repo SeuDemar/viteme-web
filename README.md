@@ -4,7 +4,7 @@ Frontend do **Viteme**: site que centraliza a divulgação, a inscrição e o ac
 
 SPA em **React + TypeScript (Vite)** que consome a API REST em [`SeuDemar/viteme-api`](https://github.com/SeuDemar/viteme-api) (ASP.NET Core, `/api/v1`). As telas seguem o protótipo do Figma (desktop e mobile) e a seção 5 da especificação técnica.
 
-> **Estado:** as 12 telas (T01–T12) estão implementadas e foram validadas contra a API real em Chromium (39 passos, [relatório](docs/validacao-api-real.md)); 49 testes automáticos passando (inclui CT58–CT63). Pendências e decisões em [`.claude/planning/`](.claude/planning/README.md).
+> **Estado:** as 12 telas (T01–T12) estão implementadas e foram validadas contra a API real em Chromium (39 passos, [relatório](docs/validacao-api-real.md)); 64 testes automáticos passando (inclui CT58–CT63 e os CTW). Pendências e decisões em [`.claude/planning/`](.claude/planning/README.md).
 
 ## Como executar
 
