@@ -35,7 +35,7 @@ Convenções: branch por funcionalidade + PR com revisão; commits pequenos com 
 
 ## W6 — Fechamento (Entrega 3)  ⏳ em aberto
 
-> **Feito:** CI (lint, tipos, testes e build), README com instruções, evidência dos testes, **validação ponta a ponta com a API real e o banco (39/39, [validacao-api-real.md](../../docs/validacao-api-real.md))**, roteiro Playwright em `e2e/`. **Guia de uso e roteiro da demonstração:** [docs/guia-de-uso.md](../../docs/guia-de-uso.md) (faltam o endereço e as contas de demonstração). **Falta:** CSP na hospedagem, dados de exemplo e um evento já encerrado para mostrar o certificado, hospedagem e teste do cookie entre sites diferentes, Firefox/Safari.
+> **Feito:** CI (lint, tipos, testes e build), README com instruções, evidência dos testes, **validação ponta a ponta com a API real e o banco (39/39, [validacao-api-real.md](../../docs/validacao-api-real.md))**, roteiro Playwright em `e2e/`. **Guia de uso e roteiro da demonstração:** [docs/guia-de-uso.md](../../docs/guia-de-uso.md) (faltam o endereço e as contas de demonstração). **Hospedagem:** Worker da Cloudflare com repasse da API e CSP implementados e testados localmente ([hospedagem-cloudflare.md](../../docs/hospedagem-cloudflare.md)). **Falta:** escolher e publicar a API (Render ou Azure), deploy real, dados de exemplo e um evento já encerrado para mostrar o certificado, hospedagem e teste do cookie entre sites diferentes, Firefox/Safari.
 - Rodar **todos** os testes e preencher [testes-execucao.md](testes-execucao.md); [bugs.md](bugs.md) completo.
 - ~~(Opcional) Playwright~~: feito como roteiro de validação (`npm run e2e`), mas fora do CI porque precisa de API e banco.
 - Responsividade e acessibilidade conferidas contra o Figma; CSP configurada na hospedagem.

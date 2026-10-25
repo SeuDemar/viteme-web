@@ -39,6 +39,10 @@ Cors__OrigemFrontend=http://localhost:5173
 | `VITE_API_URL` | URL base da API com o prefixo `/api/v1` |
 | `VITE_SIMULADOR_PAGAMENTO` | `true` mostra, na tela de pagamento, os botões que aprovam ou recusam a cobrança do gateway simulado. **Só para demonstração**; exige `Gateway__Stub__HabilitarSimulador=true` na API |
 
+### Publicação
+
+O site vai para um **Cloudflare Worker** que serve os arquivos e repassa `/api/*` para a API (Render ou Azure), sem precisar de domínio próprio: veja [docs/hospedagem-cloudflare.md](docs/hospedagem-cloudflare.md). Comandos: `npm run cf:dev` (teste local) e `npm run cf:deploy`.
+
 ### Sessão e cookie
 
 O token de acesso fica só em memória. O refresh token vai em cookie `HttpOnly; Secure; SameSite=None` definido pela API, então **a API precisa de HTTPS** em produção (Chrome e Firefox costumam aceitar cookies `Secure` também em `http://localhost`; Safari não). As chamadas a `/auth/*` enviam `withCredentials` e o cabeçalho `X-Requested-With: viteme-web`. Detalhes em [autenticacao.md](.claude/planning/autenticacao.md).

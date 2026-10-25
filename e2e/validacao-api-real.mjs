@@ -14,6 +14,8 @@ const sufixo = Date.now().toString(36)
 const emailA = `org-${sufixo}@exemplo.com`
 const emailB = `part-${sufixo}@exemplo.com`
 const SENHA = 'Senha123'
+// A API limita a 5 códigos de SMS por hora por telefone (D45): cada execução usa um número novo.
+const telefoneB = '449' + String(Math.floor(Math.random() * 1e8)).padStart(8, '0')
 
 const local = (min) => { const d = new Date(Date.now() + min * 60000); const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}` }
 const pg = { host: process.env.PGHOST ?? 'localhost', port: process.env.PGPORT ?? '5432', user: process.env.PGUSER ?? 'postgres', pass: process.env.PGPASSWORD ?? 'postgres', db: process.env.PGDATABASE ?? 'viteme_e2e' }
@@ -107,11 +109,11 @@ await passo('B: cadastro com telefone (E.164) e login automático', async () => 
   await rotulo(B, 'E-mail').fill(emailB)
   await rotulo(B, 'Senha').fill(SENHA)
   await rotulo(B, 'Confirmar senha').fill(SENHA)
-  await rotulo(B, 'Telefone (opcional)').fill('44999990000')
+  await rotulo(B, 'Telefone (opcional)').fill(telefoneB)
   await B.getByRole('button', { name: 'Criar conta' }).click()
   await ver(B, 'Participante E2E')
   const tel = sql(`select telefone from usuario where email='${emailB}'`)
-  if (tel !== '+5544999990000') throw new Error('telefone gravado: ' + tel)
+  if (tel !== `+55${telefoneB}`) throw new Error('telefone gravado: ' + tel)
 }, B)
 await passo('B: mural mostra os dois eventos; busca filtra por título', async () => {
   await B.goto(BASE + '/')

@@ -6,7 +6,7 @@ O Viteme reúne em um só lugar a divulgação, a inscrição e o acompanhamento
 
 | Item | Valor |
 |---|---|
-| Endereço do sistema | _a preencher quando a hospedagem estiver definida_ |
+| Endereço do sistema | _a preencher depois do deploy na Cloudflare_ (algo como `https://viteme-web.<conta>.workers.dev`) |
 | Documentação da API (Swagger) | _a preencher_ (`/swagger`, se habilitado) |
 | Organizador de demonstração | _a preencher_ (e-mail e senha) |
 | Participante de demonstração | _a preencher_ (e-mail e senha) |
@@ -96,4 +96,5 @@ O roteiro segue o fluxo pedido na Entrega 3. Use **duas janelas** (ou uma janela
 
 - Como subir a API, o banco e o frontend: [README](../README.md) e [validacao-api-real.md](validacao-api-real.md).
 - O roteiro automatizado (`npm run e2e`) executa, contra a API real, os passos 1 a 7 acima (no passo 6 ele encerra o evento direto no banco).
-- Pendências antes da demonstração: preencher os endereços e as contas da tabela do início, definir a hospedagem (HTTPS) e preparar os dados de exemplo e o evento já encerrado do passo 6.
+- Como publicar: [hospedagem-cloudflare.md](hospedagem-cloudflare.md). Se a API estiver em hospedagem gratuita, abra `/api/v1/saude` alguns minutos antes para ela acordar.
+- Pendências antes da demonstração: preencher os endereços e as contas da tabela do início, fazer o deploy e preparar os dados de exemplo e o evento já encerrado do passo 6.

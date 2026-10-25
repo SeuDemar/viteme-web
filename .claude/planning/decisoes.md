@@ -21,10 +21,12 @@ Prefixo **D-W** para não colidir com as decisões D01–D46 do backend.
 | D-W15 | Categorias oferecidas: Palestra, Workshop, Curso, Feira, Seminário e Outro (`src/lib/categorias.ts`). A API aceita qualquer texto até 60 caracteres | Os chips do Figma (Palestras, Workshops) precisam de valores estáveis (PW11) |
 | D-W16 | Dados do mural paginados em 12 itens com "Carregar mais" (`useInfiniteQuery`); busca com pausa de 350 ms e filtros na URL (`?busca=&categoria=&gratuitos=1`) | Links compartilháveis e menos chamadas |
 | D-W17 | Branch por funcionalidade + PR com revisão, e cada integrante commita com o próprio nome/e-mail (exigência de participação da Entrega 3) | Ver `entrega-3.md` do backend, seção 6 |
+| D-W18 | **Hospedagem do frontend: Cloudflare Worker com arquivos estáticos**, que também **repassa `/api/*` para a API** (`worker/index.ts`, `wrangler.jsonc`). A API fica em Render ou Azure (a decidir). `VITE_API_URL` fica vazio em produção (padrão `/api/v1`) | Equipe não tem domínio próprio: com o repasse, site e API têm o mesmo endereço, o cookie `SameSite=None` vira de primeiro nível (evita o bloqueio de cookies de terceiros) e o CORS deixa de ser necessário. Ver [hospedagem-cloudflare.md](../../docs/hospedagem-cloudflare.md) |
+| D-W19 | O site envia **CSP e outros cabeçalhos de segurança** pelo arquivo `public/_headers` (`script-src 'self'`, `connect-src 'self'`, `img-src` com https para imagens de eventos) | Resolve a pendência de CSP da W6; testado sem violações no roteiro ponta a ponta |
 
 ## Pontos em aberto
 
-1. **Hospedagem** do frontend (Vercel, Netlify, GitHub Pages, outra) e URL da API na demonstração. Com D-W03 não precisa ser o mesmo site, mas precisa ser HTTPS para o cookie `Secure`.
+1. ~~Hospedagem do frontend~~ — decidido em D-W18 (Cloudflare Worker + repasse). Resta escolher onde roda a API (Render ou Azure) e o endereço público.
 2. ~~Biblioteca de UI~~ — decidido em D-W12 (CSS próprio).
 3. **Cliente gerado do OpenAPI** (D-W07): na prática os tipos foram escritos à mão em `src/api/tipos.ts`, a partir dos DTOs da API. Avaliar a geração automática se o contrato mudar muito.
 4. **Imagem do evento (T10)**: a API aceita upload ou apenas URL? Conferir em `E12` antes de implementar o campo.
