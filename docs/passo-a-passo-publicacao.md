@@ -66,9 +66,22 @@ Você tem uma conta Microsoft, mas **sem assinatura**, e sem assinatura não dá
 2. Preencha os dados. Será pedido **telefone** (código por SMS) e **cartão de crédito** apenas para verificar a identidade. Em geral não há cobrança enquanto você não fizer *upgrade* para pagamento por uso: **não clique em "Upgrade"**.
 3. A conta gratuita costuma incluir um crédito inicial por 30 dias e serviços "sempre gratuitos". O plano que vamos usar (App Service F1) é gratuito. Confira as condições atuais na página.
 
-**Depois de criar a assinatura:**
+**Caminho C: você já tem uma assinatura de pagamento por uso (Pay-As-You-Go)**
+Isso acontece, por exemplo, quando a conta gratuita foi atualizada ("Upgrade"). Dá para seguir normalmente: o plano que vamos usar, **App Service F1 (Gratuito)**, custa R$ 0 em qualquer tipo de assinatura. A diferença é que **o Azure passa a cobrar no cartão qualquer recurso pago**, e o orçamento só **avisa**, não bloqueia. Por isso, neste caminho, siga à risca estas regras:
+
+1. **Só crie o que este roteiro manda**: um *Web App* no plano **Gratuito F1**. Nada de banco de dados do Azure, Application Insights, Front Door, Key Vault, máquinas virtuais etc. (O banco é o Supabase, o site é a Cloudflare.)
+2. Na tela de revisão antes de criar, o **custo estimado deve ser R$ 0 (ou US$ 0)**. Se mostrar qualquer outro valor, **não crie**: volte e confira o plano.
+3. Na aba **Monitoramento**, deixe **Application Insights = Não** (se aparecer ativado, desligue).
+4. **Nunca clique em "Escalar" (*Scale up*) nem troque o plano** do App Service depois de criado.
+5. Tudo dentro de **um único grupo de recursos** (`viteme-demo`), para poder apagar de uma vez.
+6. **Crie o orçamento de alerta antes** de criar o app (veja abaixo) e confira o e-mail de alerta.
+7. **Um dia depois de criar**, abra *Gerenciamento de Custos > Análise de custos* e confirme que o gasto está **zerado**. Repita depois da apresentação.
+8. **Ao terminar, apague o grupo de recursos** (passo 9).
+9. Se aparecer cobrança, **apague o grupo de recursos na hora** e depois investigue.
+
+**Depois de criar (ou localizar) a assinatura:**
 1. No portal (<https://portal.azure.com>), busque **Assinaturas** e confira que a sua aparece com estado **Ativa**.
-2. **Crie um alerta de custo** (proteção contra cobrança acidental): busque **Cost Management > Orçamentos > Adicionar**, valor baixo (por exemplo, 10), e configure o alerta por e-mail em 80%.
+2. **Crie um alerta de custo** (proteção contra cobrança acidental): busque **Cost Management > Orçamentos > Adicionar**, valor baixo (por exemplo, 10), com alertas por e-mail em 50%, 80% e 100%. Lembre que **o orçamento só avisa**; quem impede a cobrança é escolher o plano gratuito e apagar tudo no fim.
 
 **Pronto quando:** existe uma assinatura ativa e o orçamento de alerta foi criado.
 
@@ -92,6 +105,7 @@ Você tem uma conta Microsoft, mas **sem assinatura**, e sem assinatura não dá
    | Plano de preços | **Gratuito F1** (procure em *Explorar planos de preço* > *Desenvolvimento/Teste*). O custo estimado deve ser **R$ 0** |
 
    Se o **.NET 10 não aparecer** na lista, avise a equipe técnica antes de seguir: será preciso publicar de outra forma.
+   Antes de continuar, confira na aba **Monitoramento** que **Application Insights** está desativado.
 3. Aba **Implantação**: se existir a opção **Autenticação básica** (*Basic authentication*), deixe **Habilitada**: ela é necessária para baixar o perfil de publicação no passo 4. Se você não a vir, siga em frente; está no passo 4 como recuperar.
 4. Clique em **Examinar + criar** e depois **Criar**. Aguarde terminar e clique em **Ir para o recurso**.
 5. **Gere a chave secreta da API** (um texto aleatório longo). No Windows, abra o **PowerShell** e rode:
