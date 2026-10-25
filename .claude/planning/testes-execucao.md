@@ -1,6 +1,6 @@
 # Registro de execução dos testes
 
-Última execução: **2026-10-25**, `npm test` (Vitest 5, React Testing Library, MSW 3, jsdom): **41 testes em 3 arquivos, todos passando**. Evidência: [`docs/evidencias/vitest-2026-10-25.txt`](../../docs/evidencias/vitest-2026-10-25.txt). Lint (`eslint`), tipos (`tsc --noEmit`) e build (`vite build`) também passam. MSW roda com `onUnhandledFrame: 'error'`: qualquer chamada sem handler reprova o teste.
+Última execução: **2026-10-25**, `npm test` (Vitest 5, React Testing Library, MSW 3, jsdom): **49 testes em 4 arquivos, todos passando**. Evidência: [`docs/evidencias/vitest-2026-10-25.txt`](../../docs/evidencias/vitest-2026-10-25.txt). Lint (`eslint`), tipos (`tsc --noEmit`) e build (`vite build`) também passam. MSW roda com `onUnhandledFrame: 'error'`: qualquer chamada sem handler reprova o teste.
 
 ## Casos do PDF (CT58–CT63)
 
@@ -43,7 +43,7 @@
 | CTW24 | Erros 429, 500 e de rede | Parcial | `mapearErro` testado em `lib.test.ts`; falta teste de tela |
 | CTW25 | Estados carregando/vazio/erro | Pendente | Verificados só visualmente |
 
-Total de testes automáticos: **41** (com o teste de regressão do perfil). Também há testes unitários de formatadores e do mapeamento de erros (`src/lib/lib.test.ts`) e um teste do menu mobile.
+Total de testes automáticos: **49** (inclui o teste de regressão do perfil e 8 testes do repasse de `/api/*` em `edge/proxy.test.ts`). Também há testes unitários de formatadores e do mapeamento de erros (`src/lib/lib.test.ts`) e um teste do menu mobile.
 
 ## Validação ponta a ponta com a API real
 
