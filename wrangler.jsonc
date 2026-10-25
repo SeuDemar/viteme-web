@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "viteme-web",
+  // Projeto do Cloudflare Pages: publica o resultado do build (Vite) e as Functions de functions/.
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2025-10-01",
+  "vars": {
+    // Endereço da API (sem barra final). Troque aqui e faça um novo deploy.
+    "API_ORIGIN": "https://SUA-API.onrender.com"
+  }
+}

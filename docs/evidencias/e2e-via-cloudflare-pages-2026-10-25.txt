@@ -1,0 +1,41 @@
+PASSOU  A: cadastro cria a conta e entra automaticamente
+PASSOU  A: F5 restaura a sessão pelo cookie (SameSite=None + X-Requested-With)
+PASSOU  A: cria evento gratuito como rascunho (T10 → E12) e vai para a edição
+PASSOU  A: adiciona atividade à programação (E18)
+PASSOU  A: publica o evento gratuito (E14) e cai na gestão
+PASSOU  A: cria e publica evento pago de R$ 25,00
+PASSOU  B: cadastro com telefone (E.164) e login automático
+PASSOU  B: mural mostra os dois eventos; busca filtra por título
+PASSOU  B: inscrição gratuita confirma e mostra o código de check-in (E24 → T05)
+PASSOU  B: código de check-in tem 12 caracteres
+PASSOU  B: inscrição paga leva à tela de pagamento com R$ 25,00
+PASSOU  B: simular aprovação (webhook) confirma a inscrição e volta a T05
+PASSOU  A: gestão lista o inscrito (E27) sem telefone
+PASSOU  A: check-in com o código do participante (E28), repetir dá erro
+PASSOU  A: aba Inscritos mostra a presença registrada
+PASSOU  A: editar evento publicado exige motivo (RN13) e salva com ele (E13 + If-Match)
+PASSOU  A: salvar de novo na mesma tela usa a versão nova (sem 412)
+PASSOU  A: colaborador inexistente mostra erro no campo (E22)
+PASSOU  A: participante já inscrito não pode ser colaborador (422)
+PASSOU  A: aba Alterações lista o histórico (E17)
+PASSOU  B: mural mostra o selo "Alterado" no evento alterado
+PASSOU  B: detalhe mostra o motivo da alteração
+PASSOU  B: sino mostra notificações não lidas; página lista e marca como lidas
+PASSOU  B: verificar telefone com o código enviado por SMS (E07/E08) e ativar avisos (E09)
+PASSOU  B: salvar perfil com novo nome (E06)
+PASSOU  B: denunciar evento (E37), repetir mostra erro de denúncia existente
+PASSOU  B: cancelar a inscrição paga pede confirmação e informa o estorno (E26)
+PASSOU  banco: encerra o evento gratuito para liberar o certificado (RN21)
+PASSOU  B: baixa o certificado em PDF na aba Anteriores (E38)
+PASSOU  visitante: valida o certificado pelo código público (E39)
+PASSOU  B: filtros do mural por categoria e "Gratuitos"
+PASSOU  B: nova inscrição paga; simular recusa mostra aviso e permite tentar de novo (E29)
+PASSOU  B: "Continuar pagamento" em Minhas inscrições abre a tela de pagamento
+PASSOU  A: cancelar o evento pago (motivo + confirmação) cancela as inscrições (E15/RN14)
+PASSOU  mobile 390px: mural, menu hambúrguer e barra de abas inferior
+PASSOU  B: três abas abrindo juntas restauram a sessão sem derrubar o login (Web Locks)
+PASSOU  A: Sair encerra a sessão; F5 continua deslogado; cookie é removido (E04)
+PASSOU  A: rota protegida sem sessão vai ao login e volta depois de entrar
+PASSOU  A: login com senha errada mostra mensagem genérica
+=== resumo ===
+39 passaram; 0 falharam; total 39
