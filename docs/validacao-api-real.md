@@ -45,9 +45,9 @@ npm run e2e
 
 Console do navegador: somente os erros HTTP esperados (401 da restauração de um visitante, e 404/409/422 dos passos de erro); nenhum erro de JavaScript.
 
-## Repetição pelo Worker da Cloudflare
+## Repetição pelo Cloudflare Pages (local)
 
-O mesmo roteiro foi repetido com o frontend servido por `wrangler dev` em `http://localhost:8787`, que repassa `/api/*` para a API real (`Cors__OrigemFrontend=http://localhost:8787`, `Proxy__ConfiarEmCabecalhosEncaminhados=true`): **39 de 39**, com a política de segurança de conteúdo (CSP) ativa e **nenhuma violação** no console ([evidência](evidencias/e2e-via-worker-cloudflare-2026-10-25.txt)). Nesse arranjo o cookie de sessão é de primeiro nível. Veja [hospedagem-cloudflare.md](hospedagem-cloudflare.md). Uma repetição intermediária reprovou um passo por causa do limite da API de 5 códigos de SMS por hora por telefone (o roteiro reutilizava o mesmo número); o roteiro agora usa um telefone novo a cada execução.
+O mesmo roteiro foi repetido com o frontend servido por `wrangler pages dev` em `http://localhost:8787`, cuja Function repassa `/api/*` para a API real (`Cors__OrigemFrontend=http://localhost:8787`, `Proxy__ConfiarEmCabecalhosEncaminhados=true`): **39 de 39**, com a política de segurança de conteúdo (CSP) ativa e **nenhuma violação** no console ([evidência](evidencias/e2e-via-cloudflare-pages-2026-10-25.txt)). Nesse arranjo o cookie de sessão é de primeiro nível. Veja [hospedagem-cloudflare.md](hospedagem-cloudflare.md). Uma repetição intermediária reprovou um passo por causa do limite da API de 5 códigos de SMS por hora por telefone (o roteiro reutilizava o mesmo número); o roteiro agora usa um telefone novo a cada execução.
 
 ## Bugs encontrados e corrigidos
 
@@ -60,7 +60,7 @@ Os testes automáticos com a API simulada (MSW) não pegaram o bug 1: ele só ap
 
 ## Limites desta validação (o que ela **não** prova)
 
-- **Mesmo site:** frontend e API rodaram ambos em `localhost`, ou seja, no mesmo site. O cenário de **sites diferentes** com `SameSite=None` (e o bloqueio de cookies de terceiros de Safari, Firefox estrito e Chrome) **não** foi testado; a hospedagem escolhida (repasse pelo Worker) evita esse cenário. Segue como PW2 até confirmar em produção.
+- **Mesmo site:** frontend e API rodaram ambos em `localhost`, ou seja, no mesmo site. O cenário de **sites diferentes** com `SameSite=None` (e o bloqueio de cookies de terceiros de Safari, Firefox estrito e Chrome) **não** foi testado; a hospedagem escolhida (repasse pela Function do Pages) evita esse cenário. Segue como PW2 até confirmar em produção.
 - **HTTP:** foi `http://localhost`, não HTTPS. O Chromium aceita cookies `Secure` em `localhost`; Safari não. Em produção é HTTPS.
 - **Rate limiting desligado** para não atrapalhar o roteiro; os 429 não foram exercitados.
 - **Gateway e SMS são simulados** (stubs da API), como previsto na Entrega 3. O pagamento real (Asaas) e um provedor de SMS não foram testados.

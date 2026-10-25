@@ -12,8 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "node e2e/validacao-api-real.mjs e2e/saida",
-    "cf:dev": "npm run build && wrangler dev",
-    "cf:deploy": "npm run build && wrangler deploy"
+    "cf:dev": "npm run build && wrangler pages dev dist --port 8787",
+    "cf:deploy": "npm run build && wrangler pages deploy dist"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

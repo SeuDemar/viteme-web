@@ -41,7 +41,7 @@ Cors__OrigemFrontend=http://localhost:5173
 
 ### Publicação
 
-O site vai para um **Cloudflare Worker** que serve os arquivos e repassa `/api/*` para a API (Render ou Azure), sem precisar de domínio próprio: veja [docs/hospedagem-cloudflare.md](docs/hospedagem-cloudflare.md). Comandos: `npm run cf:dev` (teste local) e `npm run cf:deploy`.
+O site vai para o **Cloudflare Pages**, com uma Function que repassa `/api/*` para a API (Render ou Azure), sem precisar de domínio próprio: veja [docs/hospedagem-cloudflare.md](docs/hospedagem-cloudflare.md). Comandos: `npm run cf:dev` (teste local) e `npm run cf:deploy`.
 
 ### Sessão e cookie
 
