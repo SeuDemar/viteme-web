@@ -41,7 +41,7 @@ Cors__OrigemFrontend=http://localhost:5173
 
 ### Publicação
 
-**Passo a passo completo (Supabase + Azure + Cloudflare, sem domínio e sem custo): [docs/passo-a-passo-publicacao.md](docs/passo-a-passo-publicacao.md).** O site vai para o **Cloudflare Pages**, com uma Function que repassa `/api/*` para a API (Render ou Azure), sem precisar de domínio próprio: veja [docs/hospedagem-cloudflare.md](docs/hospedagem-cloudflare.md). Comandos: `npm run cf:dev` (teste local) e `npm run cf:deploy`.
+**Passo a passo completo (Supabase + Azure + Cloudflare, sem domínio e sem custo): [docs/passo-a-passo-publicacao.md](docs/passo-a-passo-publicacao.md).** O site vai para o **Cloudflare Pages**, com uma Function que repassa `/api/*` para a API (Azure), sem precisar de domínio próprio: veja [docs/hospedagem-cloudflare.md](docs/hospedagem-cloudflare.md). A publicação é automática a cada merge na `main`, e as variáveis (`API_ORIGIN` e outras) ficam no painel da Cloudflare. Teste local: `npm run cf:dev` (configure antes o `.dev.vars` a partir de `.dev.vars.example`).
 
 ### Sessão e cookie
 

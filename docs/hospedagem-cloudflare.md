@@ -7,7 +7,7 @@ Navegador ──► https://viteme-web.pages.dev ──┬─► arquivos do sit
                                               └─► /api/*  ──(Function do Pages)──►  API (Render, Azure…)  ──►  Supabase
 ```
 
-O frontend é publicado no **Cloudflare Pages** (projeto `viteme-web`, configurado em `wrangler.jsonc`). Uma **Function** (`functions/api/[[path]].ts`, que usa `edge/proxy.ts`) repassa tudo que começa com `/api/` para a API. Para o navegador, site e API têm o **mesmo endereço**. Isso evita dois problemas, sem precisar de domínio próprio:
+O frontend é publicado no **Cloudflare Pages** (projeto `viteme-web`, configurado **pelo painel** da Cloudflare; o repositório não tem `wrangler.jsonc`, de propósito). Uma **Function** (`functions/api/[[path]].ts`, que usa `edge/proxy.ts`) repassa tudo que começa com `/api/` para a API. Para o navegador, site e API têm o **mesmo endereço**. Isso evita dois problemas, sem precisar de domínio próprio:
 
 - **Cookie de sessão:** o cookie de renovação passa a ser de primeiro nível. Sem o repasse, site (`*.pages.dev`) e API ficariam em sites diferentes e navegadores com bloqueio de cookies de terceiros (Safari, Firefox estrito, Chrome) poderiam não enviá-lo, e o F5 desconectaria o usuário (pendência PW2).
 - **CORS:** deixa de ser necessário no dia a dia.
@@ -19,9 +19,9 @@ Também: `public/_headers` aplica uma **Content-Security-Policy** e outros cabe�
 ## Ordem sugerida (o endereço do site só existe depois do primeiro deploy)
 
 1. **Banco:** projeto no Supabase e esquema aplicado (veja o `docs/deploy.md` da API).
-2. **Frontend, primeiro deploy** (com um `API_ORIGIN` provisório): anote o endereço que a Cloudflare mostrar, em geral `https://viteme-web.pages.dev` (se o nome já existir, a Cloudflare acrescenta um sufixo).
+2. **Frontend, primeiro deploy** (com `API_ORIGIN` já definido no painel): anote o endereço que a Cloudflare mostrar, em geral `https://viteme-web.pages.dev` (se o nome já existir, a Cloudflare acrescenta um sufixo).
 3. **API:** publique com `Cors__OrigemFrontend` igual a esse endereço (sem barra final).
-4. **Frontend, ajuste final:** troque `API_ORIGIN` em `wrangler.jsonc` pelo endereço da API e faça o deploy de novo.
+4. **Frontend, ajuste final:** se o endereço da API mudar, troque `API_ORIGIN` no painel e refaça o deploy.
 5. Teste a sessão: entre, aperte F5 e confira que continua logado.
 
 ## Frontend no Cloudflare Pages
@@ -33,23 +33,15 @@ Também: `public/_headers` aplica uma **Content-Security-Policy** e outros cabe�
 | Repositório | `SeuDemar/viteme-web`, branch de produção (a que contém o código final) |
 | Comando de build | `npm run build` |
 | Pasta de saída | `dist` |
-| Variáveis de build | `VITE_SIMULADOR_PAGAMENTO=true` (somente para a demonstração; **é lida na hora do build**) e `NODE_VERSION=22` |
+| Variáveis (*Settings > Variables and Secrets*, ambiente *Production*) | `API_ORIGIN` = endereço da API, sem barra final (lida pela Function a cada requisição); `VITE_SIMULADOR_PAGAMENTO=true` (somente para a demonstração; **é lida na hora do build**) e `NODE_VERSION=22` |
 
-**Pela linha de comando:**
-
-```bash
-npm ci
-npx wrangler login
-VITE_SIMULADOR_PAGAMENTO=true npm run cf:deploy     # "true" só para a demonstração
-```
-
-O endereço da API (`API_ORIGIN`) fica em `wrangler.jsonc`. Como esse arquivo define a configuração do projeto, o painel pode não permitir editar a variável por lá; o caminho é alterar o arquivo e fazer commit. **Passo a passo completo, incluindo Supabase e Azure:** [passo-a-passo-publicacao.md](passo-a-passo-publicacao.md).
+**Variáveis só pelo painel (D-W21).** Se o repositório tivesse um `wrangler.jsonc`, a Cloudflare o trataria como fonte da verdade e o painel mostraria as variáveis como "gerenciadas pelo Wrangler", sem permitir editar. Por isso o arquivo não existe: build, pasta de saída e variáveis ficam no painel. Toda mudança de variável só vale numa **implantação nova** (*Deployments > Retry deployment*). **Passo a passo completo, incluindo Supabase e Azure:** [passo-a-passo-publicacao.md](passo-a-passo-publicacao.md).
 
 Os nomes exatos dos campos do painel mudam com o tempo: confira a documentação atual da Cloudflare.
 
 Atenção: os **deploys de pré-visualização** de outras branches têm endereços diferentes (algo como `abc123.viteme-web.pages.dev`). A API só aceita o endereço configurado em `Cors__OrigemFrontend`, então use o endereço de produção na demonstração.
 
-Teste local do mesmo arranjo: `npm run cf:dev` (sobe em `http://localhost:8787`). Para apontar para uma API local, acrescente `--binding API_ORIGIN=http://localhost:5092` ao comando do `wrangler pages dev`.
+Teste local do mesmo arranjo: copie `.dev.vars.example` para `.dev.vars` (fica fora do Git), ajuste `API_ORIGIN` e rode `npm run cf:dev` (sobe em `http://localhost:8787`).
 
 ## Configuração da API (variáveis de ambiente)
 

@@ -158,7 +158,7 @@ A publicação é feita pelo **Centro de Implantação** (*Deployment Center*) d
 ## Passo 5: site no Cloudflare Pages
 
 1. Entre em <https://dash.cloudflare.com> e crie uma conta gratuita.
-2. **Endereço da API no código do site:** o `API_ORIGIN` em `wrangler.jsonc` já aponta para `https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net` (o Azure acrescenta um sufixo aleatório e a região ao nome do app; o endereço aparece no fim do log de publicação no GitHub e na *Visão geral* do app, campo *Domínio padrão*). Se o app for recriado, troque esse valor (sem barra no final), faça o commit e o merge na `main` do `viteme-web`.
+2. **Endereço da API:** é `https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net` (o Azure acrescenta um sufixo aleatório e a região ao nome do app; o endereço aparece no fim do log de publicação no GitHub e na *Visão geral* do app, campo *Domínio padrão*). Ele vai na variável `API_ORIGIN`, **no painel da Cloudflare** (item 4). O repositório não tem `wrangler.jsonc` de propósito: se tivesse, o painel deixaria as variáveis só para leitura.
 3. Na Cloudflare: **Workers & Pages > Create > Pages > Connect to Git**. Autorize o GitHub e escolha o repositório `viteme-web`.
 4. Configurações de build:
 
@@ -168,7 +168,9 @@ A publicação é feita pelo **Centro de Implantação** (*Deployment Center*) d
    | Framework preset | *None* (ou *Vite*) |
    | Build command | `npm run build` |
    | Build output directory | `dist` |
-   | Variáveis de ambiente (build) | `VITE_SIMULADOR_PAGAMENTO` = `true` (**só para a demonstração**) e `NODE_VERSION` = `22` (o projeto precisa do Node 22; o arquivo `.nvmrc` do repositório também indica isso) |
+   | Variáveis de ambiente | `API_ORIGIN` = endereço da API do item 2 (tipo texto, **sem barra no final**); `VITE_SIMULADOR_PAGAMENTO` = `true` (**só para a demonstração**) e `NODE_VERSION` = `22` (o projeto precisa do Node 22; o arquivo `.nvmrc` do repositório também indica isso) |
+
+   Se o projeto já existe, as variáveis ficam em **Settings > Variables and Secrets** (ambiente *Production*). Depois de salvar, **refaça o deploy** (*Deployments >* último deploy *> Retry deployment*): variável nova só vale em implantação nova.
 
 5. **Save and Deploy**. Quando terminar, a Cloudflare mostra o endereço do site, algo como `https://viteme-web.pages.dev` (pode ter um sufixo se o nome já existir). **Anote.**
 
@@ -247,7 +249,9 @@ Se algo falhar, veja a tabela de problemas abaixo.
 | `/api/v1/eventos` dá erro de banco | Texto de conexão errado, senha errada ou tabelas não criadas | Confira o passo 1; teste a conexão; confirme o `schema.sql` |
 | Erro de certificado ao conectar no banco | Falta `Trust Server Certificate=true` | Acrescente ao texto de conexão |
 | O build do Pages falha com erro de versão do Node | Build usando um Node antigo | Defina `NODE_VERSION` = `22` nas variáveis de build e refaça o deploy |
-| O site abre, mas mostra erro **502 "API indisponível"** | API dormindo ou `API_ORIGIN` errado em `wrangler.jsonc` | Abra o `/saude` da API; confira `API_ORIGIN` (sem barra final) e faça novo deploy |
+| O site abre, mas mostra erro **502 "API indisponível"** | API dormindo ou `API_ORIGIN` errado no painel da Cloudflare | Abra o `/saude` da API; confira `API_ORIGIN` (sem barra final) e faça novo deploy |
+| `/api/v1/saude` no site responde **500 `API_ORIGIN_AUSENTE`** | `API_ORIGIN` não definido no painel, ou definido sem refazer o deploy | Defina em *Settings > Variables and Secrets* (Production) e use *Retry deployment* |
+| O painel diz que as variáveis são **gerenciadas pelo Wrangler** | Existe um `wrangler.jsonc` na branch publicada | Use a `main` atual (sem o arquivo) e refaça o deploy |
 | Login funciona, mas **F5 desconecta** ou aparece "403 requisição não permitida" | `Cors__OrigemFrontend` diferente do endereço do site | Copie o endereço exato do navegador, sem barra final |
 | O botão de simular pagamento não aparece | O site foi construído sem `VITE_SIMULADOR_PAGAMENTO=true` | Defina a variável de build na Cloudflare e faça novo deploy |
 | Simular pagamento dá erro | `Gateway__Stub__HabilitarSimulador` não está `true` na API | Ajuste no Azure e reinicie |
