@@ -6,7 +6,7 @@
  * endereço do site: o cookie passa a ser de primeiro nível e o CORS deixa de ser necessário.
  */
 export interface Env {
-  /** Endereço da API sem barra final, ex.: https://viteme-api.onrender.com (variável do projeto no Pages). */
+  /** Endereço da API sem barra final, ex.: https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net (variável do projeto no painel do Pages; local: .dev.vars). */
   API_ORIGIN?: string
 }
 

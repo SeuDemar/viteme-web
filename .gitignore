@@ -7,3 +7,4 @@ coverage
 e2e/saida
 e2e/saida-worker*
 .wrangler
+.dev.vars
