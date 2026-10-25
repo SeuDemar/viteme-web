@@ -33,7 +33,7 @@ Também: `public/_headers` aplica uma **Content-Security-Policy** e outros cabe�
 | Repositório | `SeuDemar/viteme-web`, branch de produção (a que contém o código final) |
 | Comando de build | `npm run build` |
 | Pasta de saída | `dist` |
-| Variável de build | `VITE_SIMULADOR_PAGAMENTO=true` (somente para a demonstração; **é lida na hora do build**) |
+| Variáveis de build | `VITE_SIMULADOR_PAGAMENTO=true` (somente para a demonstração; **é lida na hora do build**) e `NODE_VERSION=22` |
 
 **Pela linha de comando:**
 
@@ -43,7 +43,9 @@ npx wrangler login
 VITE_SIMULADOR_PAGAMENTO=true npm run cf:deploy     # "true" só para a demonstração
 ```
 
-O endereço da API (`API_ORIGIN`) fica em `wrangler.jsonc`. Como esse arquivo define a configuração do projeto, o painel pode não permitir editar a variável por lá; o caminho é alterar o arquivo e fazer commit. Os nomes exatos dos campos do painel mudam com o tempo: confira a documentação atual da Cloudflare.
+O endereço da API (`API_ORIGIN`) fica em `wrangler.jsonc`. Como esse arquivo define a configuração do projeto, o painel pode não permitir editar a variável por lá; o caminho é alterar o arquivo e fazer commit. **Passo a passo completo, incluindo Supabase e Azure:** [passo-a-passo-publicacao.md](passo-a-passo-publicacao.md).
+
+Os nomes exatos dos campos do painel mudam com o tempo: confira a documentação atual da Cloudflare.
 
 Atenção: os **deploys de pré-visualização** de outras branches têm endereços diferentes (algo como `abc123.viteme-web.pages.dev`). A API só aceita o endereço configurado em `Cors__OrigemFrontend`, então use o endereço de produção na demonstração.
 

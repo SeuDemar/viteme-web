@@ -96,5 +96,5 @@ O roteiro segue o fluxo pedido na Entrega 3. Use **duas janelas** (ou uma janela
 
 - Como subir a API, o banco e o frontend: [README](../README.md) e [validacao-api-real.md](validacao-api-real.md).
 - O roteiro automatizado (`npm run e2e`) executa, contra a API real, os passos 1 a 7 acima (no passo 6 ele encerra o evento direto no banco).
-- Como publicar: [hospedagem-cloudflare.md](hospedagem-cloudflare.md). Se a API estiver em hospedagem gratuita, abra `/api/v1/saude` alguns minutos antes para ela acordar.
+- Como publicar, do zero: [passo-a-passo-publicacao.md](passo-a-passo-publicacao.md) (visão técnica em [hospedagem-cloudflare.md](hospedagem-cloudflare.md)). Se a API estiver em hospedagem gratuita, abra `/api/v1/saude` alguns minutos antes para ela acordar.
 - Pendências antes da demonstração: preencher os endereços e as contas da tabela do início, fazer o deploy e preparar os dados de exemplo e o evento já encerrado do passo 6.
