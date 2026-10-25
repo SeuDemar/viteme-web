@@ -16,11 +16,16 @@ Prefixo **D-W** para não colidir com as decisões D01–D46 do backend.
 | D-W10 | Textos da interface em **português do Brasil**; datas exibidas no fuso do navegador (a API devolve UTC) e valores em BRL (`Intl.NumberFormat`) | API usa ISO 8601 UTC |
 | D-W11 | Acessibilidade mínima: rótulos em todos os campos, foco visível, navegação por teclado, contraste adequado, `aria-live` para erros e avisos | Banca e usabilidade |
 | D-W12 | Branch por funcionalidade + PR com revisão, e cada integrante commita com o próprio nome/e-mail (exigência de participação da Entrega 3) | Ver `entrega-3.md` do backend, seção 6 |
+| D-W12 | Estilos em **CSS próprio** (tokens como variáveis CSS, sem biblioteca de UI), seguindo as cores, o raio e a tipografia (Inter) do Figma | Poucas telas e visual simples; evita dependência e mantém o bundle pequeno |
+| D-W13 | Depois do cadastro o usuário **entra automaticamente** e volta para a página de origem | Menos um passo no fluxo; se o login automático falhar, vai ao login (resolve PW8) |
+| D-W14 | O token de acesso expira em 15 min; ao receber 401 em chamada autenticada, o cliente renova **uma vez** (compartilhada entre as chamadas e entre abas via Web Locks) e repete a requisição | CT60 e P40 da API |
+| D-W15 | Categorias oferecidas: Palestra, Workshop, Curso, Feira, Seminário e Outro (`src/lib/categorias.ts`). A API aceita qualquer texto até 60 caracteres | Os chips do Figma (Palestras, Workshops) precisam de valores estáveis (PW11) |
+| D-W16 | Dados do mural paginados em 12 itens com "Carregar mais" (`useInfiniteQuery`); busca com pausa de 350 ms e filtros na URL (`?busca=&categoria=&gratuitos=1`) | Links compartilháveis e menos chamadas |
 
 ## Pontos em aberto
 
 1. **Hospedagem** do frontend (Vercel, Netlify, GitHub Pages, outra) e URL da API na demonstração. Com D-W03 não precisa ser o mesmo site, mas precisa ser HTTPS para o cookie `Secure`.
-2. **Biblioteca de UI**: Tailwind, CSS Modules, MUI, shadcn/ui? Escolher depois de ver o Figma (PW1), para acompanhar o estilo do protótipo.
-3. **Cliente gerado do OpenAPI** (D-W07): qual gerador (`openapi-typescript`, `orval`). Decidir na etapa W0.
+2. ~~Biblioteca de UI~~ — decidido em D-W12 (CSS próprio).
+3. **Cliente gerado do OpenAPI** (D-W07): na prática os tipos foram escritos à mão em `src/api/tipos.ts`, a partir dos DTOs da API. Avaliar a geração automática se o contrato mudar muito.
 4. **Imagem do evento (T10)**: a API aceita upload ou apenas URL? Conferir em `E12` antes de implementar o campo.
 5. **Playwright** (ponta a ponta opcional): fazer ou não, conforme o tempo.

@@ -1,25 +1,27 @@
 # Telas (T01–T12)
 
-Fonte: PDF, Quadro 68 e Figura 4. Cada tela deve ser **conferida com o frame correspondente do Figma** (coluna "Figma" a preencher; ver [pendencias.md](pendencias.md), PW1). Todas precisam de versão **desktop e mobile**.
+Fonte: PDF, Quadro 68 e Figura 4, e o protótipo do Figma ("Viteme — Protótipo Acadêmico, Desktop e Mobile"), recebido como capturas de tela. A coluna **Figma** diz de que frame a tela veio e o que foi acrescentado além dele. Todas as telas funcionam em **desktop e mobile**.
 
 Estados obrigatórios em toda tela com consulta: carregando, vazio, erro com "Tentar novamente".
 
 ## Resumo
 
+Todas as telas abaixo estão **implementadas**. As divergências entre o Figma e a API estão em [pendencias.md](pendencias.md) (PW1, PW11, PW12).
+
 | Cód. | Tela | Rota | Acesso | Endpoints | Figma |
 |---|---|---|---|---|---|
-| T01 | Mural de eventos | `/` | Público | E10 | _a preencher_ |
-| T02 | Detalhe do evento | `/eventos/:id` | Público | E11, E17, E24, E32, E33, E37 | _a preencher_ |
-| T03 | Login | `/entrar` | Público | E02 | _a preencher_ |
-| T04 | Cadastro | `/cadastro` | Público | E01 | _a preencher_ |
-| T05 | Minhas inscrições | `/minhas-inscricoes` | Autenticado | E25, E26, E29, E38 | _a preencher_ |
-| T06 | Pagamento | `/inscricoes/:id/pagamento` | Autenticado | E29, E30 | _a preencher_ |
-| T07 | Notificações | `/notificacoes` | Autenticado | E34, E35, E36 | _a preencher_ |
-| T08 | Perfil e SMS | `/perfil` | Autenticado | E05–E09 | _a preencher_ |
-| T09 | Meus eventos | `/meus-eventos` | Autenticado | E16 | _a preencher_ |
-| T10 | Criar/editar evento | `/meus-eventos/novo`, `/meus-eventos/:id/editar` | Organizador | E12, E13, E14, E18–E20 | _a preencher_ |
-| T11 | Gestão do evento | `/meus-eventos/:id` | Org./colab. | E15, E17, E21–E23, E27, E28 | _a preencher_ |
-| T12 | Validar certificado | `/certificados/:codigo` | Público | E39 | _a preencher_ |
+| T01 | Mural de eventos | `/` | Público | E10 | Frame "Descubra eventos" (desktop e mobile). Acrescentado: filtros Cursos, Feiras e Gratuitos, selo Lotado, vagas, imagem, "Carregar mais", estados |
+| T02 | Detalhe do evento | `/eventos/:id` | Público | E11, E17, E24, E32, E33, E37 | Frame "Detalhes do evento" (desktop e mobile). Acrescentado: alterações recentes, organização, denúncia, "Deixar de acompanhar", estados por papel |
+| T03 | Login | `/entrar` | Público | E02 | Frame "Entrar na sua conta" (desktop e mobile) |
+| T04 | Cadastro | `/cadastro` | Público | E01 | Frame "Criar uma conta" (desktop e mobile) |
+| T05 | Minhas inscrições | `/minhas-inscricoes` | Autenticado | E25, E26, E29, E38 | Frame "Minhas inscrições" (desktop e mobile). Acrescentado: cancelar, certificado, comprovante em janela |
+| T06 | Pagamento | `/inscricoes/:id/pagamento` | Autenticado | E29, E30 | Frame "Pagamento" (desktop e mobile). Acrescentado: polling de 5 s, prazo da reserva, modo demonstração |
+| T07 | Notificações | `/notificacoes` | Autenticado | E34, E35, E36 | Frame "Notificações" (desktop e mobile). Acrescentado: filtro Não lidas, destaque das novas, data |
+| T08 | Perfil e SMS | `/perfil` | Autenticado | E05–E09 | Frame "Meu perfil" (desktop e mobile). Acrescentado: verificação do telefone com código e contador de 60 s |
+| T09 | Meus eventos | `/meus-eventos` | Autenticado | E16 | Frame "Meus eventos" (desktop e mobile). Acrescentado: filtro por papel, links Editar e Ver página pública |
+| T10 | Criar/editar evento | `/meus-eventos/novo`, `/meus-eventos/:id/editar` | Organizador | E12, E13, E14, E18–E20 | Frame "Criar evento" (desktop; sem mobile no Figma). Acrescentado: término, janela de inscrições, carga horária, imagem, programação, motivo da alteração |
+| T11 | Gestão do evento | `/meus-eventos/:id` | Org./colab. | E15, E17, E21–E23, E27, E28 | Frame "Gestão do evento" (desktop; sem mobile no Figma). Acrescentado: abas Alterações e Colaboradores completas, busca e paginação, cancelamento |
+| T12 | Validar certificado | `/certificados/:codigo` | Público | E39 | Frame "Validar certificado" (desktop; sem mobile no Figma) |
 
 ## Detalhes
 

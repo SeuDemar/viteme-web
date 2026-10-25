@@ -15,6 +15,8 @@ Fonte: PDF, seção 6 (Quadros 70, 71 e 80). Os casos CT01–CT57 são do backen
 
 ## 2. Casos do PDF (Quadro 80)
 
+> Todos implementados e passando em 2026-10-25; resultados em [testes-execucao.md](testes-execucao.md).
+
 | ID | Cenário | Entrada / pré-condição | Resultado esperado | Tipo | RN | Tela |
 |---|---|---|---|---|---|---|
 | CT58 | Validação do formulário de cadastro | Senha sem número e e-mail inválido | Mensagens nos campos; requisição não enviada | Erro | RN02 | T04 |
