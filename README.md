@@ -80,7 +80,7 @@ React 19, TypeScript, Vite, React Router, Axios, TanStack Query, React Hook Form
 
 ## Documentação
 
-Planejamento em [`.claude/planning/`](.claude/planning/README.md) (decisões, arquitetura, telas, fluxos, formulários, integração com a API, autenticação, testes, roadmap e pendências). Evidência dos testes em [`docs/evidencias/`](docs/evidencias/). A documentação final da entrega (guia de uso e roteiro de demonstração) ainda será escrita na etapa W6.
+Planejamento em [`.claude/planning/`](.claude/planning/README.md) (decisões, arquitetura, telas, fluxos, formulários, integração com a API, autenticação, testes, roadmap e pendências). Evidência dos testes em [`docs/evidencias/`](docs/evidencias/). **Guia de uso e roteiro da demonstração:** [docs/guia-de-uso.md](docs/guia-de-uso.md). Validação com a API real: [docs/validacao-api-real.md](docs/validacao-api-real.md). Falta preencher no guia o endereço do sistema e as contas de demonstração, quando a hospedagem estiver definida.
 
 ## Autores
 
