@@ -60,6 +60,8 @@ export interface EventoResumo {
   vagasRestantes: number | null
   imagemUrl: string | null
   alteradoRecentemente: boolean
+  /** Dentro do período de inscrições (não considera vagas). Opcional: versões antigas da API não devolvem. */
+  inscricoesAbertas?: boolean
 }
 
 export interface EventoMeu {
@@ -73,6 +75,10 @@ export interface EventoMeu {
   status: StatusEvento
   papel: PapelEvento
   imagemUrl: string | null
+  /** `null` = ilimitada. Opcionais: versões antigas da API não devolvem. */
+  capacidade?: number | null
+  /** Vagas ocupadas: confirmadas + pendentes com reserva válida. */
+  inscritos?: number
 }
 
 export interface Atividade {

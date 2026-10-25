@@ -23,8 +23,8 @@ Vá preenchendo esta tabela durante o roteiro. Vários passos usam valores de pa
 | Senha do banco | Passo 1 | |
 | Texto de conexão do banco | Passo 1 | |
 | Chave secreta da API (`Jwt__Chave`) | Passo 3 | |
-| Nome do app no Azure | Passo 3 | |
-| Endereço da API (`https://…azurewebsites.net`) | Passo 3 | |
+| Nome do app no Azure | Passo 3 | `viteme-api` |
+| Endereço da API (`https://…azurewebsites.net`) | Passo 3 | `https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net` |
 | Endereço do site (`https://…pages.dev`) | Passo 5 | |
 
 Você vai precisar também de: acesso de **administrador** aos repositórios `viteme-api` e `viteme-web` no GitHub (para criar segredos e conectar serviços) e, no computador, de um editor de texto.
@@ -34,7 +34,7 @@ Você vai precisar também de: acesso de **administrador** aos repositórios `vi
 ## Passo 1: banco de dados no Supabase
 
 1. Entre em <https://supabase.com> e crie uma conta (pode ser com o GitHub).
-2. **New project**: nome `viteme`, escolha uma **senha forte para o banco** (anote!) e a região mais próxima (por exemplo, *South America (São Paulo)*). Aguarde alguns minutos até o projeto ficar pronto.
+2. **New project**: nome `viteme`, escolha uma **senha forte para o banco** (anote!) e a região **mais próxima da API**. Como a API ficou em **West US 3** (Arizona), escolha **West US (North California)**: cada pedido ao site faz várias consultas ao banco, e com o banco em São Paulo cada consulta atravessaria o continente (a tela ficaria visivelmente lenta). Aguarde alguns minutos até o projeto ficar pronto.
 3. Pegue o **texto de conexão**: no projeto, clique em **Connect** (ou *Project Settings > Database*) e copie a conexão do tipo **Session pooler** (porta **5432**). Ela tem este formato:
 
    ```
@@ -66,9 +66,22 @@ Você tem uma conta Microsoft, mas **sem assinatura**, e sem assinatura não dá
 2. Preencha os dados. Será pedido **telefone** (código por SMS) e **cartão de crédito** apenas para verificar a identidade. Em geral não há cobrança enquanto você não fizer *upgrade* para pagamento por uso: **não clique em "Upgrade"**.
 3. A conta gratuita costuma incluir um crédito inicial por 30 dias e serviços "sempre gratuitos". O plano que vamos usar (App Service F1) é gratuito. Confira as condições atuais na página.
 
-**Depois de criar a assinatura:**
+**Caminho C: você já tem uma assinatura de pagamento por uso (Pay-As-You-Go)**
+Isso acontece, por exemplo, quando a conta gratuita foi atualizada ("Upgrade"). Dá para seguir normalmente: o plano que vamos usar, **App Service F1 (Gratuito)**, custa R$ 0 em qualquer tipo de assinatura. A diferença é que **o Azure passa a cobrar no cartão qualquer recurso pago**, e o orçamento só **avisa**, não bloqueia. Por isso, neste caminho, siga à risca estas regras:
+
+1. **Só crie o que este roteiro manda**: um *Web App* no plano **Gratuito F1**. Nada de banco de dados do Azure, Application Insights, Front Door, Key Vault, máquinas virtuais etc. (O banco é o Supabase, o site é a Cloudflare.)
+2. Na tela de revisão antes de criar, o **custo estimado deve ser R$ 0 (ou US$ 0)**. Se mostrar qualquer outro valor, **não crie**: volte e confira o plano.
+3. Na aba **Monitoramento**, deixe **Application Insights = Não** (se aparecer ativado, desligue).
+4. **Nunca clique em "Escalar" (*Scale up*) nem troque o plano** do App Service depois de criado.
+5. Tudo dentro de **um único grupo de recursos** (`viteme-demo`), para poder apagar de uma vez.
+6. **Crie o orçamento de alerta antes** de criar o app (veja abaixo) e confira o e-mail de alerta.
+7. **Um dia depois de criar**, abra *Gerenciamento de Custos > Análise de custos* e confirme que o gasto está **zerado**. Repita depois da apresentação.
+8. **Ao terminar, apague o grupo de recursos** (passo 9).
+9. Se aparecer cobrança, **apague o grupo de recursos na hora** e depois investigue.
+
+**Depois de criar (ou localizar) a assinatura:**
 1. No portal (<https://portal.azure.com>), busque **Assinaturas** e confira que a sua aparece com estado **Ativa**.
-2. **Crie um alerta de custo** (proteção contra cobrança acidental): busque **Cost Management > Orçamentos > Adicionar**, valor baixo (por exemplo, 10), e configure o alerta por e-mail em 80%.
+2. **Crie um alerta de custo** (proteção contra cobrança acidental): busque **Cost Management > Orçamentos > Adicionar**, valor baixo (por exemplo, 10), com alertas por e-mail em 50%, 80% e 100%. Lembre que **o orçamento só avisa**; quem impede a cobrança é escolher o plano gratuito e apagar tudo no fim.
 
 **Pronto quando:** existe uma assinatura ativa e o orçamento de alerta foi criado.
 
@@ -83,16 +96,17 @@ Você tem uma conta Microsoft, mas **sem assinatura**, e sem assinatura não dá
    |---|---|
    | Assinatura | a que você criou |
    | Grupo de recursos | **Criar novo**: `viteme-demo` (tudo fica aqui, o que facilita apagar depois) |
-   | Nome | algo único, por exemplo `viteme-api-<suas-iniciais>`. **Anote.** O endereço será `https://<nome>.azurewebsites.net` |
+   | Nome | por exemplo `viteme-api`. **Anote.** Com o "nome de host padrão exclusivo" ligado (padrão atual), o endereço fica `https://<nome>-<sufixo>.<região>.azurewebsites.net` |
    | Publicar | **Código** |
    | Pilha de runtime | **.NET 10 (LTS)** |
    | Sistema operacional | **Linux** |
-   | Região | uma próxima (Brasil Sul ou East US). Se o plano gratuito disser "sem cota", tente outra região |
+   | Região | **West US 3** foi a que aceitou o plano gratuito na nossa assinatura (Brasil Sul pediu cota). Se o plano gratuito disser "sem cota", tente outra região. Crie o banco do Supabase numa região próxima à escolhida aqui |
    | Plano do Linux | **Criar novo** |
    | Plano de preços | **Gratuito F1** (procure em *Explorar planos de preço* > *Desenvolvimento/Teste*). O custo estimado deve ser **R$ 0** |
 
    Se o **.NET 10 não aparecer** na lista, avise a equipe técnica antes de seguir: será preciso publicar de outra forma.
-3. Aba **Implantação**: se existir a opção **Autenticação básica** (*Basic authentication*), deixe **Habilitada**: ela é necessária para baixar o perfil de publicação no passo 4. Se você não a vir, siga em frente; está no passo 4 como recuperar.
+   Antes de continuar, confira na aba **Monitoramento** que **Application Insights** está desativado.
+3. Aba **Implantação**: pode deixar a implantação contínua desativada aqui; a ligação com o GitHub é feita no passo 4.
 4. Clique em **Examinar + criar** e depois **Criar**. Aguarde terminar e clique em **Ir para o recurso**.
 5. **Gere a chave secreta da API** (um texto aleatório longo). No Windows, abra o **PowerShell** e rode:
 
@@ -109,6 +123,7 @@ Você tem uma conta Microsoft, mas **sem assinatura**, e sem assinatura não dá
    | `ConnectionStrings__Default` | o texto de conexão do passo 1 |
    | `Jwt__Chave` | a chave do item 5 |
    | `Proxy__ConfiarEmCabecalhosEncaminhados` | `true` |
+   | `Proxy__SaltosConfiaveis` | `2` (o site repassa os pedidos pela Cloudflare; assim o limite de tentativas de login vale por pessoa, e não para todos juntos) |
    | `Gateway__Stub__HabilitarSimulador` | `true` (**só na demonstração**: habilita os botões de pagamento simulado) |
    | `Cors__OrigemFrontend` | por enquanto `https://exemplo.pages.dev` (você troca no passo 6) |
    | `Certificados__UrlValidacao` | por enquanto `https://exemplo.pages.dev/certificados` (troca no passo 6) |
@@ -123,18 +138,18 @@ Você tem uma conta Microsoft, mas **sem assinatura**, e sem assinatura não dá
 
 ## Passo 4: publicar a API (GitHub Actions)
 
-O repositório `viteme-api` já tem o workflow **"Publicar API no Azure"** (`.github/workflows/azure-api.yml`). Ele compila a API e envia para o App Service quando você aciona manualmente.
+A publicação é feita pelo **Centro de Implantação** (*Deployment Center*) do Azure, que liga o app ao GitHub com login sem senha (OIDC): não há perfil de publicação nem senha para copiar.
 
-1. **Baixe o perfil de publicação:** na *Visão geral* do app, clique em **Baixar perfil de publicação** (*Get publish profile*). Isso baixa um arquivo `.PublishSettings` (é um XML). Abra no editor de texto e copie **tudo**.
-   - Se o botão estiver desabilitado ou o arquivo não baixar, vá em **Configurações > Configuração > Configurações gerais** e ative **Credenciais de publicação de autenticação básica SCM** (*SCM Basic Auth Publishing Credentials*); salve e tente de novo.
-2. No GitHub, no repositório `viteme-api`: **Settings > Secrets and variables > Actions**.
-   - Aba **Secrets > New repository secret**: nome `AZURE_WEBAPP_PUBLISH_PROFILE`, valor = o XML copiado.
-   - Aba **Variables > New repository variable**: nome `AZURE_WEBAPP_NAME`, valor = o nome do app do passo 3 (só o nome, sem `https://`).
-3. **Deixe o workflow na branch principal.** O código atual está na branch `claude/wizardly-knuth-9ob62s`. O GitHub só lista o botão "Run workflow" para arquivos que estão na branch principal (`main`), então faça o merge dessa branch na `main` (abra um *Pull Request* e peça a revisão de outro integrante; isso também ajuda a mostrar a participação de cada um na Entrega 3).
-4. No GitHub: **Actions > Publicar API no Azure > Run workflow** (escolha a `main`). Leva alguns minutos; ao final deve ficar verde.
-5. **Teste a API:** abra no navegador `https://<nome>.azurewebsites.net/api/v1/saude`. Na **primeira vez demora** (o plano gratuito "acorda" o app) e deve responder `200`. Abra também `https://<nome>.azurewebsites.net/api/v1/eventos`: deve responder `{"itens":[],...}`.
+> **Situação atual (2026-10-25):** este passo **já foi feito**. O app `viteme-api` (grupo `viteme-demo`, plano F1, região **West US 3**) está ligado ao repositório `viteme-api`, e o workflow `.github/workflows/main_viteme-api.yml` foi ajustado para publicar **só depois que o CI passa** em um push na `main`, e apenas o projeto da API. Os itens abaixo servem para refazer a ligação do zero.
 
-   Se não responder: no portal do Azure, **Monitoramento > Fluxo de log** mostra o erro. Os mais comuns estão na tabela de problemas no fim deste documento.
+1. No portal, abra o app > **Implantação > Centro de Implantação**.
+2. **Origem: GitHub**. Autorize, escolha a organização, o repositório `viteme-api` e a branch `main`.
+3. Em **Tipo de autenticação**, escolha **Identidade atribuída pelo usuário** (OIDC). Salve. O Azure cria os segredos `AZUREAPPSERVICE_CLIENTID_…`, `…TENANTID_…` e `…SUBSCRIPTIONID_…` no repositório e grava um workflow `main_<nome-do-app>.yml` na `main`.
+4. **Reaplique os ajustes do workflow** (o Azure grava um arquivo genérico, que publica a cada push sem esperar o CI). Os ajustes estão descritos em `docs/deploy.md` (seção 7) do `viteme-api`: manter os nomes dos segredos que o Azure criou e trocar o resto pelo modelo do repositório.
+5. Para publicar à mão: **Actions > Publicar API no Azure (viteme-api) > Run workflow**.
+6. **Teste a API:** abra no navegador `https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net/api/v1/saude`. Na **primeira vez demora** (o plano gratuito "acorda" o app) e deve responder `200`. Abra também `https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net/api/v1/eventos`: deve responder `{"itens":[],...}`.
+
+   Se não responder: no portal do Azure, **Monitoramento > Fluxo de log** mostra o erro. **Sem as variáveis do passo 3.6 a API não inicia**: a publicação fica verde no GitHub, mas o endereço responde com erro. Os casos mais comuns estão na tabela de problemas no fim deste documento.
 
 **Pronto quando:** `/api/v1/saude` e `/api/v1/eventos` respondem no endereço do Azure.
 
@@ -143,7 +158,7 @@ O repositório `viteme-api` já tem o workflow **"Publicar API no Azure"** (`.gi
 ## Passo 5: site no Cloudflare Pages
 
 1. Entre em <https://dash.cloudflare.com> e crie uma conta gratuita.
-2. **Antes de conectar**, ajuste o endereço da API no código do site: no GitHub, abra `wrangler.jsonc` do repositório `viteme-web`, edite o valor de `API_ORIGIN` para o endereço da API do passo 3 (sem barra no final, por exemplo `"https://viteme-api-abc.azurewebsites.net"`) e faça o commit. Faça o merge da branch de trabalho na `main` do `viteme-web`, como no passo 4.3.
+2. **Endereço da API no código do site:** o `API_ORIGIN` em `wrangler.jsonc` já aponta para `https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net` (o Azure acrescenta um sufixo aleatório e a região ao nome do app; o endereço aparece no fim do log de publicação no GitHub e na *Visão geral* do app, campo *Domínio padrão*). Se o app for recriado, troque esse valor (sem barra no final), faça o commit e o merge na `main` do `viteme-web`.
 3. Na Cloudflare: **Workers & Pages > Create > Pages > Connect to Git**. Autorize o GitHub e escolha o repositório `viteme-web`.
 4. Configurações de build:
 
@@ -211,7 +226,7 @@ Se algo falhar, veja a tabela de problemas abaixo.
       ```
    5. Com o participante, abra **Minhas inscrições > Anteriores** e baixe o certificado. Guarde o código de validação impresso no PDF para mostrar a validação pública.
 5. **Ensaie** o roteiro do guia de uso inteiro uma vez.
-6. **No dia:** abra `https://<nome>.azurewebsites.net/api/v1/saude` uns 10 minutos antes, para a API acordar, e deixe a aba aberta.
+6. **No dia:** abra `https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net/api/v1/saude` uns 10 minutos antes, para a API acordar, e deixe a aba aberta.
 
 ---
 
@@ -237,7 +252,9 @@ Se algo falhar, veja a tabela de problemas abaixo.
 | O botão de simular pagamento não aparece | O site foi construído sem `VITE_SIMULADOR_PAGAMENTO=true` | Defina a variável de build na Cloudflare e faça novo deploy |
 | Simular pagamento dá erro | `Gateway__Stub__HabilitarSimulador` não está `true` na API | Ajuste no Azure e reinicie |
 | O "Run workflow" não aparece no GitHub | O arquivo do workflow não está na branch principal | Faça o merge na `main` |
-| O workflow falha em "Enviar para o App Service" | Perfil de publicação errado/expirado, ou nome do app errado | Baixe o perfil de novo; confira `AZURE_WEBAPP_NAME` |
+| A publicação não roda depois de um push | O workflow só publica quando o **CI** termina com sucesso em um push na `main` | Veja o CI em *Actions*; corrija e envie de novo, ou use *Run workflow* |
+| O workflow falha no login do Azure (`azure/login`) | Segredos `AZUREAPPSERVICE_…` apagados ou a ligação refeita com outros nomes | Refaça a ligação no Centro de Implantação (passo 4) e reaplique os ajustes do workflow |
+| Tentativas de login dão "Muitas requisições" (429) para várias pessoas ao mesmo tempo | Falta `Proxy__SaltosConfiaveis=2`: a API enxerga todos com o IP da Cloudflare | Adicione a variável no Azure e reinicie |
 | "Sem cota" ao criar o plano F1 | Região sem capacidade gratuita para a assinatura | Tente outra região |
 
 ## Para a equipe técnica

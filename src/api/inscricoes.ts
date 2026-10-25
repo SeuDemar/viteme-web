@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios'
 import { http } from './cliente'
 import type {
   CheckinResposta,
@@ -40,8 +41,20 @@ export const consultarPagamento = (inscricaoId: string) =>
 export const simularPagamento = (idTransacao: string, resultado: 'aprovar' | 'recusar' | 'expirar') =>
   http.post(`/simulador/pagamentos/${idTransacao}/${resultado}`).then((r) => r.data)
 
+/** Com `responseType: 'blob'` o ProblemDetails de erro também chega como Blob: converte de volta em JSON para `mapearErro`. */
+async function erroComCorpoLegivel(erro: unknown): Promise<never> {
+  if (isAxiosError(erro) && erro.response?.data instanceof Blob) {
+    try {
+      erro.response.data = JSON.parse(await erro.response.data.text())
+    } catch {
+      // Corpo que não é JSON: mapearErro usa a mensagem padrão do status.
+    }
+  }
+  throw erro
+}
+
 export async function baixarCertificado(inscricaoId: string, nomeArquivo = 'certificado-viteme.pdf') {
-  const { data } = await http.get<Blob>(`/inscricoes/${inscricaoId}/certificado`, { responseType: 'blob' })
+  const { data } = await http.get<Blob>(`/inscricoes/${inscricaoId}/certificado`, { responseType: 'blob' }).catch(erroComCorpoLegivel)
   const url = URL.createObjectURL(data)
   const link = document.createElement('a')
   link.href = url

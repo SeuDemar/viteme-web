@@ -88,3 +88,13 @@ export function minutosRestantes(ate: string, agora: Date = new Date()): number 
   const ms = new Date(ate).getTime() - agora.getTime()
   return ms > 0 ? Math.ceil(ms / 60_000) : null
 }
+
+/** Trecho seguro para nome de arquivo: sem acentos, minúsculo, só letras, números e hífens. */
+export function paraNomeDeArquivo(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}

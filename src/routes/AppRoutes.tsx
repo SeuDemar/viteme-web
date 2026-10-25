@@ -1,19 +1,22 @@
+import { lazy } from 'react'
 import { Link, Route, Routes } from 'react-router-dom'
 import { Layout } from '../components/Layout'
 import { useTitulo } from '../lib/formulario'
-import { CadastroPage } from '../features/auth/CadastroPage'
-import { LoginPage } from '../features/auth/LoginPage'
-import { DetalhePage } from '../features/eventos/DetalhePage'
 import { MuralPage } from '../features/eventos/MuralPage'
-import { ValidarCertificadoPage } from '../features/eventos/ValidarCertificadoPage'
-import { EventoFormPage } from '../features/gestao/EventoFormPage'
-import { GestaoEventoPage } from '../features/gestao/GestaoEventoPage'
-import { MeusEventosPage } from '../features/gestao/MeusEventosPage'
-import { MinhasInscricoesPage } from '../features/inscricoes/MinhasInscricoesPage'
-import { PagamentoPage } from '../features/inscricoes/PagamentoPage'
-import { NotificacoesPage } from '../features/notificacoes/NotificacoesPage'
-import { PerfilPage } from '../features/perfil/PerfilPage'
 import { RotaProtegida } from './RotaProtegida'
+
+// O mural (página inicial) vai no pacote principal; as demais telas são carregadas sob demanda.
+const CadastroPage = lazy(() => import('../features/auth/CadastroPage').then((m) => ({ default: m.CadastroPage })))
+const LoginPage = lazy(() => import('../features/auth/LoginPage').then((m) => ({ default: m.LoginPage })))
+const DetalhePage = lazy(() => import('../features/eventos/DetalhePage').then((m) => ({ default: m.DetalhePage })))
+const ValidarCertificadoPage = lazy(() => import('../features/eventos/ValidarCertificadoPage').then((m) => ({ default: m.ValidarCertificadoPage })))
+const EventoFormPage = lazy(() => import('../features/gestao/EventoFormPage').then((m) => ({ default: m.EventoFormPage })))
+const GestaoEventoPage = lazy(() => import('../features/gestao/GestaoEventoPage').then((m) => ({ default: m.GestaoEventoPage })))
+const MeusEventosPage = lazy(() => import('../features/gestao/MeusEventosPage').then((m) => ({ default: m.MeusEventosPage })))
+const MinhasInscricoesPage = lazy(() => import('../features/inscricoes/MinhasInscricoesPage').then((m) => ({ default: m.MinhasInscricoesPage })))
+const PagamentoPage = lazy(() => import('../features/inscricoes/PagamentoPage').then((m) => ({ default: m.PagamentoPage })))
+const NotificacoesPage = lazy(() => import('../features/notificacoes/NotificacoesPage').then((m) => ({ default: m.NotificacoesPage })))
+const PerfilPage = lazy(() => import('../features/perfil/PerfilPage').then((m) => ({ default: m.PerfilPage })))
 
 function NaoEncontrada() {
   useTitulo('Página não encontrada')

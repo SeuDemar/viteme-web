@@ -16,7 +16,7 @@ const EVENTO: Record<StatusEvento, [string, Tom]> = {
 }
 
 export function SeloStatusEvento({ status }: { status: StatusEvento }) {
-  const [texto, tom] = EVENTO[status]
+  const [texto, tom] = EVENTO[status] ?? [status, 'neutro']
   return <Selo tom={tom}>{texto}</Selo>
 }
 
@@ -28,7 +28,7 @@ const INSCRICAO: Record<StatusInscricao, [string, Tom]> = {
 }
 
 export function SeloStatusInscricao({ status }: { status: StatusInscricao }) {
-  const [texto, tom] = INSCRICAO[status]
+  const [texto, tom] = INSCRICAO[status] ?? [status, 'neutro']
   return <Selo tom={tom}>{texto}</Selo>
 }
 
@@ -41,6 +41,6 @@ const PAGAMENTO: Record<StatusPagamento, [string, Tom]> = {
 }
 
 export function SeloStatusPagamento({ status }: { status: StatusPagamento }) {
-  const [texto, tom] = PAGAMENTO[status]
+  const [texto, tom] = PAGAMENTO[status] ?? [status, 'neutro']
   return <Selo tom={tom}>{texto}</Selo>
 }

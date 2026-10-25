@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { listarNotificacoes } from '../api/notificacoes'
 import { useSessao } from '../features/auth/sessao'
+import { Carregando } from './Estados'
 import { Icone, type NomeIcone } from './Icone'
+import { LimiteDeErro } from './LimiteDeErro'
 
 const LINKS = [
   { para: '/', rotulo: 'Explorar eventos', fim: true },
@@ -111,13 +113,24 @@ function Cabecalho() {
 }
 
 export function Layout() {
+  const local = useLocation()
   return (
     <>
       <a className="pular-conteudo" href="#conteudo">
         Pular para o conteúdo
       </a>
       <Cabecalho />
-      <Outlet />
+      <LimiteDeErro key={local.pathname}>
+        <Suspense
+          fallback={
+            <main className="pagina" id="conteudo">
+              <Carregando />
+            </main>
+          }
+        >
+          <Outlet />
+        </Suspense>
+      </LimiteDeErro>
       <nav className="barra-abas" aria-label="Navegação rápida">
         {ABAS.map((a) => (
           <NavLink key={a.para} to={a.para} end={a.fim} className="barra-abas__link">

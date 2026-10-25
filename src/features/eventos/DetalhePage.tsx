@@ -30,9 +30,9 @@ function motivoFechado(e: EventoDetalhe, agora = new Date()) {
   if (e.status === 'CANCELADO') return 'Evento cancelado'
   if (e.status === 'ENCERRADO') return 'Evento encerrado'
   if (e.status !== 'PUBLICADO') return 'Inscrições indisponíveis'
-  if (e.vagasRestantes === 0) return 'Evento lotado'
   if (agora < new Date(e.inscricaoInicio)) return `Inscrições a partir de ${dataEHora(e.inscricaoInicio)}`
   if (agora > new Date(e.inscricaoFim)) return 'Inscrições encerradas'
+  if (e.vagasRestantes === 0) return 'Evento lotado'
   return null
 }
 
