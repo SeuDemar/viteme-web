@@ -6,7 +6,7 @@ O Viteme reúne em um só lugar a divulgação, a inscrição e o acompanhamento
 
 | Item | Valor |
 |---|---|
-| Endereço do sistema | _a preencher depois do deploy na Cloudflare_ (algo como `https://viteme-web.pages.dev`) |
+| Endereço do sistema | <https://viteme-web.pages.dev> |
 | Documentação da API (Swagger) | _a preencher_ (`/swagger`, se habilitado) |
 | Organizador de demonstração | _a preencher_ (e-mail e senha) |
 | Participante de demonstração | _a preencher_ (e-mail e senha) |

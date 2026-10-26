@@ -43,7 +43,7 @@ Você vai precisar também de: acesso de **administrador** aos repositórios `vi
 
    Pontos importantes:
    - Use o **Session pooler (porta 5432)**, não o *Transaction pooler* (porta 6543): a API usa transações que ele não suporta.
-   - Prefira o pooler à "Direct connection": a conexão direta do Supabase costuma usar apenas IPv6, e o Azure pode não conseguir alcançá-la.
+   - **Não use a "Direct connection"** (`db.<id>.supabase.co`): ela só tem IPv6 e o App Service não sai por IPv6. O sintoma no *Fluxo de log* é `Failed to connect to [2600:...]:5432` com `Cannot assign requested address`.
    - `Trust Server Certificate=true` evita erro de certificado ao conectar; se tudo conectar sem ele, pode remover.
    - Troque `<SUA-SENHA>` pela senha do passo 2. Se a senha tiver caracteres como `;` ou `=`, troque por uma senha só com letras e números.
 4. **Crie as tabelas:** no menu do Supabase abra o **SQL Editor > New query**. Abra, no GitHub, o arquivo `docs/banco/schema.sql` do repositório `viteme-api`, copie **todo** o conteúdo, cole no editor e clique em **Run**. Deve terminar sem erro. Confira em **Table Editor**: devem existir cerca de 14 tabelas (`usuario`, `evento`, `inscricao`…).
@@ -248,6 +248,7 @@ Se algo falhar, veja a tabela de problemas abaixo.
 | O endereço da API mostra a **página padrão do Azure** ("Your web app is running and waiting for your content") e o *Fluxo de log* avisa *"found 2 '.runtimeconfig.json'"* | Sobras de uma publicação antiga na pasta do app (`Viteme.Tests.runtimeconfig.json`) | O workflow da `main` do `viteme-api` limpa a pasta e fixa `dotnet Viteme.Api.dll`: rode *Publicar API no Azure > Run workflow*. Na hora, dá para pôr `dotnet Viteme.Api.dll` em *Configurações > Configuração > Comando de inicialização* |
 | API sobe e cai (erro 500.30, ou "Application Error") | Falta `Jwt__Chave` ou `ConnectionStrings__Default`, ou a chave tem menos de 32 caracteres | Confira as variáveis no passo 3.6 e o *Fluxo de log* |
 | `/api/v1/eventos` dá erro de banco | Texto de conexão errado, senha errada ou tabelas não criadas | Confira o passo 1; teste a conexão; confirme o `schema.sql` |
+| *Fluxo de log* mostra `Failed to connect to [2600:...]:5432` / `Cannot assign requested address` | `ConnectionStrings__Default` usa a conexão direta (`db.<id>.supabase.co`, só IPv6) | Troque pelo **Session pooler** (`...pooler.supabase.com`, porta 5432, usuário `postgres.<id>`) e reinicie o app |
 | Erro de certificado ao conectar no banco | Falta `Trust Server Certificate=true` | Acrescente ao texto de conexão |
 | O build do Pages falha com erro de versão do Node | Build usando um Node antigo | Defina `NODE_VERSION` = `22` nas variáveis de build e refaça o deploy |
 | O site abre, mas mostra erro **502 "API indisponível"** | API dormindo ou `API_ORIGIN` errado no painel da Cloudflare | Abra o `/saude` da API; confira `API_ORIGIN` (sem barra final) e faça novo deploy |
