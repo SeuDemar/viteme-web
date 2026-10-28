@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { obterPerfil } from '../../api/auth'
 import { atualizarAtividade, atualizarEvento, criarAtividade, criarEvento, obterEvento, publicarEvento, removerAtividade } from '../../api/eventos'
 import type { Atividade, EventoDetalhe } from '../../api/tipos'
 import { Campo } from '../../components/Campo'
@@ -407,6 +408,28 @@ function Formulario({ inicial, versao, eventoId }: { inicial?: EventoDetalhe; ve
   )
 }
 
+/** RN24: sem CNPJ verificado a API recusa a criação (403); avisamos antes de a pessoa preencher o formulário. */
+function NovoEvento() {
+  const perfil = useQuery({ queryKey: ['perfil'], queryFn: obterPerfil })
+
+  if (perfil.isPending) return <Carregando />
+  if (perfil.isError) return <Erro erro={mapearErro(perfil.error)} aoTentarNovamente={() => perfil.refetch()} />
+  if (!perfil.data.podeOrganizar) {
+    return (
+      <section className="cartao" aria-label="CNPJ necessário">
+        <h2 className="cartao__titulo">Cadastre um CNPJ para criar eventos</h2>
+        <p className="cartao__meta">
+          Só organizações com CNPJ ativo (centro acadêmico, atlética, empresa ou MEI) criam eventos no Viteme. O CNPJ é verificado uma única vez, no seu perfil.
+        </p>
+        <Link to="/perfil#cnpj" className="botao espaco-topo">
+          Cadastrar CNPJ
+        </Link>
+      </section>
+    )
+  }
+  return <Formulario key="novo" versao={null} />
+}
+
 export function EventoFormPage() {
   const { id } = useParams()
   useTitulo(id ? 'Editar evento' : 'Criar evento')
@@ -420,7 +443,7 @@ export function EventoFormPage() {
       </div>
       <div className="espaco-topo">
         {!id ? (
-          <Formulario key="novo" versao={null} />
+          <NovoEvento />
         ) : consulta.isPending ? (
           <Carregando />
         ) : consulta.isError ? (

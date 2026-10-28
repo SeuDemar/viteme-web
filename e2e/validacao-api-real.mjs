@@ -16,6 +16,15 @@ const emailB = `part-${sufixo}@exemplo.com`
 const SENHA = 'Senha123'
 // A API limita a 5 códigos de SMS por hora por telefone (D45): cada execução usa um número novo.
 const telefoneB = '449' + String(Math.floor(Math.random() * 1e8)).padStart(8, '0')
+// CNPJ do organizador (RN24): único por conta, então um novo a cada execução. A API precisa alcançar a BrasilAPI
+// ou rodar com Cnpj__UsarStub=true (aceita qualquer CNPJ com dígitos válidos).
+const cnpjA = (() => {
+  const d = Array.from({ length: 12 }, () => Math.floor(Math.random() * 10))
+  const dv = (pesos) => { const r = pesos.reduce((s, p, i) => s + d[i] * p, 0) % 11; return r < 2 ? 0 : 11 - r }
+  d.push(dv([5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]))
+  d.push(dv([6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]))
+  return d.join('')
+})()
 
 const local = (min) => { const d = new Date(Date.now() + min * 60000); const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}` }
 const pg = { host: process.env.PGHOST ?? 'localhost', port: process.env.PGPORT ?? '5432', user: process.env.PGUSER ?? 'postgres', pass: process.env.PGPASSWORD ?? 'postgres', db: process.env.PGDATABASE ?? 'viteme_e2e' }
@@ -64,6 +73,23 @@ await passo('A: F5 restaura a sessão pelo cookie (SameSite=None + X-Requested-W
   const c = cookies.find((x) => x.name === 'refresh_token')
   if (!c) throw new Error('cookie refresh_token não existe')
   if (!(c.httpOnly && c.secure && c.sameSite === 'None')) throw new Error('flags do cookie: ' + JSON.stringify(c))
+}, A)
+
+await passo('A: sem CNPJ, "Criar evento" pede o cadastro do CNPJ (RN24)', async () => {
+  await A.goto(BASE + '/meus-eventos/novo')
+  await ver(A, 'Cadastre um CNPJ para criar eventos')
+  if (await A.getByLabel('Título do evento').count()) throw new Error('formulário apareceu sem CNPJ')
+}, A)
+
+await passo('A: cadastra o CNPJ no perfil (E40) e passa a poder organizar', async () => {
+  await A.getByRole('link', { name: 'Cadastrar CNPJ' }).click()
+  await A.waitForURL(/\/perfil/, { timeout: 10000 })
+  const secao = A.getByRole('region', { name: 'Dados de organizador' })
+  await secao.getByLabel('CNPJ').fill(cnpjA)
+  await secao.getByRole('button', { name: 'Verificar CNPJ' }).click()
+  await secao.getByText('CNPJ verificado. Você já pode criar eventos.').waitFor({ timeout: 10000 })
+  const gravado = sql(`select cnpj from usuario where email = '${emailA}'`)
+  if (gravado !== cnpjA) throw new Error('CNPJ no banco: ' + gravado)
 }, A)
 
 const criarEvento = async (titulo, preco, inicioMin, fimInscMin) => {
@@ -239,7 +265,7 @@ await passo('B: verificar telefone com o código enviado por SMS (E07/E08) e ati
   await B.getByRole('button', { name: 'Confirmar código' }).click()
   await ver(B, 'Telefone verificado')
   await B.getByRole('button', { name: 'Ativar avisos por SMS' }).click()
-  await B.getByText('ATIVO').waitFor({ timeout: 8000 })
+  await B.getByText('ATIVO', { exact: true }).waitFor({ timeout: 8000 })
   const r = sql(`select telefone_verificado, aceita_sms from usuario where email='${emailB}'`)
   if (r !== 't|t') throw new Error('estado no banco: ' + r)
 }, B)

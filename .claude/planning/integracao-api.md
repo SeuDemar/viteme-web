@@ -60,6 +60,7 @@ Códigos que mudam o comportamento da interface:
 | E05/E06 `GET/PUT /usuarios/me` | T08 | |
 | E07/E08 `POST /usuarios/me/telefone/codigo`, `/verificar` | T08 | Contador de 60 s |
 | E09 `PUT /usuarios/me/preferencias-sms` | T08 | |
+| E40 `PUT /usuarios/me/cnpj` | T08 | CNPJ do organizador (RN24). E05 traz `podeOrganizar`, que T10 usa para liberar a criação |
 | E10 `GET /eventos` | T01 | Filtros e paginação |
 | E11 `GET /eventos/{id}` | T02, T10, T11 | Devolve ETag |
 | E12 `POST /eventos` | T10 | |
