@@ -57,6 +57,11 @@ Cobrem o restante dos fluxos e regras de interface. Numeração própria para n�
 | CTW23 | Falha na renovação do token | Sessão limpa e redirecionamento ao login | Todas | Alta |
 | CTW24 | Erros 429, 500 e de rede | Mensagem adequada e "Tentar novamente" | Todas | Baixa |
 | CTW25 | Estados de consulta | Carregando, vazio e erro em T01, T05, T07, T09 | Várias | Média |
+| CTW26 | Criar evento sem CNPJ | T10 pede o CNPJ e não mostra o formulário | T10 | Alta |
+| CTW27 | Cadastrar CNPJ | Máscara, envio e razão social verificada | T08 | Alta |
+| CTW28 | CNPJ com dígito errado | Erro no campo, sem chamar a API | T08 | Média |
+| CTW29 | CNPJ inativo (422) | Mostra o motivo devolvido pela API | T08 | Média |
+| CTW30 | Publicar sem CNPJ (403) | Mostra a orientação da API, não o 403 genérico | T10 | Média |
 
 ## 4. Rastreabilidade (frontend)
 

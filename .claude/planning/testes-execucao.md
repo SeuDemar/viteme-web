@@ -1,6 +1,6 @@
 # Registro de execução dos testes
 
-Última execução: **2026-10-25**, `npm test` (Vitest 5, React Testing Library, MSW 3, jsdom): **64 testes em 5 arquivos, todos passando**. Evidência: [`docs/evidencias/vitest-2026-10-25.txt`](../../docs/evidencias/vitest-2026-10-25.txt). Lint (`eslint`), tipos (`tsc --noEmit`) e build (`vite build`) também passam. MSW roda com `onUnhandledFrame: 'error'`: qualquer chamada sem handler reprova o teste.
+Última execução: **2026-10-28**, `npm test` (Vitest 5, React Testing Library, MSW 3, jsdom): **71 testes em 5 arquivos, todos passando** (+7 do CNPJ do organizador). Evidência: [`docs/evidencias/vitest-2026-10-28.txt`](../../docs/evidencias/vitest-2026-10-28.txt). Execução anterior (64 testes): [`vitest-2026-10-25.txt`](../../docs/evidencias/vitest-2026-10-25.txt). Lint (`eslint`), tipos (`tsc --noEmit`) e build (`vite build`) também passam. MSW roda com `onUnhandledFrame: 'error'`: qualquer chamada sem handler reprova o teste.
 
 ## Casos do PDF (CT58–CT63)
 
@@ -42,10 +42,17 @@
 | CTW21 | Denunciar evento | Passou | Motivo obrigatório, descrição obrigatória em "Outro", 409 de denúncia repetida |
 | CTW24 | Erros 429, 500 e de rede | Passou | 500 com "Tentar novamente", falha de rede e 429 no login |
 | CTW25 | Estados carregando/vazio/erro | Passou | Carregando → vazio no mural; vazio em Minhas inscrições; limite de erro (tela que falha não deixa a página em branco) |
+| CTW26 | Criar evento sem CNPJ | Passou | `fluxos.test.tsx`; também no roteiro com a API real |
+| CTW27 | Cadastrar CNPJ | Passou | Corpo enviado com máscara; razão social e selo "CNPJ verificado" |
+| CTW28 | CNPJ com dígito errado | Passou | Nenhuma requisição enviada |
+| CTW29 | CNPJ inativo (422) | Passou | Texto da API no alerta; selo continua "Sem CNPJ" |
+| CTW30 | Publicar sem CNPJ (403) | Passou | Mensagem `CNPJ_NAO_VERIFICADO` da API |
 
 Total de testes automáticos: **64** (inclui os campos `inscricoesAbertas`, `capacidade` e `inscritos` da API, o teste de regressão do perfil e 8 testes do repasse de `/api/*` em `edge/proxy.test.ts`). Também há testes unitários de formatadores e do mapeamento de erros (`src/lib/lib.test.ts`) e um teste do menu mobile.
 
 ## Validação ponta a ponta com a API real
+
+2026-10-28: **41 de 41 passos aprovados**, agora com os passos do CNPJ do organizador (T10 sem CNPJ pede o cadastro; cadastro em T08 gravado no banco). A API rodou com `Cnpj__UsarStub=true` porque a sessão de desenvolvimento não alcança a BrasilAPI. Evidência: [`docs/evidencias/e2e-api-real-2026-10-28.txt`](../../docs/evidencias/e2e-api-real-2026-10-28.txt).
 
 2026-10-25: **39 de 39 passos aprovados** (duas execuções seguidas) com Chromium, a API ASP.NET Core real e PostgreSQL 16. Cobre sessão com cookie `SameSite=None`, F5, três abas simultâneas, criação e publicação de evento, inscrição gratuita e paga (com webhook simulado), check-in, alteração com motivo, notificações, verificação de telefone por SMS simulado, certificado em PDF e validação pública, e o layout mobile. Detalhes, bugs achados e **limites** (mesmo site, HTTP, rate limiting desligado, gateway e SMS simulados) em [validacao-api-real.md](../../docs/validacao-api-real.md). Evidência: [`e2e-api-real-2026-10-25.txt`](../../docs/evidencias/e2e-api-real-2026-10-25.txt).
 
