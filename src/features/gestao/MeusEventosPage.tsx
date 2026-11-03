@@ -6,6 +6,7 @@ import type { EventoMeu, PapelEvento } from '../../api/tipos'
 import { Carregando, Erro, Vazio } from '../../components/Estados'
 import { SeloStatusEvento } from '../../components/Selo'
 import { dataCurta } from '../../lib/formatar'
+import { Icone } from '../../components/Icone'
 import { mapearErro } from '../../lib/erros'
 import { useTitulo } from '../../lib/formulario'
 
@@ -71,7 +72,8 @@ export function MeusEventosPage() {
       <div className="linha linha--entre">
         <h1 className="pagina__titulo">Meus eventos</h1>
         <Link to="/meus-eventos/novo" className="botao">
-          + Novo evento
+          <Icone nome="mais" tamanho={18} />
+          Novo evento
         </Link>
       </div>
 

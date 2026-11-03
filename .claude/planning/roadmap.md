@@ -46,6 +46,7 @@ Convenções: branch por funcionalidade + PR com revisão; commits pequenos com 
 ## W7 — Organizador PJ (pedido da equipe, 2026-10-28)
 
 - ✅ **CNPJ do organizador** (D-W22): seção em T08, bloqueio de T10 sem CNPJ, CTW26–CTW30, roteiro ponta a ponta com 41 passos. Depende da etapa 9a da API (E40, RN24).
+- ✅ **Pedidos de 2026-11-03** (D-W23 a D-W28): revisão visual (cabeçalho, cards, linha do tempo, ícones), toasts, selo "Alterado" fora do mural, check-in por QR code, início futuro no formulário e colaborador inscrito. 81 testes; ponta a ponta 42/42 duas vezes. Roteiro manual em [docs/roteiro-de-testes.md](../../docs/roteiro-de-testes.md).
 - Próximo: telas dos pagamentos reais (QR Code Pix, conta de recebimento, valores retidos), conforme `viteme-api/.claude/planning/pagamentos-asaas.md`, fase 4.
 
 ## Dependências na API

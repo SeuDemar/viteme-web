@@ -1,19 +1,24 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useLocation, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { adicionarColaborador, cancelarEvento, listarAlteracoes, listarColaboradores, obterEvento, publicarEvento, removerColaborador } from '../../api/eventos'
 import { listarInscritos, registrarCheckin } from '../../api/inscricoes'
 import type { Colaborador, EventoDetalhe, StatusInscricao } from '../../api/tipos'
 import { Campo } from '../../components/Campo'
 import { Carregando, Erro, Vazio } from '../../components/Estados'
+import { Icone } from '../../components/Icone'
 import { Confirmacao, Modal } from '../../components/Modal'
 import { Selo, SeloStatusEvento, SeloStatusInscricao } from '../../components/Selo'
+import { useToast } from '../../components/Toasts'
 import { dataEHora, dataNumerica, hora } from '../../lib/formatar'
 import { mapearErro } from '../../lib/erros'
 import { aplicarErrosDosCampos, useTitulo } from '../../lib/formulario'
 import { cancelamentoSchema, checkinSchema, colaboradorSchema, type CancelamentoForm, type CheckinForm, type ColaboradorForm } from '../../schemas/gestao'
+
+// A câmera e o decodificador só carregam quando o organizador abre o leitor.
+const LeitorQrCode = lazy(() => import('./LeitorQrCode').then((m) => ({ default: m.LeitorQrCode })))
 
 type Aba = 'inscritos' | 'checkin' | 'colaboradores' | 'alteracoes'
 
@@ -107,35 +112,59 @@ function AbaInscritos({ eventoId }: { eventoId: string }) {
 function AbaCheckin({ eventoId }: { eventoId: string }) {
   const queryClient = useQueryClient()
   const [resultado, setResultado] = useState<{ tom: 'sucesso' | 'erro'; texto: string } | null>(null)
+  const [camera, setCamera] = useState(false)
+  const [registrando, setRegistrando] = useState(false)
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<CheckinForm>({ resolver: zodResolver(checkinSchema), defaultValues: { codigoCheckin: '' } })
 
-  const enviar = handleSubmit(async ({ codigoCheckin }) => {
+  // O mesmo caminho para o código digitado e para o lido pela câmera (E28).
+  const confirmar = async (codigo: string) => {
     setResultado(null)
+    setRegistrando(true)
     try {
-      const r = await registrarCheckin(eventoId, codigoCheckin.trim().toUpperCase())
+      const r = await registrarCheckin(eventoId, codigo.trim().toUpperCase())
       setResultado({ tom: 'sucesso', texto: `Presença de ${r.nome} confirmada às ${hora(r.checkinEm)}.` })
       reset()
       void queryClient.invalidateQueries({ queryKey: ['inscritos', eventoId] })
     } catch (e) {
       const erro = mapearErro(e)
       setResultado({ tom: 'erro', texto: (erro.codigo && MENSAGENS_CHECKIN[erro.codigo]) || erro.mensagem })
+    } finally {
+      setRegistrando(false)
     }
-  })
+  }
+  const enviar = handleSubmit(({ codigoCheckin }) => confirmar(codigoCheckin))
 
   return (
     <section className="cartao" aria-label="Check-in">
-      <h2 className="cartao__titulo">Check-in</h2>
-      <p className="cartao__meta">Digite o código apresentado pelo participante. O check-in é permitido de 2 horas antes do início até o fim do evento.</p>
+      <div className="linha linha--entre">
+        <h2 className="cartao__titulo">Check-in</h2>
+        <button type="button" className={`botao botao--pequeno${camera ? ' botao--contorno' : ''}`} aria-pressed={camera} onClick={() => setCamera(!camera)}>
+          <Icone nome={camera ? 'fechar' : 'camera'} tamanho={18} />
+          {camera ? 'Fechar câmera' : 'Ler QR code'}
+        </button>
+      </div>
+      <p className="cartao__meta">
+        Leia o QR code do participante com a câmera ou digite o código. O check-in é permitido de 2 horas antes do início até o fim do evento.
+      </p>
+      {resultado && (
+        <p className={`alerta alerta--${resultado.tom} alerta--destaque espaco-topo`} role={resultado.tom === 'erro' ? 'alert' : 'status'}>
+          <Icone nome={resultado.tom === 'sucesso' ? 'check' : 'alerta'} tamanho={20} />
+          {resultado.texto}
+        </p>
+      )}
+      {camera && (
+        <div className="espaco-topo">
+          <Suspense fallback={<p className="texto-suave">Abrindo a câmera…</p>}>
+            <LeitorQrCode aoLer={(codigo) => void confirmar(codigo)} pausado={registrando} />
+          </Suspense>
+        </div>
+      )}
       <form className="formulario espaco-topo" onSubmit={enviar} noValidate>
-        {resultado && (
-          <p className={`alerta alerta--${resultado.tom}`} role={resultado.tom === 'erro' ? 'alert' : 'status'}>
-            {resultado.texto}
-          </p>
-        )}
         <Campo rotulo="Código de check-in" erro={errors.codigoCheckin?.message}>
           {(a) => <input className="entrada" placeholder="Digite o código de 12 caracteres" maxLength={12} autoCapitalize="characters" autoComplete="off" style={{ textTransform: 'uppercase', letterSpacing: '0.1em' }} {...a} {...register('codigoCheckin')} />}
         </Campo>
-        <button type="submit" className="botao botao--bloco" disabled={isSubmitting}>
+        <button type="submit" className="botao botao--bloco" disabled={isSubmitting || registrando}>
+          {!isSubmitting && <Icone nome="check" tamanho={18} />}
           {isSubmitting ? 'Registrando…' : 'Confirmar presença'}
         </button>
       </form>
@@ -147,6 +176,7 @@ function AbaColaboradores({ eventoId, organizador }: { eventoId: string; organiz
   const queryClient = useQueryClient()
   const [removendo, setRemovendo] = useState<Colaborador | null>(null)
   const [mensagem, setMensagem] = useState<string | null>(null)
+  const toast = useToast()
   const consulta = useQuery({ queryKey: ['colaboradores', eventoId], queryFn: () => listarColaboradores(eventoId) })
   const { register, handleSubmit, setError, reset, formState: { errors, isSubmitting } } = useForm<ColaboradorForm>({ resolver: zodResolver(colaboradorSchema), defaultValues: { email: '' } })
   const invalidar = () => queryClient.invalidateQueries({ queryKey: ['colaboradores', eventoId] })
@@ -154,9 +184,10 @@ function AbaColaboradores({ eventoId, organizador }: { eventoId: string; organiz
   const adicionar = handleSubmit(async ({ email }) => {
     setMensagem(null)
     try {
-      await adicionarColaborador(eventoId, email)
+      const novo = await adicionarColaborador(eventoId, email)
       reset()
       await invalidar()
+      toast.sucesso(`${novo.nome} agora colabora com o evento.`)
     } catch (e) {
       const erro = mapearErro(e)
       if (erro.codigo === 'USUARIO_NAO_ENCONTRADO') setError('email', { type: 'server', message: 'Não há usuário cadastrado com este e-mail.' })
@@ -167,7 +198,10 @@ function AbaColaboradores({ eventoId, organizador }: { eventoId: string; organiz
 
   const remover = useMutation({
     mutationFn: (c: Colaborador) => removerColaborador(eventoId, c.usuarioId),
-    onSuccess: invalidar,
+    onSuccess: async (_, c) => {
+      await invalidar()
+      toast.sucesso(`${c.nome} não colabora mais com o evento.`)
+    },
     onError: (e) => setMensagem(mapearErro(e).mensagem),
     onSettled: () => setRemovendo(null),
   })
@@ -175,7 +209,7 @@ function AbaColaboradores({ eventoId, organizador }: { eventoId: string; organiz
   return (
     <section className="cartao" aria-label="Colaboradores">
       <h2 className="cartao__titulo">Colaboradores</h2>
-      <p className="cartao__meta">Colaboradores veem os inscritos e fazem o check-in. Só o organizador altera o evento.</p>
+      <p className="cartao__meta">Colaboradores veem os inscritos e fazem o check-in. Só o organizador altera o evento. Quem está inscrito também pode colaborar.</p>
       {mensagem && (
         <p className="alerta alerta--erro espaco-topo" role="alert">
           {mensagem}
@@ -272,6 +306,7 @@ function AbaAlteracoes({ eventoId }: { eventoId: string }) {
 
 function CancelarEventoModal({ evento, aoFechar }: { evento: EventoDetalhe; aoFechar: () => void }) {
   const queryClient = useQueryClient()
+  const toast = useToast()
   const [mensagem, setMensagem] = useState<string | null>(null)
   const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm<CancelamentoForm>({ resolver: zodResolver(cancelamentoSchema), defaultValues: { motivo: '' } })
 
@@ -280,6 +315,7 @@ function CancelarEventoModal({ evento, aoFechar }: { evento: EventoDetalhe; aoFe
     try {
       await cancelarEvento(evento.id, motivo)
       await queryClient.invalidateQueries()
+      toast.sucesso('Evento cancelado. Os inscritos foram avisados e os estornos, solicitados.')
       aoFechar()
     } catch (e) {
       const erro = mapearErro(e)
@@ -321,8 +357,8 @@ function CancelarEventoModal({ evento, aoFechar }: { evento: EventoDetalhe; aoFe
 
 export function GestaoEventoPage() {
   const { id = '' } = useParams()
-  const local = useLocation()
   const queryClient = useQueryClient()
+  const toast = useToast()
   const [aba, setAba] = useState<Aba>('inscritos')
   const [cancelando, setCancelando] = useState(false)
   const [mensagem, setMensagem] = useState<string | null>(null)
@@ -332,7 +368,10 @@ export function GestaoEventoPage() {
 
   const publicar = useMutation({
     mutationFn: () => publicarEvento(id),
-    onSuccess: () => queryClient.invalidateQueries(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries()
+      toast.sucesso('Evento publicado! Ele já aparece no mural.')
+    },
     onError: (e) => setMensagem(mapearErro(e).mensagem),
   })
 
@@ -384,11 +423,6 @@ export function GestaoEventoPage() {
         <Selo tom="neutro">{organizador ? 'Você é organizador' : 'Você é colaborador'}</Selo>
       </div>
 
-      {(local.state as { publicado?: boolean } | null)?.publicado && !mensagem && (
-        <p className="alerta alerta--sucesso espaco-topo" role="status">
-          Evento publicado! Ele já aparece no mural.
-        </p>
-      )}
       {mensagem && (
         <p className="alerta alerta--erro espaco-topo" role="alert">
           {mensagem}
@@ -404,10 +438,12 @@ export function GestaoEventoPage() {
         {organizador && !encerrado && (
           <div className="linha espaco-topo">
             <Link to={`/meus-eventos/${id}/editar`} className="botao botao--secundario botao--pequeno">
-              Gerenciar programação
+              <Icone nome="editar" tamanho={16} />
+              Editar evento e programação
             </Link>
             {(evento.status === 'RASCUNHO' || evento.status === 'OCULTO') && (
               <button type="button" className="botao botao--pequeno" onClick={() => publicar.mutate()} disabled={publicar.isPending}>
+                {!publicar.isPending && <Icone nome="enviar" tamanho={16} />}
                 {publicar.isPending ? 'Publicando…' : evento.status === 'OCULTO' ? 'Republicar' : 'Publicar'}
               </button>
             )}

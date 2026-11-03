@@ -1,6 +1,8 @@
 import { chromium } from 'playwright-core'
 import { execSync } from 'node:child_process'
 import fs from 'node:fs'
+import path from 'node:path'
+import { gravarVideoComQr } from './camera-falsa.mjs'
 
 // Validação ponta a ponta do frontend contra a API real (ver docs/validacao-api-real.md).
 // Variáveis: VITEME_WEB (padrão http://localhost:5173), VITEME_API_LOG (log da API, para ler o código de SMS),
@@ -53,6 +55,19 @@ async function passo(nome, fn, page) {
 }
 const ver = (page, texto, t = 10000) => page.getByText(texto).first().waitFor({ timeout: t })
 const rotulo = (page, r) => page.getByLabel(r, { exact: true })
+// Espera uma consulta ao banco devolver o valor esperado (toasts ficam alguns segundos na tela e não provam um novo envio).
+const esperarNoBanco = async (consulta, condicao, t = 10000) => {
+  const fim = Date.now() + t
+  let valor
+  while (Date.now() < fim) {
+    valor = sql(consulta)
+    if (condicao(valor)) return valor
+    await new Promise((r) => setTimeout(r, 300))
+  }
+  throw new Error(`banco não chegou ao estado esperado (último valor: ${valor})`)
+}
+// O nome do usuário fica no avatar do cabeçalho (botão "Conta de …").
+const conta = (page, nome, t = 10000) => page.getByRole('button', { name: `Conta de ${nome}` }).waitFor({ timeout: t })
 
 // ---------- A: organizador ----------
 await passo('A: cadastro cria a conta e entra automaticamente', async () => {
@@ -63,12 +78,12 @@ await passo('A: cadastro cria a conta e entra automaticamente', async () => {
   await rotulo(A, 'Confirmar senha').fill(SENHA)
   await A.getByRole('button', { name: 'Criar conta' }).click()
   await A.getByRole('heading', { name: 'Descubra eventos' }).waitFor({ timeout: 10000 })
-  await ver(A, 'Organizador E2E')
+  await conta(A, 'Organizador E2E')
 }, A)
 
 await passo('A: F5 restaura a sessão pelo cookie (SameSite=None + X-Requested-With)', async () => {
   await A.reload()
-  await ver(A, 'Organizador E2E')
+  await conta(A, 'Organizador E2E')
   const cookies = await ctxA.cookies()
   const c = cookies.find((x) => x.name === 'refresh_token')
   if (!c) throw new Error('cookie refresh_token não existe')
@@ -87,7 +102,7 @@ await passo('A: cadastra o CNPJ no perfil (E40) e passa a poder organizar', asyn
   const secao = A.getByRole('region', { name: 'Dados de organizador' })
   await secao.getByLabel('CNPJ').fill(cnpjA)
   await secao.getByRole('button', { name: 'Verificar CNPJ' }).click()
-  await secao.getByText('CNPJ verificado. Você já pode criar eventos.').waitFor({ timeout: 10000 })
+  await ver(A, 'CNPJ verificado. Você já pode criar eventos.')
   const gravado = sql(`select cnpj from usuario where email = '${emailA}'`)
   if (gravado !== cnpjA) throw new Error('CNPJ no banco: ' + gravado)
 }, A)
@@ -118,7 +133,7 @@ const publicar = async (id) => {
 let idGratis, idPago
 await passo('A: cria evento gratuito como rascunho (T10 → E12) e vai para a edição', async () => { idGratis = await criarEvento(`E2E Gratuito ${sufixo}`, '0', 90, 60) }, A)
 await passo('A: adiciona atividade à programação (E18)', async () => {
-  await A.getByRole('button', { name: '+ Adicionar atividade' }).click()
+  await A.getByRole('button', { name: 'Adicionar atividade' }).click()
   await rotulo(A, 'Título da atividade').fill('Abertura')
   await rotulo(A, 'Início').fill(local(90))
   await rotulo(A, 'Término').fill(local(120))
@@ -137,7 +152,7 @@ await passo('B: cadastro com telefone (E.164) e login automático', async () => 
   await rotulo(B, 'Confirmar senha').fill(SENHA)
   await rotulo(B, 'Telefone (opcional)').fill(telefoneB)
   await B.getByRole('button', { name: 'Criar conta' }).click()
-  await ver(B, 'Participante E2E')
+  await conta(B, 'Participante E2E')
   const tel = sql(`select telefone from usuario where email='${emailB}'`)
   if (tel !== `+55${telefoneB}`) throw new Error('telefone gravado: ' + tel)
 }, B)
@@ -181,12 +196,33 @@ await passo('A: gestão lista o inscrito (E27) sem telefone', async () => {
   const texto = await A.locator('main').innerText()
   if (texto.includes('99999')) throw new Error('telefone apareceu na lista de inscritos')
 }, A)
-await passo('A: check-in com o código do participante (E28), repetir dá erro', async () => {
+await passo('A: check-in lendo o QR code do participante pela câmera (E28)', async () => {
+  // Outro Chromium, cuja "câmera" é um vídeo com o QR do participante. Sem leitor nativo no Linux, vale o jsQR.
+  const video = path.resolve(DIR, 'camera-qr.y4m')
+  gravarVideoComQr(codigo, video)
+  const cam = await chromium.launch({
+    executablePath: process.env.CHROME || undefined,
+    args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', `--use-file-for-fake-video-capture=${video}`],
+  })
+  try {
+    const C = await (await cam.newContext({ viewport: { width: 1280, height: 900 }, permissions: ['camera'] })).newPage()
+    await C.goto(BASE + '/entrar')
+    await rotulo(C, 'E-mail').fill(emailA); await rotulo(C, 'Senha').fill(SENHA)
+    await C.getByRole('button', { name: 'Entrar' }).click()
+    await conta(C, 'Organizador E2E')
+    await C.goto(BASE + `/meus-eventos/${idGratis}`)
+    await C.getByRole('tab', { name: 'Check-in' }).click()
+    await C.getByRole('button', { name: 'Ler QR code' }).click()
+    await ver(C, 'Presença de Participante E2E confirmada', 20000)
+    await C.screenshot({ path: `${DIR}/checkin-qr.png` })
+  } finally {
+    await cam.close()
+  }
+}, A)
+await passo('A: repetir o check-in digitando o código (em minúsculas) dá erro de já realizado', async () => {
+  await A.reload()
   await A.getByRole('tab', { name: 'Check-in' }).click()
   await rotulo(A, 'Código de check-in').fill(codigo.toLowerCase())
-  await A.getByRole('button', { name: 'Confirmar presença' }).click()
-  await ver(A, 'Presença de Participante E2E confirmada')
-  await rotulo(A, 'Código de check-in').fill(codigo)
   await A.getByRole('button', { name: 'Confirmar presença' }).click()
   await ver(A, 'já foi realizado')
 }, A)
@@ -203,15 +239,16 @@ await passo('A: editar evento publicado exige motivo (RN13) e salva com ele (E13
   await rotulo(A, 'Motivo da alteração').fill('Mudamos para um espaço maior.')
   await A.getByRole('button', { name: 'Salvar alterações' }).click()
   await ver(A, 'Alterações salvas')
-  const n = sql(`select count(*) from alteracao_evento where evento_id='${idGratis}'`)
-  if (Number(n) < 1) throw new Error('alteração não registrada no banco')
+  await esperarNoBanco(`select count(*) from alteracao_evento where evento_id='${idGratis}'`, (n) => Number(n) >= 1)
 }, A)
 await passo('A: salvar de novo na mesma tela usa a versão nova (sem 412)', async () => {
   await rotulo(A, 'Título do evento').fill(`E2E Gratuito ${sufixo}`)
   await rotulo(A, 'Local').fill('Auditório B')
   await rotulo(A, 'Motivo da alteração').fill('Outra mudança de sala.')
   await A.getByRole('button', { name: 'Salvar alterações' }).click()
-  await ver(A, 'Alterações salvas')
+  // O toast do salvamento anterior pode ainda estar visível: a prova é a segunda alteração no banco.
+  await esperarNoBanco(`select count(*) from alteracao_evento where evento_id='${idGratis}' and motivo='Outra mudança de sala.'`, (n) => n === '1')
+  if (await A.getByText(/alterado por outra pessoa/).count()) throw new Error('412 ao salvar de novo')
 }, A)
 await passo('A: colaborador inexistente mostra erro no campo (E22)', async () => {
   await A.goto(BASE + `/meus-eventos/${idGratis}`)
@@ -220,10 +257,16 @@ await passo('A: colaborador inexistente mostra erro no campo (E22)', async () =>
   await A.getByRole('button', { name: 'Adicionar' }).click()
   await ver(A, 'Não há usuário cadastrado com este e-mail.')
 }, A)
-await passo('A: participante já inscrito não pode ser colaborador (422)', async () => {
+await passo('A: participante inscrito pode virar colaborador (D52) e ser removido', async () => {
   await rotulo(A, 'E-mail do colaborador').fill(emailB)
   await A.getByRole('button', { name: 'Adicionar' }).click()
-  await A.getByRole('alert').first().waitFor({ timeout: 8000 })
+  await ver(A, 'Participante E2E agora colabora com o evento.')
+  const n = sql(`select count(*) from colaborador_evento c join usuario u on u.id=c.usuario_id where u.email='${emailB}' and c.evento_id='${idGratis}'`)
+  if (n !== '1') throw new Error('colaborador no banco: ' + n)
+  // Remove para não mudar os passos seguintes (colaborador não denuncia o próprio evento).
+  await A.getByRole('button', { name: /Remover/ }).first().click()
+  await A.getByRole('dialog').getByRole('button', { name: /Remover/ }).click()
+  await ver(A, 'Participante E2E não colabora mais com o evento.')
 }, A)
 await passo('A: aba Alterações lista o histórico (E17)', async () => {
   await A.getByRole('tab', { name: 'Alterações' }).click()
@@ -231,10 +274,11 @@ await passo('A: aba Alterações lista o histórico (E17)', async () => {
 }, A)
 
 // ---------- B: alterações, notificações, perfil ----------
-await passo('B: mural mostra o selo "Alterado" no evento alterado', async () => {
+await passo('B: o card do mural não mostra mais o selo "Alterado" (pedido da equipe)', async () => {
   await B.goto(BASE + '/')
   const card = B.locator('a', { hasText: `E2E Gratuito ${sufixo}` })
-  await card.getByText('Alterado').waitFor({ timeout: 8000 })
+  await card.waitFor({ timeout: 8000 })
+  if (await card.getByText('Alterado', { exact: true }).count()) throw new Error('selo Alterado ainda aparece no card')
 }, B)
 await passo('B: detalhe mostra o motivo da alteração', async () => {
   await B.goto(BASE + `/eventos/${idGratis}`)
@@ -273,7 +317,7 @@ await passo('B: salvar perfil com novo nome (E06)', async () => {
   await rotulo(B, 'Nome').fill('Participante E2E Editado')
   await B.getByRole('button', { name: 'Salvar perfil' }).click()
   await ver(B, 'Perfil atualizado.')
-  await ver(B, 'Participante E2E Editado')
+  await conta(B, 'Participante E2E Editado')
 }, B)
 await passo('B: denunciar evento (E37), repetir mostra erro de denúncia existente', async () => {
   await B.goto(BASE + `/eventos/${idPago}`)
@@ -325,7 +369,8 @@ await passo('visitante: valida o certificado pelo código público (E39)', async
 await passo('B: filtros do mural por categoria e "Gratuitos"', async () => {
   await B.goto(BASE + '/')
   await B.getByRole('button', { name: 'Palestras' }).click()
-  await B.getByText('Nenhum evento encontrado').waitFor({ timeout: 8000 })
+  // O banco pode ter outros eventos: confere só que os workshops do roteiro saíram da lista.
+  await B.waitForFunction((t) => !document.body.innerText.includes(t), `E2E Pago ${sufixo}`, { timeout: 8000 })
   await B.getByRole('button', { name: 'Workshops' }).click()
   await ver(B, `E2E Pago ${sufixo}`)
   await B.getByRole('button', { name: 'Gratuitos' }).click()
@@ -379,13 +424,14 @@ await passo('mobile 390px: mural, menu hambúrguer e barra de abas inferior', as
 await passo('B: três abas abrindo juntas restauram a sessão sem derrubar o login (Web Locks)', async () => {
   const abas = await Promise.all([ctxB.newPage(), ctxB.newPage(), ctxB.newPage()])
   await Promise.all(abas.map((p) => p.goto(BASE + '/')))
-  for (const p of abas) await p.getByText('Participante E2E Editado').first().waitFor({ timeout: 12000 })
+  for (const p of abas) await conta(p, 'Participante E2E Editado', 12000)
   await abas[0].reload()
-  await abas[0].getByText('Participante E2E Editado').first().waitFor({ timeout: 12000 })
+  await conta(abas[0], 'Participante E2E Editado', 12000)
   for (const p of abas) await p.close()
 }, B)
 await passo('A: Sair encerra a sessão; F5 continua deslogado; cookie é removido (E04)', async () => {
   await A.goto(BASE + '/')
+  await A.getByRole('button', { name: /^Conta de / }).click()
   await A.getByRole('button', { name: 'Sair' }).click()
   await A.getByRole('link', { name: 'Entrar' }).first().waitFor({ timeout: 8000 })
   await A.reload()

@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import { listarEventos } from '../../api/eventos'
 import { Carregando, Erro, Vazio } from '../../components/Estados'
 import { EventoCard } from '../../components/EventoCard'
+import { Icone } from '../../components/Icone'
 import { FILTROS_MURAL } from '../../lib/categorias'
 import { mapearErro } from '../../lib/erros'
 import { useTitulo } from '../../lib/formulario'
@@ -60,7 +61,10 @@ export function MuralPage() {
         <label className="campo__rotulo" htmlFor="busca">
           Buscar eventos
         </label>
-        <input id="busca" className="entrada" type="search" placeholder="Pesquisar por nome ou tema…" value={busca} onChange={(e) => setBusca(e.target.value)} />
+        <div className="entrada-com-icone">
+          <Icone nome="busca" tamanho={18} />
+          <input id="busca" className="entrada" type="search" placeholder="Pesquisar por nome ou tema…" value={busca} onChange={(e) => setBusca(e.target.value)} />
+        </div>
       </div>
 
       <div className="chips espaco-topo" role="group" aria-label="Filtrar por categoria">
@@ -86,9 +90,9 @@ export function MuralPage() {
         </Vazio>
       ) : (
         <>
-          <ul className="lista-simples" style={{ gap: 14 }} aria-label="Eventos">
+          <ul className="grade-eventos" aria-label="Eventos">
             {eventos.map((e) => (
-              <li key={e.id} style={{ padding: 0, border: 0 }}>
+              <li key={e.id}>
                 <EventoCard evento={e} />
               </li>
             ))}

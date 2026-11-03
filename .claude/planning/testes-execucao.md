@@ -1,6 +1,6 @@
 # Registro de execução dos testes
 
-Última execução: **2026-10-28**, `npm test` (Vitest 5, React Testing Library, MSW 3, jsdom): **71 testes em 5 arquivos, todos passando** (+7 do CNPJ do organizador). Evidência: [`docs/evidencias/vitest-2026-10-28.txt`](../../docs/evidencias/vitest-2026-10-28.txt). Execução anterior (64 testes): [`vitest-2026-10-25.txt`](../../docs/evidencias/vitest-2026-10-25.txt). Lint (`eslint`), tipos (`tsc --noEmit`) e build (`vite build`) também passam. MSW roda com `onUnhandledFrame: 'error'`: qualquer chamada sem handler reprova o teste.
+Última execução: **2026-11-03**, `npm test` (Vitest 5, React Testing Library, MSW 3, jsdom): **81 testes em 6 arquivos, todos passando** (+10 dos pedidos de 2026-11-03, em `novidades.test.tsx`; 6 testes antigos ajustados ao cabeçalho novo, aos toasts e ao CT62 revisto). Evidência: [`docs/evidencias/vitest-2026-11-03.txt`](../../docs/evidencias/vitest-2026-11-03.txt). Anterior (71 testes): [`vitest-2026-10-28.txt`](../../docs/evidencias/vitest-2026-10-28.txt). Execução anterior (64 testes): [`vitest-2026-10-25.txt`](../../docs/evidencias/vitest-2026-10-25.txt). Lint (`eslint`), tipos (`tsc --noEmit`) e build (`vite build`) também passam. MSW roda com `onUnhandledFrame: 'error'`: qualquer chamada sem handler reprova o teste.
 
 ## Casos do PDF (CT58–CT63)
 
@@ -10,7 +10,7 @@
 | CT59 | Rota protegida | Passou | 2026-10-25 | `casos-frontend.test.tsx` | Vai a `/entrar` e volta a `/minhas-inscricoes` |
 | CT60 | Renovação automática do token | Passou | 2026-10-25 | `casos-frontend.test.tsx` | Dois testes: renova e repete; falha na renovação leva ao login |
 | CT61 | Erros da API nos campos | Passou | 2026-10-25 | `casos-frontend.test.tsx` | 400 com `errors` por campo no formulário de evento |
-| CT62 | Destaque de alteração no mural | Passou | 2026-10-25 | `casos-frontend.test.tsx` | Selo "Alterado" só no card alterado |
+| CT62 | Destaque de alteração | Passou | 2026-11-03 | `casos-frontend.test.tsx` | Revisto (D-W25): o card não mostra o selo; o detalhe mostra "Este evento foi alterado" |
 | CT63 | Recarregar a página logado | Passou | 2026-10-25 | `casos-frontend.test.tsx` | E03 na inicialização; envia `X-Requested-With: viteme-web` |
 
 ## Casos adicionais (CTW)
@@ -47,10 +47,19 @@
 | CTW28 | CNPJ com dígito errado | Passou | Nenhuma requisição enviada |
 | CTW29 | CNPJ inativo (422) | Passou | Texto da API no alerta; selo continua "Sem CNPJ" |
 | CTW30 | Publicar sem CNPJ (403) | Passou | Mensagem `CNPJ_NAO_VERIFICADO` da API |
+| CTW31 | Toast de sucesso | Passou | `novidades.test.tsx` |
+| CTW32 | Menu da conta | Passou | Iniciais, "Meu perfil", Escape fecha |
+| CTW33 | Linha do tempo | Passou | Ordem e horário (`<time>`) |
+| CTW34 | Colaborador se inscreve | Passou | Organizador continua sem botão |
+| CTW35 | Início no passado | Passou | No cliente e com o erro da API |
+| CTW36 | QR no comprovante | Passou | Imagem SVG gerada no navegador |
+| CTW37 | Check-in pela câmera | Passou | `BarcodeDetector` simulado no jsdom; com câmera e QR reais no roteiro com a API (jsqr) |
 
 Total de testes automáticos: **64** (inclui os campos `inscricoesAbertas`, `capacidade` e `inscritos` da API, o teste de regressão do perfil e 8 testes do repasse de `/api/*` em `edge/proxy.test.ts`). Também há testes unitários de formatadores e do mapeamento de erros (`src/lib/lib.test.ts`) e um teste do menu mobile.
 
 ## Validação ponta a ponta com a API real
+
+2026-11-03: **42 de 42 passos aprovados em duas execuções seguidas**, com o **check-in lido do QR code pela câmera** (outro Chromium com câmera falsa: um vídeo `.y4m` com o QR do participante, gerado por `e2e/camera-falsa.mjs`; decodificado pelo `jsqr`), inscrito que vira colaborador e é removido (D52), card sem o selo "Alterado" e o cabeçalho novo. Uma execução intermediária reprovou 2 passos: o passo "salvar de novo" aceitava o toast do salvamento anterior, que ainda estava na tela, e seguia antes de o segundo envio terminar; o roteiro agora confere o salvamento no banco. Evidência: [`docs/evidencias/e2e-api-real-2026-11-03.txt`](../../docs/evidencias/e2e-api-real-2026-11-03.txt).
 
 2026-10-28: **41 de 41 passos aprovados**, agora com os passos do CNPJ do organizador (T10 sem CNPJ pede o cadastro; cadastro em T08 gravado no banco). A API rodou com `Cnpj__UsarStub=true` porque a sessão de desenvolvimento não alcança a BrasilAPI. Evidência: [`docs/evidencias/e2e-api-real-2026-10-28.txt`](../../docs/evidencias/e2e-api-real-2026-10-28.txt).
 

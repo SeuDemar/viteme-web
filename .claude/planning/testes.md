@@ -23,7 +23,7 @@ Fonte: PDF, seção 6 (Quadros 70, 71 e 80). Os casos CT01–CT57 são do backen
 | CT59 | Rota protegida | Visitante acessa `/minhas-inscricoes` | Redireciona para o login e volta à rota após autenticar | Sucesso | — | T03, T05 |
 | CT60 | Renovação automática do token | Token de acesso expirado durante o uso | Interceptor renova e repete a requisição sem perder a ação | Sucesso | — | Todas |
 | CT61 | Erros da API nos campos | API retorna 400 com erros por campo | Mensagens exibidas nos campos correspondentes | Erro | — | T10 |
-| CT62 | Destaque de alteração no mural | Evento alterado nas últimas 72 horas | Card exibe o selo "Alterado" | Sucesso | RN13 | T01 |
+| CT62 | Destaque de alteração | Evento alterado nas últimas 72 horas | **Revisto (D-W25):** o card do mural não mostra mais o selo; a alteração aparece em destaque em T02 | Sucesso | RN13 | T01, T02 |
 | CT63 | Recarregar a página logado | Usuário autenticado pressiona F5 | Frontend chama E03 ao iniciar e restaura a sessão sem novo login | Sucesso | — | Todas |
 
 ## 3. Casos adicionais propostos
@@ -62,6 +62,13 @@ Cobrem o restante dos fluxos e regras de interface. Numeração própria para n�
 | CTW28 | CNPJ com dígito errado | Erro no campo, sem chamar a API | T08 | Média |
 | CTW29 | CNPJ inativo (422) | Mostra o motivo devolvido pela API | T08 | Média |
 | CTW30 | Publicar sem CNPJ (403) | Mostra a orientação da API, não o 403 genérico | T10 | Média |
+| CTW31 | Toast de sucesso | Aparece na região "Avisos" e fecha pelo botão | Várias | Média |
+| CTW32 | Menu da conta | Avatar com iniciais; "Meu perfil" e "Sair" no menu; Escape fecha | Cabeçalho | Média |
+| CTW33 | Programação em linha do tempo | Atividades em ordem, com início e fim | T02 | Baixa |
+| CTW34 | Colaborador se inscreve | Vê "Gerenciar evento" e o botão de inscrição; organizador não | T02 | Alta |
+| CTW35 | Início no passado | Barrado no formulário; erro da API vai para o campo | T10 | Alta |
+| CTW36 | QR code no comprovante | Imagem com o código de check-in | T05 | Alta |
+| CTW37 | Check-in pela câmera | Lê o QR, registra uma vez, desliga a câmera ao fechar; sem câmera explica e mantém o campo | T11 | Alta |
 
 ## 4. Rastreabilidade (frontend)
 

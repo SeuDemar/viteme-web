@@ -1,9 +1,12 @@
 import { z } from 'zod'
 
-const campoDataHora = (mensagem: string) => z.string().min(1, mensagem).refine((v) => !Number.isNaN(new Date(v).getTime()), 'Data e hora inválidas.')
+const campoDataHora = (mensagem: string) =>
+  z
+    .string()
+    .min(1, mensagem)
+    .refine((v) => !Number.isNaN(new Date(v).getTime()), 'Data e hora inválidas.')
 
-const inteiroPositivoOpcional = (mensagem: string) =>
-  z.string().refine((v) => v.trim() === '' || (/^\d+$/.test(v.trim()) && Number(v) > 0), mensagem)
+const inteiroPositivoOpcional = (mensagem: string) => z.string().refine((v) => v.trim() === '' || (/^\d+$/.test(v.trim()) && Number(v) > 0), mensagem)
 
 /** Aceita "25", "25,5" ou "25,50": até 2 casas, de 0 a 99.999,99. */
 export const precoSchema = z
@@ -14,39 +17,50 @@ export const precoSchema = z
 
 export const paraNumeroPreco = (v: string) => Number(v.trim().replace(',', '.'))
 
-export const eventoSchema = z
-  .object({
-    titulo: z.string().trim().min(5, 'O título deve ter entre 5 e 150 caracteres.').max(150, 'O título deve ter entre 5 e 150 caracteres.'),
-    descricao: z.string().trim().min(1, 'Informe a descrição.').max(5000, 'A descrição deve ter no máximo 5000 caracteres.'),
-    categoria: z.string().min(1, 'Informe a categoria.').max(60, 'A categoria deve ter no máximo 60 caracteres.'),
-    local: z.string().trim().min(1, 'Informe o local.').max(200, 'O local deve ter no máximo 200 caracteres.'),
-    imagemUrl: z
-      .string()
-      .trim()
-      .max(500, 'A URL da imagem deve ter no máximo 500 caracteres.')
-      .refine((v) => v === '' || /^https:\/\/\S+$/i.test(v), 'A imagem deve ser um endereço https.'),
-    dataInicio: campoDataHora('Informe a data de início.'),
-    dataFim: campoDataHora('Informe a data de término.'),
-    inscricaoInicio: campoDataHora('Informe o início das inscrições.'),
-    inscricaoFim: campoDataHora('Informe o fim das inscrições.'),
-    capacidade: inteiroPositivoOpcional('A capacidade deve ser um número inteiro maior que zero.'),
-    preco: precoSchema,
-    cargaHoraria: inteiroPositivoOpcional('A carga horária deve ser um número inteiro maior que zero.'),
-    motivoAlteracao: z.string().trim().max(300, 'O motivo deve ter entre 10 e 300 caracteres.'),
-  })
-  .superRefine((v, ctx) => {
-    const t = (s: string) => new Date(s).getTime()
-    if (v.dataInicio && v.dataFim && t(v.dataFim) <= t(v.dataInicio)) {
-      ctx.addIssue({ code: 'custom', message: 'A data de término deve ser posterior à data de início.', path: ['dataFim'] })
-    }
-    if (v.inscricaoInicio && v.inscricaoFim) {
-      if (t(v.inscricaoFim) <= t(v.inscricaoInicio)) {
-        ctx.addIssue({ code: 'custom', message: 'O fim das inscrições deve ser posterior ao início das inscrições.', path: ['inscricaoFim'] })
-      } else if (v.dataInicio && t(v.inscricaoFim) > t(v.dataInicio)) {
-        ctx.addIssue({ code: 'custom', message: 'As inscrições devem terminar até o início do evento.', path: ['inscricaoFim'] })
+export const MENSAGEM_INICIO_PASSADO = 'A data e a hora de início precisam ser posteriores ao momento atual.'
+
+/**
+ * Esquema do formulário de evento. RN05 (D53 da API): o início precisa ser futuro ao criar e sempre que for trocado;
+ * na edição, `inicioOriginal` (valor do campo como foi carregado) evita travar um evento que já começou.
+ */
+export const criarEventoSchema = (inicioOriginal?: string, agora: () => Date = () => new Date()) =>
+  z
+    .object({
+      titulo: z.string().trim().min(5, 'O título deve ter entre 5 e 150 caracteres.').max(150, 'O título deve ter entre 5 e 150 caracteres.'),
+      descricao: z.string().trim().min(1, 'Informe a descrição.').max(5000, 'A descrição deve ter no máximo 5000 caracteres.'),
+      categoria: z.string().min(1, 'Informe a categoria.').max(60, 'A categoria deve ter no máximo 60 caracteres.'),
+      local: z.string().trim().min(1, 'Informe o local.').max(200, 'O local deve ter no máximo 200 caracteres.'),
+      imagemUrl: z
+        .string()
+        .trim()
+        .max(500, 'A URL da imagem deve ter no máximo 500 caracteres.')
+        .refine((v) => v === '' || /^https:\/\/\S+$/i.test(v), 'A imagem deve ser um endereço https.'),
+      dataInicio: campoDataHora('Informe a data de início.'),
+      dataFim: campoDataHora('Informe a data de término.'),
+      inscricaoInicio: campoDataHora('Informe o início das inscrições.'),
+      inscricaoFim: campoDataHora('Informe o fim das inscrições.'),
+      capacidade: inteiroPositivoOpcional('A capacidade deve ser um número inteiro maior que zero.'),
+      preco: precoSchema,
+      cargaHoraria: inteiroPositivoOpcional('A carga horária deve ser um número inteiro maior que zero.'),
+      motivoAlteracao: z.string().trim().max(300, 'O motivo deve ter entre 10 e 300 caracteres.'),
+    })
+    .superRefine((v, ctx) => {
+      const t = (s: string) => new Date(s).getTime()
+      if (v.dataInicio && v.dataInicio !== inicioOriginal && t(v.dataInicio) <= agora().getTime()) {
+        ctx.addIssue({ code: 'custom', message: MENSAGEM_INICIO_PASSADO, path: ['dataInicio'] })
       }
-    }
-  })
+      if (v.dataInicio && v.dataFim && t(v.dataFim) <= t(v.dataInicio)) {
+        ctx.addIssue({ code: 'custom', message: 'A data de término deve ser posterior à data de início.', path: ['dataFim'] })
+      }
+      if (v.inscricaoInicio && v.inscricaoFim) {
+        if (t(v.inscricaoFim) <= t(v.inscricaoInicio)) {
+          ctx.addIssue({ code: 'custom', message: 'O fim das inscrições deve ser posterior ao início das inscrições.', path: ['inscricaoFim'] })
+        } else if (v.dataInicio && t(v.inscricaoFim) > t(v.dataInicio)) {
+          ctx.addIssue({ code: 'custom', message: 'As inscrições devem terminar até o início do evento.', path: ['inscricaoFim'] })
+        }
+      }
+    })
+export const eventoSchema = criarEventoSchema()
 export type EventoForm = z.infer<typeof eventoSchema>
 
 export const motivoSchema = z.string().trim().min(10, 'O motivo deve ter entre 10 e 300 caracteres.').max(300, 'O motivo deve ter entre 10 e 300 caracteres.')

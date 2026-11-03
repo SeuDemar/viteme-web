@@ -27,14 +27,14 @@ Todas as telas abaixo estão **implementadas**. As divergências entre o Figma e
 
 ### T01 — Mural de eventos
 - Cards (`EventoCard`) com busca e filtros (conferir parâmetros aceitos por E10: busca, categoria, período, preço, paginação).
-- Selo **"Alterado"** para eventos alterados nas últimas 72 h (CT62).
+- Grade de cards (D-W23): bloco de data, capa por categoria (ou imagem), horário, local, preço e situação das inscrições. **Sem o selo "Alterado"** (D-W25); a alteração aparece em T02.
 - Eventos de rascunho/ocultos nunca aparecem (a API já filtra).
 - Paginação (`{ itens, pagina, tamanhoPagina, total }`).
 
 ### T02 — Detalhe do evento
-- Informações, programação (atividades), vagas restantes, preço, histórico de alterações (E17) com a mais recente em destaque.
+- Informações, programação como **linha do tempo** (D-W23), vagas restantes, preço, histórico de alterações (E17) com a mais recente em destaque.
 - Botões conforme o usuário:
-  - **Inscrever-se** (E24): visitante vai a T03 e volta; organizador/colaborador do evento vê indisponível (`PAPEL_NAO_PERMITE_INSCRICAO`); inscrito vê "Você já está inscrito"; evento lotado/encerrado mostra o motivo.
+  - **Inscrever-se** (E24): visitante vai a T03 e volta; o organizador não vê o botão (`PAPEL_NAO_PERMITE_INSCRICAO`); o colaborador vê "Gerenciar evento" e também pode se inscrever (D-W28); inscrito vê "Você já está inscrito"; evento lotado/encerrado mostra o motivo.
   - **Acompanhar / Deixar de acompanhar** (E32/E33), idempotentes.
   - **Denunciar** (E37): modal com motivo e descrição.
 - Evento OCULTO: inscrito vê normalmente; os demais recebem 404 → mostrar "Evento indisponível" (CT55).
@@ -51,7 +51,7 @@ Todas as telas abaixo estão **implementadas**. As divergências entre o Figma e
 
 ### T05 — Minhas inscrições
 - Abas **Próximas / Passadas** (`situacao=proximas|passadas|todas`).
-- Por inscrição: status, **código de check-in** (12 caracteres), prazo da reserva (`reservadaAte`) quando pendente, botões Cancelar (E26, com confirmação), Pagar/Retomar (E29) e **Certificado** (E38, quando `certificadoDisponivel`; baixa o PDF).
+- Por inscrição: status, **código de check-in** (12 caracteres) e **QR code** no comprovante ("Mostrar QR code", D-W26), prazo da reserva (`reservadaAte`) quando pendente, botões Cancelar (E26, com confirmação), Pagar/Retomar (E29) e **Certificado** (E38, quando `certificadoDisponivel`; baixa o PDF).
 - Cancelamento: tratar `PRAZO_CANCELAMENTO_ENCERRADO` (até 24 h antes) e mostrar se houve `estornoSolicitado`.
 
 ### T06 — Pagamento
@@ -79,7 +79,7 @@ Todas as telas abaixo estão **implementadas**. As divergências entre o Figma e
 - Tratar 412 `VERSAO_DESATUALIZADA` (oferecer recarregar).
 
 ### T11 — Gestão do evento
-- Abas: **Inscritos** (E27: busca, filtro de status, paginação; sem telefone), **Check-in** (E28: código de 12 caracteres em maiúsculas), **Colaboradores** (E21–E23; só organizador altera), **Alterações** (E17) e **Cancelamento** (E15: motivo 10–300 caracteres + confirmação; só organizador).
+- Abas: **Inscritos** (E27: busca, filtro de status, paginação; sem telefone), **Check-in** (E28: código de 12 caracteres em maiúsculas, digitado ou lido do QR code pela câmera, D-W26), **Colaboradores** (E21–E23; só organizador altera), **Alterações** (E17) e **Cancelamento** (E15: motivo 10–300 caracteres + confirmação; só organizador).
 - Colaborador vê Inscritos e Check-in; abas de organizador ficam ocultas.
 
 ### T12 — Validar certificado
@@ -87,4 +87,4 @@ Todas as telas abaixo estão **implementadas**. As divergências entre o Figma e
 
 ## Navegação (Figura 4 do PDF)
 
-Cabeçalho fixo dá acesso a T01, T05, T07, T08 e T09. Telas de **participante** (T05–T08) e de **organizador** (T09–T11) exigem login. Visitante que tenta ação autenticada vai a T03 e volta ao ponto de origem. Sair (E04) no cabeçalho. T02 → T03 → T02; T02 → T06 (evento pago) ou T05 (gratuito); T04 ↔ T03; T09 → T11/T10; T10 → T11 ao salvar; T05 → T12 pelo link do certificado.
+Cabeçalho fixo (barra arredondada) dá acesso a T01, T05 e T09 por texto e a T07 (sino) e T08 (avatar → "Meu perfil") por ícone; "Sair" fica no menu do avatar (D-W23). Telas de **participante** (T05–T08) e de **organizador** (T09–T11) exigem login. Visitante que tenta ação autenticada vai a T03 e volta ao ponto de origem. Sair (E04) no cabeçalho. T02 → T03 → T02; T02 → T06 (evento pago) ou T05 (gratuito); T04 ↔ T03; T09 → T11/T10; T10 → T11 ao salvar; T05 → T12 pelo link do certificado.

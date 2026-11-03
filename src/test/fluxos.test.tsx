@@ -201,7 +201,7 @@ describe('notificações e perfil', () => {
     )
     renderizarApp('/')
 
-    expect(await screen.findByLabelText('3 não lidas')).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Notificações, 3 não lidas' })).toBeInTheDocument()
   })
 
   it('CTW13 — marcar todas como lidas chama a API', async () => {
@@ -242,7 +242,7 @@ describe('notificações e perfil', () => {
 
     expect(await screen.findByText('Perfil atualizado.')).toBeInTheDocument()
     expect(corpo).toMatchObject({ nome: 'Maria Souza', telefone: '+5544999999999' })
-    expect(await screen.findAllByText('Maria Souza')).not.toHaveLength(0)
+    expect(await screen.findByRole('button', { name: 'Conta de Maria Souza' })).toBeInTheDocument()
   })
 
   it('CTW15 — o aceite de SMS fica desabilitado sem telefone verificado', async () => {
@@ -287,7 +287,7 @@ describe('CNPJ do organizador (RN24)', () => {
     expect(within(secao).getByLabelText('CNPJ')).toHaveValue('11.222.333/0001-81')
     await usuario.click(within(secao).getByRole('button', { name: 'Verificar CNPJ' }))
 
-    expect(await within(secao).findByText('CNPJ verificado. Você já pode criar eventos.')).toBeInTheDocument()
+    expect(await screen.findByText('CNPJ verificado. Você já pode criar eventos.')).toBeInTheDocument()
     expect(corpo).toEqual({ cnpj: '11.222.333/0001-81' })
     expect(within(secao).getByText('Centro Acadêmico de Tecnologia')).toBeInTheDocument()
     expect(within(secao).getByText('CNPJ verificado')).toBeInTheDocument()
@@ -397,7 +397,7 @@ describe('gestão do evento', () => {
     expect(await screen.findByText('João Souza')).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Check-in' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Cancelar evento' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'Gerenciar programação' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Editar evento e programação' })).not.toBeInTheDocument()
   })
 
   it('CTW19 — check-in converte o código para maiúsculas e trata erros da API', async () => {
