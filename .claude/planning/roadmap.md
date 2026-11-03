@@ -43,5 +43,10 @@ Convenções: branch por funcionalidade + PR com revisão; commits pequenos com 
 - Publicação do frontend e checagem do cookie de sessão no ambiente da demonstração.
 - Conferir os requisitos de frontend em `entrega-3.md` do backend: navegação, formulários, validações, consumo dos endpoints, exibição, tratamento de erros e fluxo completo.
 
+## W7 — Organizador PJ (pedido da equipe, 2026-10-28)
+
+- ✅ **CNPJ do organizador** (D-W22): seção em T08, bloqueio de T10 sem CNPJ, CTW26–CTW30, roteiro ponta a ponta com 41 passos. Depende da etapa 9a da API (E40, RN24).
+- Próximo: telas dos pagamentos reais (QR Code Pix, conta de recebimento, valores retidos), conforme `viteme-api/.claude/planning/pagamentos-asaas.md`, fase 4.
+
 ## Dependências na API
 A API já tem a mudança de cookie/CSRF (PW2, D47); falta validá-la na hospedagem real. Para W3 na demonstração, definir como simular o pagamento (PW5).

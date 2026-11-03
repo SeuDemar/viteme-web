@@ -62,6 +62,16 @@ export function mascararTelefone(valor: string): string {
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
 }
 
+/** Máscara do CNPJ enquanto digita: "12.ABC.345/01DE-35". Aceita letras (CNPJ alfanumérico da Receita). */
+export function mascararCnpj(valor: string): string {
+  const c = valor.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 14)
+  if (c.length <= 2) return c
+  if (c.length <= 5) return `${c.slice(0, 2)}.${c.slice(2)}`
+  if (c.length <= 8) return `${c.slice(0, 2)}.${c.slice(2, 5)}.${c.slice(5)}`
+  if (c.length <= 12) return `${c.slice(0, 2)}.${c.slice(2, 5)}.${c.slice(5, 8)}/${c.slice(8)}`
+  return `${c.slice(0, 2)}.${c.slice(2, 5)}.${c.slice(5, 8)}/${c.slice(8, 12)}-${c.slice(12)}`
+}
+
 /** "(44) 99999-9999" → "+5544999999999". Vazio → undefined. */
 export function telefoneParaE164(valor: string | null | undefined): string | undefined {
   const digitos = (valor ?? '').replace(/\D/g, '')

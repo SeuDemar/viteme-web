@@ -1,7 +1,25 @@
 import { AxiosError } from 'axios'
 import { describe, expect, it } from 'vitest'
 import { mapearErro } from './erros'
-import { alteradoRecentemente, dataCurta, hora, mascararTelefone, minutosRestantes, moeda, paraNomeDeArquivo, telefoneDeE164, telefoneParaE164 } from './formatar'
+import { cnpjValido } from '../schemas/auth'
+import { alteradoRecentemente, dataCurta, hora, mascararCnpj, mascararTelefone, minutosRestantes, moeda, paraNomeDeArquivo, telefoneDeE164, telefoneParaE164 } from './formatar'
+
+describe('CNPJ (RN24)', () => {
+  it('máscara aceita números e letras e limita a 14 caracteres', () => {
+    expect(mascararCnpj('11222333000181')).toBe('11.222.333/0001-81')
+    expect(mascararCnpj('12abc34501de35')).toBe('12.ABC.345/01DE-35')
+    expect(mascararCnpj('1122')).toBe('11.22')
+    expect(mascararCnpj('11.222.333/0001-8199')).toBe('11.222.333/0001-81')
+  })
+
+  it('dígitos verificadores iguais aos da API, inclusive o CNPJ alfanumérico', () => {
+    expect(cnpjValido('11.222.333/0001-81')).toBe(true)
+    expect(cnpjValido('12.ABC.345/01DE-35')).toBe(true)
+    expect(cnpjValido('11.222.333/0001-82')).toBe(false)
+    expect(cnpjValido('00000000000000')).toBe(false)
+    expect(cnpjValido('1122233300018')).toBe(false)
+  })
+})
 
 describe('formatadores', () => {
   it('telefone: máscara e conversão de/para E.164', () => {

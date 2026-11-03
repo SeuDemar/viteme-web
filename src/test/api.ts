@@ -15,7 +15,14 @@ export const perfilExemplo: Perfil = {
   telefoneVerificado: true,
   aceitaSms: false,
   aceiteSmsEm: null,
+  cnpj: '11222333000181',
+  razaoSocial: 'Centro Acadêmico de Tecnologia',
+  cnpjVerificadoEm: '2026-10-28T12:00:00Z',
+  podeOrganizar: true,
 }
+
+/** Perfil de quem ainda não cadastrou CNPJ: participa e colabora, mas não cria eventos (RN24). */
+export const perfilSemCnpj: Perfil = { ...perfilExemplo, cnpj: null, razaoSocial: null, cnpjVerificadoEm: null, podeOrganizar: false }
 
 export const eventoResumo = (parcial: Partial<EventoResumo> = {}): EventoResumo => ({
   id: 'e-1',

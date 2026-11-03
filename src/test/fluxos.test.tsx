@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
-import { eventoDetalhe, eventoResumo, inscricaoExemplo, perfilExemplo, problema, rota, sessaoRestauravel, visitante } from './api'
+import { eventoDetalhe, eventoResumo, inscricaoExemplo, perfilExemplo, perfilSemCnpj, problema, rota, sessaoRestauravel, visitante } from './api'
 import { renderizarApp } from './render'
 import { servidor } from './servidor'
 
@@ -253,6 +253,99 @@ describe('notificações e perfil', () => {
     expect(await screen.findByRole('button', { name: 'Ativar avisos por SMS' })).toBeDisabled()
     expect(screen.getByText('Telefone não verificado')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Enviar código' })).toBeInTheDocument()
+  })
+})
+
+describe('CNPJ do organizador (RN24)', () => {
+  it('CTW26 — sem CNPJ, "Criar evento" pede o cadastro do CNPJ em vez de mostrar o formulário', async () => {
+    const { handlers } = sessaoRestauravel()
+    servidor.use(http.get(rota('/usuarios/me'), () => HttpResponse.json(perfilSemCnpj)), ...handlers)
+    renderizarApp('/meus-eventos/novo')
+
+    expect(await screen.findByText('Cadastre um CNPJ para criar eventos')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Cadastrar CNPJ' })).toHaveAttribute('href', '/perfil#cnpj')
+    expect(screen.queryByLabelText('Título do evento')).not.toBeInTheDocument()
+  })
+
+  it('CTW27 — cadastrar CNPJ no perfil envia com máscara e mostra a razão social verificada', async () => {
+    const { handlers } = sessaoRestauravel()
+    let corpo: Record<string, unknown> | null = null
+    servidor.use(
+      http.get(rota('/usuarios/me'), () => HttpResponse.json(perfilSemCnpj)),
+      http.put(rota('/usuarios/me/cnpj'), async ({ request }) => {
+        corpo = (await request.json()) as Record<string, unknown>
+        return HttpResponse.json(perfilExemplo)
+      }),
+      ...handlers,
+    )
+    const usuario = userEvent.setup()
+    renderizarApp('/perfil')
+
+    const secao = await screen.findByRole('region', { name: 'Dados de organizador' })
+    expect(within(secao).getByText('Sem CNPJ')).toBeInTheDocument()
+    await usuario.type(within(secao).getByLabelText('CNPJ'), '11222333000181')
+    expect(within(secao).getByLabelText('CNPJ')).toHaveValue('11.222.333/0001-81')
+    await usuario.click(within(secao).getByRole('button', { name: 'Verificar CNPJ' }))
+
+    expect(await within(secao).findByText('CNPJ verificado. Você já pode criar eventos.')).toBeInTheDocument()
+    expect(corpo).toEqual({ cnpj: '11.222.333/0001-81' })
+    expect(within(secao).getByText('Centro Acadêmico de Tecnologia')).toBeInTheDocument()
+    expect(within(secao).getByText('CNPJ verificado')).toBeInTheDocument()
+  })
+
+  it('CTW28 — CNPJ com dígito errado é barrado no formulário, sem chamar a API', async () => {
+    const { handlers } = sessaoRestauravel()
+    let chamou = false
+    servidor.use(
+      http.get(rota('/usuarios/me'), () => HttpResponse.json(perfilSemCnpj)),
+      http.put(rota('/usuarios/me/cnpj'), () => {
+        chamou = true
+        return HttpResponse.json(perfilExemplo)
+      }),
+      ...handlers,
+    )
+    const usuario = userEvent.setup()
+    renderizarApp('/perfil')
+
+    const secao = await screen.findByRole('region', { name: 'Dados de organizador' })
+    await usuario.type(within(secao).getByLabelText('CNPJ'), '11222333000182')
+    await usuario.click(within(secao).getByRole('button', { name: 'Verificar CNPJ' }))
+
+    expect(await within(secao).findByText('Informe um CNPJ válido.')).toBeInTheDocument()
+    expect(chamou).toBe(false)
+  })
+
+  it('CTW29 — CNPJ inativo na Receita mostra o motivo devolvido pela API', async () => {
+    const { handlers } = sessaoRestauravel()
+    servidor.use(
+      http.get(rota('/usuarios/me'), () => HttpResponse.json(perfilSemCnpj)),
+      http.put(rota('/usuarios/me/cnpj'), () => problema(422, 'CNPJ_INATIVO', 'O CNPJ está com situação cadastral BAIXADA na Receita. Só CNPJ ativo pode organizar eventos.')),
+      ...handlers,
+    )
+    const usuario = userEvent.setup()
+    renderizarApp('/perfil')
+
+    const secao = await screen.findByRole('region', { name: 'Dados de organizador' })
+    await usuario.type(within(secao).getByLabelText('CNPJ'), '11222333000181')
+    await usuario.click(within(secao).getByRole('button', { name: 'Verificar CNPJ' }))
+
+    expect(await within(secao).findByRole('alert')).toHaveTextContent('situação cadastral BAIXADA')
+    expect(within(secao).getByText('Sem CNPJ')).toBeInTheDocument()
+  })
+
+  it('CTW30 — publicar rascunho sem CNPJ mostra a orientação da API, não o 403 genérico', async () => {
+    const { handlers } = sessaoRestauravel()
+    servidor.use(
+      ...handlers,
+      http.get(rota('/eventos/e-1'), () => HttpResponse.json(eventoDetalhe({ status: 'RASCUNHO', souOrganizador: true }), { headers: { ETag: '"1"' } })),
+      http.post(rota('/eventos/e-1/publicar'), () => problema(403, 'CNPJ_NAO_VERIFICADO', 'Cadastre um CNPJ ativo no seu perfil para criar e publicar eventos.')),
+    )
+    const usuario = userEvent.setup()
+    renderizarApp('/meus-eventos/e-1/editar')
+
+    await usuario.click(await screen.findByRole('button', { name: 'Publicar evento' }))
+
+    expect(await screen.findByText('Cadastre um CNPJ ativo no seu perfil para criar e publicar eventos.')).toBeInTheDocument()
   })
 })
 

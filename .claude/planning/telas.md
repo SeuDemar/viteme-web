@@ -17,7 +17,7 @@ Todas as telas abaixo estão **implementadas**. As divergências entre o Figma e
 | T05 | Minhas inscrições | `/minhas-inscricoes` | Autenticado | E25, E26, E29, E38 | Frame "Minhas inscrições" (desktop e mobile). Acrescentado: cancelar, certificado, comprovante em janela |
 | T06 | Pagamento | `/inscricoes/:id/pagamento` | Autenticado | E29, E30 | Frame "Pagamento" (desktop e mobile). Acrescentado: polling de 5 s, prazo da reserva, modo demonstração |
 | T07 | Notificações | `/notificacoes` | Autenticado | E34, E35, E36 | Frame "Notificações" (desktop e mobile). Acrescentado: filtro Não lidas, destaque das novas, data |
-| T08 | Perfil e SMS | `/perfil` | Autenticado | E05–E09 | Frame "Meu perfil" (desktop e mobile). Acrescentado: verificação do telefone com código e contador de 60 s |
+| T08 | Perfil e SMS | `/perfil` | Autenticado | E05–E09, E40 | Frame "Meu perfil" (desktop e mobile). Acrescentado: verificação do telefone com código e contador de 60 s; seção "Dados de organizador" (CNPJ, D-W22) |
 | T09 | Meus eventos | `/meus-eventos` | Autenticado | E16 | Frame "Meus eventos" (desktop e mobile). Acrescentado: filtro por papel, links Editar e Ver página pública |
 | T10 | Criar/editar evento | `/meus-eventos/novo`, `/meus-eventos/:id/editar` | Organizador | E12, E13, E14, E18–E20 | Frame "Criar evento" (desktop; sem mobile no Figma). Acrescentado: término, janela de inscrições, carga horária, imagem, programação, motivo da alteração |
 | T11 | Gestão do evento | `/meus-eventos/:id` | Org./colab. | E15, E17, E21–E23, E27, E28 | Frame "Gestão do evento" (desktop; sem mobile no Figma). Acrescentado: abas Alterações e Colaboradores completas, busca e paginação, cancelamento |
@@ -67,6 +67,7 @@ Todas as telas abaixo estão **implementadas**. As divergências entre o Figma e
 - Dados pessoais (E05/E06: nome e telefone).
 - Verificação de telefone: pedir código (E07), digitar 6 dígitos (E08), **reenvio liberado após 60 s com contador**; erros `CODIGO_EXPIRADO`, `TENTATIVAS_EXCEDIDAS`, `AGUARDE_NOVO_CODIGO`.
 - Aceite de SMS (E09): só habilita com telefone verificado; pode revogar a qualquer momento. Trocar o telefone desfaz verificação e aceite (avisar antes).
+- Dados de organizador (E40, RN24): CNPJ com máscara (aceita o formato alfanumérico), verificado na Receita pela API; mostra razão social e data da verificação; "Trocar CNPJ". Erros `CNPJ_JA_CADASTRADO`, `CNPJ_NAO_ENCONTRADO`, `CNPJ_INATIVO`, `CONSULTA_CNPJ_INDISPONIVEL` com o texto da API.
 
 ### T09 — Meus eventos
 - Eventos que organiza ou colabora (E16), com status (rascunho, publicado, oculto, cancelado, encerrado) e o papel do usuário. Botão "Novo evento".

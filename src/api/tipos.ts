@@ -48,6 +48,12 @@ export interface Perfil {
   telefoneVerificado: boolean
   aceitaSms: boolean
   aceiteSmsEm: string | null
+  /** CNPJ do organizador, sem máscara (RN24). */
+  cnpj: string | null
+  razaoSocial: string | null
+  cnpjVerificadoEm: string | null
+  /** Só quem tem CNPJ verificado cria e publica eventos. */
+  podeOrganizar: boolean
 }
 
 export interface EventoResumo {

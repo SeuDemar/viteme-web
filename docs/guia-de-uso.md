@@ -11,7 +11,7 @@ O Viteme reúne em um só lugar a divulgação, a inscrição e o acompanhamento
 | Organizador de demonstração | _a preencher_ (e-mail e senha) |
 | Participante de demonstração | _a preencher_ (e-mail e senha) |
 
-Não há administrador no Viteme: o papel de cada pessoa é definido **por evento**. Quem cria um evento é o organizador dele; quem o organizador adiciona é colaborador; todas as outras pessoas logadas são participantes. A mesma conta pode ser organizadora de um evento e participante de outro.
+Não há administrador no Viteme: o papel de cada pessoa é definido **por evento**. Quem cria um evento é o organizador dele; quem o organizador adiciona é colaborador; todas as outras pessoas logadas são participantes. A mesma conta pode ser organizadora de um evento e participante de outro. **Para criar eventos é preciso ter um CNPJ ativo** (centro acadêmico, atlética, empresa ou MEI) cadastrado no perfil; participar e colaborar não exigem CNPJ.
 
 > **Sobre a demonstração:** o pagamento e o envio de SMS são **simulados** (não há cobrança nem mensagem reais). Isso está previsto no projeto e deve ser dito na apresentação.
 
@@ -46,10 +46,11 @@ O roteiro segue o fluxo pedido na Entrega 3. Use **duas janelas** (ou uma janela
 3. **Sair** encerra a sessão. Tentar abrir uma tela de participante sem estar logado leva ao login e volta ao ponto de origem depois.
 
 ### 2. Organizador: criar e publicar um evento
-1. Em **Meus eventos**, clique em **+ Novo evento**.
-2. Preencha título, descrição, categoria, local, início e término, o período de inscrições (que termina até o início do evento), preço (use `0` para gratuito), capacidade e carga horária. **A carga horária é necessária para emitir certificado.**
-3. **Salvar rascunho**. Em seguida, em **Programação**, adicione as atividades.
-4. **Publicar evento**: ele passa a aparecer no mural.
+1. Primeira vez? Em **Perfil > Dados de organizador**, informe o CNPJ e clique em **Verificar CNPJ**. O Viteme confere na Receita Federal se ele está ativo (uma vez só).
+2. Em **Meus eventos**, clique em **+ Novo evento**.
+3. Preencha título, descrição, categoria, local, início e término, o período de inscrições (que termina até o início do evento), preço (use `0` para gratuito), capacidade e carga horária. **A carga horária é necessária para emitir certificado.**
+4. **Salvar rascunho**. Em seguida, em **Programação**, adicione as atividades.
+5. **Publicar evento**: ele passa a aparecer no mural.
 5. Crie também um evento **pago** (por exemplo, R$ 25,00) para o roteiro de pagamento.
 
 ### 3. Participante: encontrar e se inscrever
@@ -87,6 +88,8 @@ O roteiro segue o fluxo pedido na Entrega 3. Use **duas janelas** (ou uma janela
 |---|---|
 | "Evento lotado" | Todas as vagas estão ocupadas ou reservadas por pagamentos pendentes |
 | "Inscrições encerradas" | O prazo de inscrição do evento acabou |
+| "Cadastre um CNPJ para criar eventos" | Só quem tem CNPJ verificado cria eventos. Cadastre em **Perfil > Dados de organizador** |
+| "CNPJ inativo" ou "CNPJ não encontrado" | A Receita Federal não tem o CNPJ como ativo; confira o número |
 | Não consigo me inscrever no meu próprio evento | Organizadores e colaboradores não se inscrevem no evento que gerenciam |
 | Não consigo cancelar minha inscrição | O cancelamento só é possível até **24 horas antes** do início; se houve pagamento, o estorno é integral |
 | "Conta bloqueada" | Houve 5 tentativas de login erradas; aguarde 15 minutos |

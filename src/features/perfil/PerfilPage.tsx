@@ -2,15 +2,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import { atualizarPerfil, definirAceiteSms, enviarCodigoTelefone, obterPerfil, verificarTelefone } from '../../api/auth'
+import { atualizarPerfil, definirAceiteSms, definirCnpj, enviarCodigoTelefone, obterPerfil, verificarTelefone } from '../../api/auth'
 import type { Perfil } from '../../api/tipos'
 import { Campo } from '../../components/Campo'
 import { Carregando, Erro } from '../../components/Estados'
 import { Selo } from '../../components/Selo'
-import { mascararTelefone, telefoneDeE164, telefoneParaE164 } from '../../lib/formatar'
+import { dataCurta, mascararCnpj, mascararTelefone, telefoneDeE164, telefoneParaE164 } from '../../lib/formatar'
 import { mapearErro } from '../../lib/erros'
 import { aplicarErrosDosCampos, useTitulo } from '../../lib/formulario'
-import { codigoTelefoneSchema, perfilSchema, type CodigoTelefoneForm, type PerfilForm } from '../../schemas/auth'
+import { cnpjSchema, codigoTelefoneSchema, perfilSchema, type CnpjForm, type CodigoTelefoneForm, type PerfilForm } from '../../schemas/auth'
 import { useSessao } from '../auth/sessao'
 
 const INTERVALO_REENVIO_S = 60
@@ -85,6 +85,93 @@ function VerificacaoTelefone({ aoVerificar }: { aoVerificar: () => void }) {
             </button>
           </div>
         </form>
+      )}
+    </section>
+  )
+}
+
+/** RN24: só quem tem CNPJ ativo cria eventos. A API confere o CNPJ na Receita (E40). */
+function DadosOrganizador({ perfil, aoSalvar }: { perfil: Perfil; aoSalvar: (novo: Perfil) => void }) {
+  const [editando, setEditando] = useState(!perfil.podeOrganizar)
+  const [mensagem, setMensagem] = useState<{ tom: 'sucesso' | 'erro'; texto: string } | null>(null)
+  const { register, handleSubmit, setError, setValue, reset, formState: { errors, isSubmitting } } = useForm<CnpjForm>({
+    resolver: zodResolver(cnpjSchema),
+    defaultValues: { cnpj: '' },
+  })
+
+  const salvar = handleSubmit(async ({ cnpj }) => {
+    setMensagem(null)
+    try {
+      const novo = await definirCnpj(cnpj)
+      aoSalvar(novo)
+      reset({ cnpj: '' })
+      setEditando(false)
+      setMensagem({ tom: 'sucesso', texto: 'CNPJ verificado. Você já pode criar eventos.' })
+    } catch (e) {
+      const erro = mapearErro(e)
+      if (!aplicarErrosDosCampos(erro, setError, ['cnpj'])) setMensagem({ tom: 'erro', texto: erro.mensagem })
+    }
+  })
+
+  return (
+    <section className="cartao" aria-label="Dados de organizador" id="cnpj">
+      <div className="linha linha--entre">
+        <h2 className="cartao__titulo">Dados de organizador</h2>
+        {perfil.podeOrganizar ? <Selo tom="sucesso">CNPJ verificado</Selo> : <Selo tom="neutro">Sem CNPJ</Selo>}
+      </div>
+      <p className="cartao__meta">Para criar eventos é preciso um CNPJ ativo (centro acadêmico, atlética, empresa ou MEI). Participar e colaborar não exigem CNPJ.</p>
+      {mensagem && (
+        <p className={`alerta alerta--${mensagem.tom} espaco-topo`} role={mensagem.tom === 'erro' ? 'alert' : 'status'}>
+          {mensagem.texto}
+        </p>
+      )}
+      {perfil.podeOrganizar && perfil.cnpj && (
+        <dl className="fatos">
+          <div>
+            <dt>CNPJ</dt>
+            <dd>{mascararCnpj(perfil.cnpj)}</dd>
+          </div>
+          <div>
+            <dt>Razão social</dt>
+            <dd>{perfil.razaoSocial}</dd>
+          </div>
+          {perfil.cnpjVerificadoEm && (
+            <div>
+              <dt>Verificado em</dt>
+              <dd>{dataCurta(perfil.cnpjVerificadoEm)}</dd>
+            </div>
+          )}
+        </dl>
+      )}
+      {editando ? (
+        <form className="formulario espaco-topo" onSubmit={salvar} noValidate>
+          <Campo rotulo="CNPJ" erro={errors.cnpj?.message} ajuda="Conferimos na Receita Federal se o CNPJ está ativo.">
+            {(a) => (
+              <input
+                className="entrada"
+                autoComplete="off"
+                autoCapitalize="characters"
+                placeholder="00.000.000/0000-00"
+                {...a}
+                {...register('cnpj', { onChange: (e) => setValue('cnpj', mascararCnpj(e.target.value)) })}
+              />
+            )}
+          </Campo>
+          <div className="linha">
+            <button type="submit" className="botao botao--secundario" disabled={isSubmitting}>
+              {isSubmitting ? 'Verificando…' : 'Verificar CNPJ'}
+            </button>
+            {perfil.podeOrganizar && (
+              <button type="button" className="botao botao--contorno" onClick={() => setEditando(false)}>
+                Cancelar
+              </button>
+            )}
+          </div>
+        </form>
+      ) : (
+        <button type="button" className="botao botao--contorno espaco-topo" onClick={() => { setMensagem(null); setEditando(true) }}>
+          Trocar CNPJ
+        </button>
       )}
     </section>
   )
@@ -174,6 +261,8 @@ function FormularioPerfil({ perfil }: { perfil: Perfil }) {
       </form>
 
       {telefoneSalvo && !perfil.telefoneVerificado && !isDirty && <VerificacaoTelefone aoVerificar={() => void queryClient.invalidateQueries({ queryKey: ['perfil'] })} />}
+
+      <DadosOrganizador perfil={perfil} aoSalvar={(novo) => queryClient.setQueryData(['perfil'], novo)} />
 
       <section className="cartao" aria-label="Avisos por SMS">
         <div className="linha linha--entre">
