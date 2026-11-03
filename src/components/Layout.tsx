@@ -236,6 +236,16 @@ export function Layout() {
           <Outlet />
         </Suspense>
       </LimiteDeErro>
+      <footer className="rodape">
+        <div className="rodape__marca">
+          <strong>Viteme</strong>
+          <span>Divulgação, inscrição e acompanhamento dos eventos da faculdade.</span>
+        </div>
+        <nav className="rodape__links" aria-label="Rodapé">
+          <Link to="/certificados">Conferir autenticidade de certificado</Link>
+        </nav>
+        <small>© {new Date().getFullYear()} Viteme</small>
+      </footer>
       <nav className="barra-abas" aria-label="Navegação rápida">
         {ABAS.map((a) => (
           <NavLink key={a.para} to={a.para} end={a.fim} className="barra-abas__link">

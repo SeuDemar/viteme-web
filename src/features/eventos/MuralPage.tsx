@@ -1,8 +1,8 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { listarEventos } from '../../api/eventos'
-import { Carregando, Erro, Vazio } from '../../components/Estados'
+import { CarregandoCards, Erro, Vazio } from '../../components/Estados'
 import { EventoCard } from '../../components/EventoCard'
 import { Icone } from '../../components/Icone'
 import { FILTROS_MURAL } from '../../lib/categorias'
@@ -51,21 +51,34 @@ export function MuralPage() {
 
   const eventos = consulta.data?.pages.flatMap((p) => p.itens) ?? []
   const filtrando = Boolean(buscaNaUrl || categoria || gratuito)
+  const total = consulta.data?.pages[0]?.total
+  // Sem filtros e com eventos suficientes, o primeiro vira "Em destaque" (ocupa duas colunas).
+  const comDestaque = !filtrando && eventos.length >= 3
 
   return (
     <main className="pagina" id="conteudo">
-      <h1 className="pagina__titulo">Descubra eventos</h1>
-      <p className="pagina__sub">Eventos, palestras e experiências em um só lugar</p>
+      <section className="hero" aria-labelledby="titulo-mural">
+        <h1 className="pagina__titulo" id="titulo-mural">
+          Descubra eventos
+        </h1>
+        <p className="pagina__sub">Eventos, palestras e experiências em um só lugar</p>
 
-      <div className="campo espaco-topo">
-        <label className="campo__rotulo" htmlFor="busca">
-          Buscar eventos
-        </label>
-        <div className="entrada-com-icone">
-          <Icone nome="busca" tamanho={18} />
-          <input id="busca" className="entrada" type="search" placeholder="Pesquisar por nome ou tema…" value={busca} onChange={(e) => setBusca(e.target.value)} />
+        <div className="campo hero__busca">
+          <label className="sr-only" htmlFor="busca">
+            Buscar eventos
+          </label>
+          <div className="entrada-com-icone">
+            <Icone nome="busca" tamanho={20} />
+            <input id="busca" className="entrada" type="search" placeholder="Pesquisar por nome ou tema…" value={busca} onChange={(e) => setBusca(e.target.value)} />
+          </div>
         </div>
-      </div>
+
+        {total !== undefined && total > 0 && (
+          <p className="hero__numeros">
+            <span>{total === 1 ? '1 evento para explorar' : `${total} eventos para explorar`}</span>
+          </p>
+        )}
+      </section>
 
       <div className="chips espaco-topo" role="group" aria-label="Filtrar por categoria">
         {FILTROS_MURAL.map((f) => (
@@ -81,7 +94,7 @@ export function MuralPage() {
       <h2 className="secao-titulo">Próximos eventos</h2>
 
       {consulta.isPending ? (
-        <Carregando />
+        <CarregandoCards />
       ) : consulta.isError ? (
         <Erro erro={mapearErro(consulta.error)} aoTentarNovamente={() => consulta.refetch()} />
       ) : eventos.length === 0 ? (
@@ -91,9 +104,9 @@ export function MuralPage() {
       ) : (
         <>
           <ul className="grade-eventos" aria-label="Eventos">
-            {eventos.map((e) => (
-              <li key={e.id}>
-                <EventoCard evento={e} />
+            {eventos.map((e, i) => (
+              <li key={e.id} className={comDestaque && i === 0 ? 'destaque' : undefined} style={{ '--i': i } as CSSProperties}>
+                <EventoCard evento={e} destaque={comDestaque && i === 0} />
               </li>
             ))}
           </ul>
