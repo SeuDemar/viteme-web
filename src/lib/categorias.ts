@@ -8,3 +8,24 @@ export const FILTROS_MURAL = [
   { rotulo: 'Cursos', categoria: 'Curso' },
   { rotulo: 'Feiras', categoria: 'Feira' },
 ] as const
+
+/** Quantidade de tons de categoria definidos no CSS (--capa-N e --tom-N). */
+export const TONS_CATEGORIA = 6
+
+// Cada categoria conhecida tem sua cor fixa (índigo, verde-água, âmbar, coral, violeta, cinza-azulado).
+const TOM_POR_CATEGORIA: Record<string, number> = {
+  palestra: 0,
+  curso: 1,
+  feira: 2,
+  workshop: 3,
+  seminário: 4,
+  outro: 5,
+}
+
+/** Tom da categoria: fixo para as conhecidas; as livres (a API aceita qualquer texto) caem num tom estável pelo nome. */
+export function tomDaCategoria(categoria: string): number {
+  const nome = categoria.trim().toLowerCase()
+  const fixo = TOM_POR_CATEGORIA[nome]
+  if (fixo !== undefined) return fixo
+  return [...nome].reduce((soma, c) => soma + c.charCodeAt(0), 0) % TONS_CATEGORIA
+}

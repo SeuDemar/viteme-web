@@ -23,12 +23,19 @@
   --sombra-media: 0 1px 2px rgba(23, 29, 66, 0.04), 0 6px 20px rgba(23, 29, 66, 0.07);
   --sombra-forte: 0 12px 32px rgba(23, 29, 66, 0.16);
   /* Capas dos cards sem imagem: um tom sólido por categoria. */
+  /* Tons das categorias (Palestra, Curso, Feira, Workshop, Seminário, Outro): capa em degradê + cor forte de apoio. */
   --capa-0: linear-gradient(135deg, #e9ecff 0%, #c9d1fb 100%);
-  --capa-1: linear-gradient(135deg, #e2f4ee 0%, #bfe3d6 100%);
-  --capa-2: linear-gradient(135deg, #fbefdc 0%, #f2d3a6 100%);
-  --capa-3: linear-gradient(135deg, #f9e6ea 0%, #efbccb 100%);
-  --capa-4: linear-gradient(135deg, #eaedf4 0%, #cdd3e2 100%);
-  --capa-icone: rgba(23, 29, 66, 0.1);
+  --capa-1: linear-gradient(135deg, #def5f1 0%, #b1e5db 100%);
+  --capa-2: linear-gradient(135deg, #fff2d9 0%, #fbd78f 100%);
+  --capa-3: linear-gradient(135deg, #ffe8e1 0%, #fbbcad 100%);
+  --capa-4: linear-gradient(135deg, #f0e8ff 0%, #d4c1fa 100%);
+  --capa-5: linear-gradient(135deg, #eaedf4 0%, #cdd3e2 100%);
+  --tom-0: #4355d6;
+  --tom-1: #0f9f8e;
+  --tom-2: #e59a0e;
+  --tom-3: #f2674a;
+  --tom-4: #8b5cf6;
+  --tom-5: #64708f;
   --altura-aba: 64px;
 
   /* Cor de apoio (coral): destaques pontuais, para o índigo não carregar tudo sozinho. */
@@ -57,6 +64,7 @@
   --esqueleto-b: #f6f7fd;
   --brilho-fundo-1: rgba(67, 85, 214, 0.1);
   --brilho-fundo-2: rgba(242, 103, 74, 0.08);
+  --brilho-fundo-3: rgba(15, 159, 142, 0.07);
   color-scheme: light dark;
 }
 
@@ -83,11 +91,17 @@
     --sombra-media: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
     --sombra-forte: 0 12px 32px rgba(0, 0, 0, 0.55);
     --capa-0: linear-gradient(135deg, #2a3270 0%, #1b2150 100%);
-    --capa-1: linear-gradient(135deg, #1f4a3f 0%, #143229 100%);
+    --capa-1: linear-gradient(135deg, #17504a 0%, #0f3431 100%);
     --capa-2: linear-gradient(135deg, #5a4420 0%, #3a2b12 100%);
-    --capa-3: linear-gradient(135deg, #5a2c3d 0%, #3a1b27 100%);
-    --capa-4: linear-gradient(135deg, #353b52 0%, #232839 100%);
-    --capa-icone: rgba(255, 255, 255, 0.1);
+    --capa-3: linear-gradient(135deg, #5c2f27 0%, #3b1d19 100%);
+    --capa-4: linear-gradient(135deg, #43307a 0%, #2a1e4f 100%);
+    --capa-5: linear-gradient(135deg, #353b52 0%, #232839 100%);
+    --tom-0: #8e9dff;
+    --tom-1: #3fd1bd;
+    --tom-2: #f5b73d;
+    --tom-3: #ff8a70;
+    --tom-4: #b394ff;
+    --tom-5: #9aa5c8;
     --cor-destaque: #ff8a70;
     --cor-destaque-suave: #3d2119;
     --cor-link: #9ba8ff;
@@ -109,6 +123,7 @@
     --esqueleto-b: #2a3160;
     --brilho-fundo-1: rgba(91, 108, 240, 0.18);
     --brilho-fundo-2: rgba(255, 138, 112, 0.08);
+    --brilho-fundo-3: rgba(63, 209, 189, 0.08);
   }
 }
 
@@ -127,6 +142,7 @@ body {
   background:
     radial-gradient(900px 420px at 88% -120px, var(--brilho-fundo-1), transparent 70%),
     radial-gradient(700px 360px at -8% -100px, var(--brilho-fundo-2), transparent 70%),
+    radial-gradient(620px 300px at 50% -140px, var(--brilho-fundo-3), transparent 70%),
     var(--cor-fundo);
   background-repeat: no-repeat;
   color: var(--cor-texto);
@@ -583,6 +599,7 @@ textarea {
 }
 
 .evento-card__capa {
+  --tom: var(--tom-0);
   position: relative;
   height: 132px;
   overflow: hidden;
@@ -605,7 +622,7 @@ textarea {
   position: absolute;
   right: -10px;
   bottom: -18px;
-  color: var(--capa-icone);
+  color: color-mix(in srgb, var(--tom) 24%, transparent);
   transform: rotate(-8deg);
   transition: transform 0.35s ease;
 }
@@ -615,19 +632,28 @@ textarea {
 }
 
 .evento-card__capa--1 {
+  --tom: var(--tom-1);
   background: var(--capa-1);
 }
 
 .evento-card__capa--2 {
+  --tom: var(--tom-2);
   background: var(--capa-2);
 }
 
 .evento-card__capa--3 {
+  --tom: var(--tom-3);
   background: var(--capa-3);
 }
 
 .evento-card__capa--4 {
+  --tom: var(--tom-4);
   background: var(--capa-4);
+}
+
+.evento-card__capa--5 {
+  --tom: var(--tom-5);
+  background: var(--capa-5);
 }
 
 .evento-card__imagem {
@@ -670,6 +696,9 @@ textarea {
 }
 
 .evento-card__categoria {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   position: absolute;
   left: 14px;
   bottom: 12px;
@@ -679,6 +708,14 @@ textarea {
   color: var(--cor-texto);
   font-size: 12px;
   font-weight: 600;
+}
+
+.evento-card__categoria::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tom);
 }
 
 .evento-card__corpo {
@@ -1069,6 +1106,30 @@ textarea.entrada {
   font-weight: 650;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chip__ponto {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.chip__ponto--0 { background: var(--tom-0); }
+.chip__ponto--1 { background: var(--tom-1); }
+.chip__ponto--2 { background: var(--tom-2); }
+.chip__ponto--3 { background: var(--tom-3); }
+.chip__ponto--4 { background: var(--tom-4); }
+.chip__ponto--5 { background: var(--tom-5); }
+
+.chip[aria-pressed='true'] .chip__ponto {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
 }
 
 .chip:hover {
@@ -1584,7 +1645,7 @@ textarea.entrada {
   overflow: hidden;
   padding: clamp(28px, 5vw, 56px);
   border-radius: 28px;
-  background: var(--grad-hero);
+  background: radial-gradient(520px 280px at 0% 105%, rgba(40, 200, 178, 0.4), transparent 70%), var(--grad-hero);
   color: #fff;
   box-shadow: 0 18px 40px rgba(58, 71, 194, 0.28);
 }
