@@ -8,6 +8,7 @@ import { Dica } from './Dica'
 import { Carregando } from './Estados'
 import { Icone, type NomeIcone } from './Icone'
 import { LimiteDeErro } from './LimiteDeErro'
+import { LogoMarca } from './LogoMarca'
 
 // Notificações e perfil saíram do menu de texto: viraram ícones à direita (pedido da equipe).
 // "Meus eventos" (área do organizador) só aparece com a sessão iniciada.
@@ -177,7 +178,7 @@ function Cabecalho() {
     <header className="cabecalho">
       <div className="cabecalho__interno">
         <Link to="/" className="logo" aria-label="Viteme, página inicial">
-          <Icone nome="onda" tamanho={26} />
+          <LogoMarca altura={32} />
           Viteme
         </Link>
         <nav className="menu" aria-label="Principal">
@@ -269,7 +270,7 @@ export function Layout() {
       <footer className="rodape">
         <div className="rodape__marca">
           <strong>
-            <Icone nome="onda" tamanho={22} />
+            <LogoMarca altura={26} />
             Viteme
           </strong>
           <span>Divulgação, inscrição e acompanhamento dos eventos da faculdade.</span>

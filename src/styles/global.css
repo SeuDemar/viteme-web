@@ -354,7 +354,7 @@ textarea {
   font-size: 22px;
   font-weight: 750;
   letter-spacing: -0.03em;
-  color: var(--cor-primaria);
+  color: var(--cor-primaria-texto);
 }
 
 .logo:hover {
