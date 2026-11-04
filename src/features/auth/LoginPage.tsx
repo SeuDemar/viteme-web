@@ -10,7 +10,7 @@ import { loginSchema, type LoginForm } from '../../schemas/auth'
 import { useSessao } from './sessao'
 
 export function LoginPage() {
-  useTitulo('Entrar')
+  useTitulo('Entrar', { indexar: false })
   const { estado, login } = useSessao()
   const navegar = useNavigate()
   const local = useLocation()

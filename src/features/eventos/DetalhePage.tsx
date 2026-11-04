@@ -144,7 +144,10 @@ export function DetalhePage() {
 
   const consulta = useQuery({ queryKey: ['evento', id], queryFn: () => obterEvento(id), retry: false })
   const evento = consulta.data?.evento
-  useTitulo(evento?.titulo ?? 'Detalhes do evento')
+  useTitulo(evento?.titulo ?? 'Detalhes do evento', {
+    descricao: evento ? `${evento.local}. ${evento.descricao}`.replace(/\s+/g, ' ').trim().slice(0, 160) : undefined,
+    imagem: evento?.imagemUrl,
+  })
 
   const logado = estado === 'autenticado'
   const irParaLogin = () => navegar('/entrar', { state: { de: `${local.pathname}${local.search}` } })

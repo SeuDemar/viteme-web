@@ -17,7 +17,7 @@ const SIMULADOR = import.meta.env.VITE_SIMULADOR_PAGAMENTO === 'true'
 const idTransacao = (url: string | null) => url?.split('/').filter(Boolean).pop() ?? null
 
 export function PagamentoPage() {
-  useTitulo('Pagamento')
+  useTitulo('Pagamento', { indexar: false })
   const { id = '' } = useParams()
   const navegar = useNavigate()
   const queryClient = useQueryClient()

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listarMeusEventos } from '../../api/eventos'
@@ -60,11 +60,12 @@ function ItemEvento({ evento }: { evento: EventoMeu }) {
 }
 
 export function MeusEventosPage() {
-  useTitulo('Meus eventos')
+  useTitulo('Meus eventos', { indexar: false })
   const [filtro, setFiltro] = useState<Filtro>('todos')
   const consulta = useQuery({
     queryKey: ['meus-eventos', filtro],
     queryFn: () => listarMeusEventos(filtro === 'todos' ? undefined : filtro),
+    placeholderData: keepPreviousData,
   })
 
   return (

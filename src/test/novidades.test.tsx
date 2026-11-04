@@ -1,8 +1,8 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { http, HttpResponse } from 'msw'
+import { delay, http, HttpResponse } from 'msw'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { eventoDetalhe, inscricaoExemplo, perfilExemplo, problema, rota, sessaoRestauravel, visitante } from './api'
+import { eventoDetalhe, eventoResumo, inscricaoExemplo, perfilExemplo, problema, rota, sessaoRestauravel, visitante } from './api'
 import { definirDataHora, escolherOpcao } from './interacao'
 import { renderizarApp } from './render'
 import { servidor } from './servidor'
@@ -51,26 +51,130 @@ describe('cabeçalho', () => {
   })
 })
 
+describe('cache do mural', () => {
+  const lista = (itens: ReturnType<typeof eventoResumo>[]) => HttpResponse.json({ itens, pagina: 1, tamanhoPagina: 12, total: itens.length })
+  const A = [eventoResumo({ id: 'a1', titulo: 'Evento A1' }), eventoResumo({ id: 'a2', titulo: 'Evento A2' })]
+  const B = [eventoResumo({ id: 'b1', titulo: 'Só palestra', categoria: 'Palestra' })]
+
+  it('CTW37 — ao trocar de filtro a lista anterior fica (esmaecida) até a nova chegar, sem voltar ao esqueleto', async () => {
+    servidor.use(
+      visitante(),
+      http.get(rota('/eventos'), async ({ request }) => {
+        if (new URL(request.url).searchParams.get('categoria') === 'Palestra') {
+          await delay(250)
+          return lista(B)
+        }
+        return lista(A)
+      }),
+    )
+    const usuario = userEvent.setup()
+    renderizarApp('/')
+    expect(await screen.findByText('Evento A1')).toBeInTheDocument()
+
+    await usuario.click(screen.getByRole('button', { name: 'Palestras' }))
+    expect(screen.getByText('Evento A1')).toBeInTheDocument()
+    expect(screen.queryByRole('status', { name: 'Carregando' })).not.toBeInTheDocument()
+    expect(document.querySelector('.mural__resultados')).toHaveAttribute('aria-busy', 'true')
+
+    expect(await screen.findByText('Só palestra')).toBeInTheDocument()
+    expect(screen.queryByText('Evento A1')).not.toBeInTheDocument()
+    expect(document.querySelector('.mural__resultados')).toHaveAttribute('aria-busy', 'false')
+  })
+
+  it('CTW38 — voltar a um filtro já visto usa o cache e não pede à API de novo', async () => {
+    const pedidos: (string | null)[] = []
+    servidor.use(
+      visitante(),
+      http.get(rota('/eventos'), ({ request }) => {
+        const categoria = new URL(request.url).searchParams.get('categoria')
+        pedidos.push(categoria)
+        return categoria === 'Palestra' ? lista(B) : lista(A)
+      }),
+    )
+    const usuario = userEvent.setup()
+    renderizarApp('/')
+    await screen.findByText('Evento A1')
+    await usuario.click(screen.getByRole('button', { name: 'Palestras' }))
+    await screen.findByText('Só palestra')
+    await usuario.click(screen.getByRole('button', { name: 'Todos' }))
+    expect(await screen.findByText('Evento A1')).toBeInTheDocument()
+
+    expect(pedidos).toEqual([null, 'Palestra'])
+  })
+
+  it('CTW39 — passar o mouse num card já busca o detalhe do evento (abre na hora ao clicar)', async () => {
+    let detalhes = 0
+    servidor.use(
+      visitante(),
+      http.get(rota('/eventos'), () => lista(A)),
+      http.get(rota('/eventos/a1'), () => {
+        detalhes += 1
+        return HttpResponse.json(eventoDetalhe({ id: 'a1', titulo: 'Evento A1' }))
+      }),
+    )
+    const usuario = userEvent.setup()
+    renderizarApp('/')
+    await usuario.hover(await screen.findByRole('link', { name: /Evento A1/ }))
+    await waitFor(() => expect(detalhes).toBe(1))
+  })
+})
+
 describe('menu por sessão', () => {
   const semEventos = http.get(rota('/eventos'), () => HttpResponse.json({ itens: [], pagina: 1, tamanhoPagina: 12, total: 0 }))
 
-  it('CTW34 — visitante não vê "Meus eventos" (menu nem barra de abas)', async () => {
+  it('CTW34 — visitante não vê nada de "meu" (eventos, inscrições, perfil) no menu nem na barra de abas', async () => {
     servidor.use(visitante(), semEventos)
     renderizarApp('/')
 
     expect(await screen.findByRole('link', { name: 'Entrar' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Explorar eventos' })).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'Meus eventos' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'Eventos' })).not.toBeInTheDocument()
+    for (const nome of ['Meus eventos', 'Eventos', 'Minhas inscrições', 'Inscrições', 'Perfil']) {
+      expect(screen.queryByRole('link', { name: nome })).not.toBeInTheDocument()
+    }
+    expect(screen.getByRole('link', { name: 'Acessar' })).toHaveAttribute('href', '/entrar')
   })
 
-  it('CTW35 — com a sessão iniciada, "Meus eventos" aparece no menu e na barra de abas', async () => {
+  it('CTW35 — com a sessão iniciada, aparecem Meus eventos, Minhas inscrições e Perfil (menu e barra de abas)', async () => {
     const { handlers } = sessaoRestauravel()
     servidor.use(...handlers, semEventos)
     renderizarApp('/')
 
     expect(await screen.findByRole('link', { name: 'Meus eventos' })).toHaveAttribute('href', '/meus-eventos')
     expect(screen.getByRole('link', { name: 'Eventos' })).toHaveAttribute('href', '/meus-eventos')
+    expect(screen.getByRole('link', { name: 'Minhas inscrições' })).toHaveAttribute('href', '/minhas-inscricoes')
+    expect(screen.getByRole('link', { name: 'Inscrições' })).toHaveAttribute('href', '/minhas-inscricoes')
+    expect(screen.getByRole('link', { name: 'Perfil' })).toHaveAttribute('href', '/perfil')
+    expect(screen.queryByRole('link', { name: 'Acessar' })).not.toBeInTheDocument()
+  })
+})
+
+describe('fundo com rolagem', () => {
+  it('CTW40 — a variável --rolagem acompanha o quanto a página foi rolada (0 a 1)', async () => {
+    servidor.use(visitante(), http.get(rota('/eventos'), () => HttpResponse.json({ itens: [], pagina: 1, tamanhoPagina: 12, total: 0 })))
+    const raiz = document.documentElement
+    const original = { alt: Object.getOwnPropertyDescriptor(raiz, 'scrollHeight'), y: Object.getOwnPropertyDescriptor(window, 'scrollY') }
+    Object.defineProperty(raiz, 'scrollHeight', { configurable: true, value: 2000 })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 1000 })
+    let rolagem = 0
+    Object.defineProperty(window, 'scrollY', { configurable: true, get: () => rolagem })
+    try {
+      renderizarApp('/')
+      await screen.findByRole('link', { name: 'Entrar' })
+      await waitFor(() => expect(raiz.style.getPropertyValue('--rolagem')).toBe('0.0000'))
+
+      rolagem = 500
+      fireEvent.scroll(window)
+      await waitFor(() => expect(raiz.style.getPropertyValue('--rolagem')).toBe('0.5000'))
+
+      rolagem = 5000
+      fireEvent.scroll(window)
+      await waitFor(() => expect(raiz.style.getPropertyValue('--rolagem')).toBe('1.0000'))
+    } finally {
+      if (original.alt) Object.defineProperty(raiz, 'scrollHeight', original.alt)
+      else delete (raiz as unknown as Record<string, unknown>).scrollHeight
+      if (original.y) Object.defineProperty(window, 'scrollY', original.y)
+      else delete (window as unknown as Record<string, unknown>).scrollY
+    }
   })
 })
 

@@ -12,7 +12,7 @@ import { cadastroSchema, type CadastroForm } from '../../schemas/auth'
 import { useSessao } from './sessao'
 
 export function CadastroPage() {
-  useTitulo('Criar conta')
+  useTitulo('Criar conta', { indexar: false })
   const { estado, login } = useSessao()
   const navegar = useNavigate()
   const local = useLocation()

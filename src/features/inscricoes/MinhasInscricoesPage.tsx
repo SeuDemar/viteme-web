@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { baixarCertificado, cancelarInscricao, listarMinhasInscricoes } from '../../api/inscricoes'
@@ -146,7 +146,7 @@ function ItemInscricao({ inscricao, agora, aoComprovante, aoCancelar }: { inscri
 }
 
 export function MinhasInscricoesPage() {
-  useTitulo('Minhas inscrições')
+  useTitulo('Minhas inscrições', { indexar: false })
   const local = useLocation()
   const novaInscricao = (local.state as { novaInscricao?: string | null; pagamentoAprovado?: boolean } | null) ?? null
   const [situacao, setSituacao] = useState<Extract<SituacaoInscricoes, 'proximas' | 'passadas'>>('proximas')
@@ -159,7 +159,7 @@ export function MinhasInscricoesPage() {
   const agora = useAgora()
   const queryClient = useQueryClient()
 
-  const consulta = useQuery({ queryKey: ['inscricoes', 'minhas', situacao], queryFn: () => listarMinhasInscricoes(situacao) })
+  const consulta = useQuery({ queryKey: ['inscricoes', 'minhas', situacao], queryFn: () => listarMinhasInscricoes(situacao), placeholderData: keepPreviousData })
 
   const cancelar = useMutation({
     mutationFn: (i: MinhaInscricao) => cancelarInscricao(i.id),

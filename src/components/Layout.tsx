@@ -3,6 +3,8 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { listarNotificacoes } from '../api/notificacoes'
 import { useSessao } from '../features/auth/sessao'
+import { aquecerTelas } from '../routes/telas'
+import { useFundoComRolagem } from '../lib/rolagem'
 import { useTema } from '../lib/tema'
 import { Dica } from './Dica'
 import { Carregando } from './Estados'
@@ -11,18 +13,20 @@ import { LimiteDeErro } from './LimiteDeErro'
 import { LogoMarca } from './LogoMarca'
 
 // Notificações e perfil saíram do menu de texto: viraram ícones à direita (pedido da equipe).
-// "Meus eventos" (área do organizador) só aparece com a sessão iniciada.
+// Tudo que é "meu" (inscrições, eventos) só aparece com a sessão iniciada; para visitantes, o convite é entrar.
 const LINKS: { para: string; rotulo: string; icone: NomeIcone; fim?: boolean; soLogado?: boolean }[] = [
   { para: '/', rotulo: 'Explorar eventos', icone: 'busca', fim: true },
-  { para: '/minhas-inscricoes', rotulo: 'Minhas inscrições', icone: 'inscricoes' },
+  { para: '/minhas-inscricoes', rotulo: 'Minhas inscrições', icone: 'inscricoes', soLogado: true },
   { para: '/meus-eventos', rotulo: 'Meus eventos', icone: 'eventos', soLogado: true },
 ]
 
-const ABAS: { para: string; rotulo: string; icone: NomeIcone; fim?: boolean; soLogado?: boolean }[] = [
+const ABAS: { para: string; rotulo: string; icone: NomeIcone; fim?: boolean; soLogado?: boolean; soVisitante?: boolean }[] = [
   { para: '/', rotulo: 'Início', icone: 'inicio', fim: true },
-  { para: '/minhas-inscricoes', rotulo: 'Inscrições', icone: 'inscricoes' },
+  { para: '/minhas-inscricoes', rotulo: 'Inscrições', icone: 'inscricoes', soLogado: true },
   { para: '/meus-eventos', rotulo: 'Eventos', icone: 'eventos', soLogado: true },
-  { para: '/perfil', rotulo: 'Perfil', icone: 'perfil' },
+  { para: '/perfil', rotulo: 'Perfil', icone: 'perfil', soLogado: true },
+  // Visitante: no lugar das abas de conta, um caminho para entrar (o rótulo difere de "Entrar" do cabeçalho para não duplicar o link).
+  { para: '/entrar', rotulo: 'Acessar', icone: 'perfil', soVisitante: true },
 ]
 
 /** Sino do cabeçalho: E34 com lidas=false a cada 60 s e ao voltar o foco para a aba (PDF, 5.6 g). */
@@ -249,9 +253,27 @@ function Cabecalho() {
 export function Layout() {
   const local = useLocation()
   const { estado } = useSessao()
-  const abas = ABAS.filter((a) => !a.soLogado || estado === 'autenticado')
+  const abas = ABAS.filter((a) => (!a.soLogado || estado === 'autenticado') && (!a.soVisitante || estado === 'anonimo'))
+  useFundoComRolagem()
+
+  // Com o navegador ocioso, baixa os pacotes das próximas telas (nos testes não: ali não há rede de verdade).
+  useEffect(() => {
+    if (import.meta.env.MODE === 'test' || estado === 'restaurando') return
+    const aquecer = () => aquecerTelas(estado === 'autenticado')
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(aquecer, { timeout: 5000 })
+      return () => window.cancelIdleCallback(id)
+    }
+    const id = window.setTimeout(aquecer, 2000)
+    return () => window.clearTimeout(id)
+  }, [estado])
   return (
-    <>
+    <div className="app">
+      <div className="fundo-ceu" aria-hidden="true" />
+      <div className="bolhas-fundo" aria-hidden="true">
+        <span className="bolha bolha--a" />
+        <span className="bolha bolha--b" />
+      </div>
       <a className="pular-conteudo" href="#conteudo">
         Pular para o conteúdo
       </a>
@@ -293,6 +315,6 @@ export function Layout() {
           </NavLink>
         ))}
       </nav>
-    </>
+    </div>
   )
 }

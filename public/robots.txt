@@ -1,0 +1,19 @@
+# Viteme — divulgação de eventos da faculdade.
+# As páginas públicas (mural de eventos, detalhe de cada evento e conferência de certificados) podem ser lidas por buscadores
+# e por IAs (busca e assistentes). A área logada e a API ficam de fora.
+# Para bloquear só o treinamento de modelos, acrescente grupos "User-agent: GPTBot", "CCBot", "Google-Extended" etc. com "Disallow: /".
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /entrar
+Disallow: /cadastro
+Disallow: /perfil
+Disallow: /notificacoes
+Disallow: /minhas-inscricoes
+Disallow: /meus-eventos
+Disallow: /inscricoes/
+Disallow: /certificados/
+
+# Endereço absoluto (exigido pelo padrão). Se o site ganhar domínio próprio, troque aqui.
+Sitemap: https://viteme-web.pages.dev/sitemap.xml

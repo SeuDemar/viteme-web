@@ -5,22 +5,35 @@ import { ProvedorDeToasts } from '../components/Toasts'
 import { useTitulo } from '../lib/formulario'
 import { MuralPage } from '../features/eventos/MuralPage'
 import { RotaProtegida } from './RotaProtegida'
+import {
+  carregarCadastro,
+  carregarDetalhe,
+  carregarEventoForm,
+  carregarGestaoEvento,
+  carregarLogin,
+  carregarMeusEventos,
+  carregarMinhasInscricoes,
+  carregarNotificacoes,
+  carregarPagamento,
+  carregarPerfil,
+  carregarValidarCertificado,
+} from './telas'
 
-// O mural (página inicial) vai no pacote principal; as demais telas são carregadas sob demanda.
-const CadastroPage = lazy(() => import('../features/auth/CadastroPage').then((m) => ({ default: m.CadastroPage })))
-const LoginPage = lazy(() => import('../features/auth/LoginPage').then((m) => ({ default: m.LoginPage })))
-const DetalhePage = lazy(() => import('../features/eventos/DetalhePage').then((m) => ({ default: m.DetalhePage })))
-const ValidarCertificadoPage = lazy(() => import('../features/eventos/ValidarCertificadoPage').then((m) => ({ default: m.ValidarCertificadoPage })))
-const EventoFormPage = lazy(() => import('../features/gestao/EventoFormPage').then((m) => ({ default: m.EventoFormPage })))
-const GestaoEventoPage = lazy(() => import('../features/gestao/GestaoEventoPage').then((m) => ({ default: m.GestaoEventoPage })))
-const MeusEventosPage = lazy(() => import('../features/gestao/MeusEventosPage').then((m) => ({ default: m.MeusEventosPage })))
-const MinhasInscricoesPage = lazy(() => import('../features/inscricoes/MinhasInscricoesPage').then((m) => ({ default: m.MinhasInscricoesPage })))
-const PagamentoPage = lazy(() => import('../features/inscricoes/PagamentoPage').then((m) => ({ default: m.PagamentoPage })))
-const NotificacoesPage = lazy(() => import('../features/notificacoes/NotificacoesPage').then((m) => ({ default: m.NotificacoesPage })))
-const PerfilPage = lazy(() => import('../features/perfil/PerfilPage').then((m) => ({ default: m.PerfilPage })))
+// O mural (página inicial) vai no pacote principal; as demais telas são carregadas sob demanda (veja telas.ts).
+const CadastroPage = lazy(carregarCadastro)
+const LoginPage = lazy(carregarLogin)
+const DetalhePage = lazy(carregarDetalhe)
+const ValidarCertificadoPage = lazy(carregarValidarCertificado)
+const EventoFormPage = lazy(carregarEventoForm)
+const GestaoEventoPage = lazy(carregarGestaoEvento)
+const MeusEventosPage = lazy(carregarMeusEventos)
+const MinhasInscricoesPage = lazy(carregarMinhasInscricoes)
+const PagamentoPage = lazy(carregarPagamento)
+const NotificacoesPage = lazy(carregarNotificacoes)
+const PerfilPage = lazy(carregarPerfil)
 
 function NaoEncontrada() {
-  useTitulo('Página não encontrada')
+  useTitulo('Página não encontrada', { indexar: false })
   return (
     <main className="pagina pagina--estreita" id="conteudo">
       <div className="estado">

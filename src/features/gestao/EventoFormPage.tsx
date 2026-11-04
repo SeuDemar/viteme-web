@@ -469,7 +469,7 @@ function NovoEvento() {
 
 export function EventoFormPage() {
   const { id } = useParams()
-  useTitulo(id ? 'Editar evento' : 'Criar evento')
+  useTitulo(id ? 'Editar evento' : 'Criar evento', { indexar: false })
   const consulta = useQuery({ queryKey: ['evento', id], queryFn: () => obterEvento(id!), enabled: Boolean(id), retry: false, staleTime: 0, refetchOnWindowFocus: false })
 
   return (

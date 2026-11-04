@@ -12,8 +12,9 @@ import { useTitulo } from '../../lib/formulario'
 const CODIGO_VALIDO = /^[A-Za-z0-9]{1,20}$/
 
 export function ValidarCertificadoPage() {
-  useTitulo('Validar certificado')
   const { codigo } = useParams()
+  // A página de conferência é pública, mas um certificado específico (com o código na URL) não deve aparecer em buscas.
+  useTitulo('Validar certificado', { indexar: !codigo })
   const navegar = useNavigate()
   const [digitado, setDigitado] = useState(codigo ?? '')
   const [erroCampo, setErroCampo] = useState<string>()
