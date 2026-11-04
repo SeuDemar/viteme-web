@@ -148,6 +148,36 @@ describe('menu por sessão', () => {
   })
 })
 
+describe('fundo com rolagem', () => {
+  it('CTW40 — a variável --rolagem acompanha o quanto a página foi rolada (0 a 1)', async () => {
+    servidor.use(visitante(), http.get(rota('/eventos'), () => HttpResponse.json({ itens: [], pagina: 1, tamanhoPagina: 12, total: 0 })))
+    const raiz = document.documentElement
+    const original = { alt: Object.getOwnPropertyDescriptor(raiz, 'scrollHeight'), y: Object.getOwnPropertyDescriptor(window, 'scrollY') }
+    Object.defineProperty(raiz, 'scrollHeight', { configurable: true, value: 2000 })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 1000 })
+    let rolagem = 0
+    Object.defineProperty(window, 'scrollY', { configurable: true, get: () => rolagem })
+    try {
+      renderizarApp('/')
+      await screen.findByRole('link', { name: 'Entrar' })
+      await waitFor(() => expect(raiz.style.getPropertyValue('--rolagem')).toBe('0.0000'))
+
+      rolagem = 500
+      fireEvent.scroll(window)
+      await waitFor(() => expect(raiz.style.getPropertyValue('--rolagem')).toBe('0.5000'))
+
+      rolagem = 5000
+      fireEvent.scroll(window)
+      await waitFor(() => expect(raiz.style.getPropertyValue('--rolagem')).toBe('1.0000'))
+    } finally {
+      if (original.alt) Object.defineProperty(raiz, 'scrollHeight', original.alt)
+      else delete (raiz as unknown as Record<string, unknown>).scrollHeight
+      if (original.y) Object.defineProperty(window, 'scrollY', original.y)
+      else delete (window as unknown as Record<string, unknown>).scrollY
+    }
+  })
+})
+
 describe('tema', () => {
   it('CTW36 — o botão alterna entre tema claro e escuro e guarda a escolha', async () => {
     servidor.use(visitante(), http.get(rota('/eventos'), () => HttpResponse.json({ itens: [], pagina: 1, tamanhoPagina: 12, total: 0 })))

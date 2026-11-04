@@ -4,6 +4,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import { listarNotificacoes } from '../api/notificacoes'
 import { useSessao } from '../features/auth/sessao'
 import { aquecerTelas } from '../routes/telas'
+import { useFundoComRolagem } from '../lib/rolagem'
 import { useTema } from '../lib/tema'
 import { Dica } from './Dica'
 import { Carregando } from './Estados'
@@ -253,6 +254,7 @@ export function Layout() {
   const local = useLocation()
   const { estado } = useSessao()
   const abas = ABAS.filter((a) => (!a.soLogado || estado === 'autenticado') && (!a.soVisitante || estado === 'anonimo'))
+  useFundoComRolagem()
 
   // Com o navegador ocioso, baixa os pacotes das próximas telas (nos testes não: ali não há rede de verdade).
   useEffect(() => {
@@ -267,6 +269,7 @@ export function Layout() {
   }, [estado])
   return (
     <div className="app">
+      <div className="fundo-ceu" aria-hidden="true" />
       <div className="bolhas-fundo" aria-hidden="true">
         <span className="bolha bolha--a" />
         <span className="bolha bolha--b" />
