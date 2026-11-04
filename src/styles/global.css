@@ -699,7 +699,8 @@ textarea {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  /* 12 colunas: cada card ocupa --col delas (veja lib/layoutMural.ts), para as larguras variarem entre fileiras. */
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 20px;
 }
 
@@ -728,7 +729,8 @@ textarea {
 .evento-card__capa {
   --tom: var(--tom-0);
   position: relative;
-  height: 132px;
+  /* A capa cresce para ocupar a altura que sobrar na fileira (cards vizinhos têm a mesma altura). */
+  flex: 1 0 132px;
   overflow: hidden;
   background: var(--capa-0);
 }
@@ -870,7 +872,7 @@ textarea {
 }
 
 .evento-card__corpo {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -968,8 +970,16 @@ textarea {
 }
 
 /* O primeiro evento do mural ocupa duas colunas, com capa maior. */
+.evento-card--imagem .evento-card__capa {
+  flex-basis: 178px;
+}
+
+.evento-card--imagem .evento-card__titulo {
+  font-size: 17.5px;
+}
+
 .evento-card--destaque .evento-card__capa {
-  height: 190px;
+  flex-basis: 204px;
 }
 
 .evento-card--destaque .evento-card__titulo {
@@ -987,8 +997,19 @@ textarea {
   animation-delay: calc(min(var(--i, 0), 8) * 50ms);
 }
 
-.grade-eventos > li.destaque {
-  grid-column: span 2;
+.grade-eventos > li {
+  grid-column: span var(--col, 4);
+}
+
+/* Telas médias: duas colunas; o destaque ocupa a linha toda. */
+@media (max-width: 1099px) {
+  .grade-eventos > li {
+    grid-column: span 6;
+  }
+
+  .grade-eventos > li.destaque {
+    grid-column: 1 / -1;
+  }
 }
 
 @keyframes subir {
@@ -2441,12 +2462,13 @@ input::-ms-clear {
     gap: 14px;
   }
 
+  .grade-eventos > li,
   .grade-eventos > li.destaque {
-    grid-column: auto;
+    grid-column: 1 / -1;
   }
 
   .evento-card--destaque .evento-card__capa {
-    height: 132px;
+    flex-basis: 150px;
   }
 
   .evento-card--destaque .evento-card__titulo {
@@ -2501,7 +2523,11 @@ input::-ms-clear {
   }
 
   .evento-card__capa {
-    height: 108px;
+    flex-basis: 108px;
+  }
+
+  .evento-card--imagem .evento-card__capa {
+    flex-basis: 150px;
   }
 
   .linha-do-tempo__item {

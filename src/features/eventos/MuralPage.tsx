@@ -8,6 +8,7 @@ import { EventoCard } from '../../components/EventoCard'
 import { Icone } from '../../components/Icone'
 import { FILTROS_MURAL, iconeDaCategoria, tomDaCategoria } from '../../lib/categorias'
 import { comDestaqueNaFrente, escolherDestaque } from '../../lib/destaque'
+import { distribuirColunas } from '../../lib/layoutMural'
 import { mapearErro } from '../../lib/erros'
 import { useTitulo } from '../../lib/formulario'
 
@@ -63,6 +64,8 @@ export function MuralPage() {
   const primeiraPagina = indiceDestaque >= 0 ? comDestaqueNaFrente(paginas[0]!.itens, indiceDestaque) : (paginas[0]?.itens ?? [])
   const eventos = [...primeiraPagina, ...paginas.slice(1).flatMap((p) => p.itens)]
   const comDestaque = indiceDestaque >= 0
+  // Larguras variadas (grade de 12 colunas): o destaque e os cards com imagem ganham faixas maiores.
+  const colunas = distribuirColunas(eventos, comDestaque)
 
   return (
     <main className="pagina" id="conteudo">
@@ -129,7 +132,7 @@ export function MuralPage() {
           <>
             <ul className="grade-eventos" aria-label="Eventos">
               {eventos.map((e, i) => (
-                <li key={e.id} className={comDestaque && i === 0 ? 'destaque' : undefined} style={{ '--i': i } as CSSProperties}>
+                <li key={e.id} className={comDestaque && i === 0 ? 'destaque' : undefined} style={{ '--i': i, '--col': colunas[i] } as CSSProperties}>
                   <EventoCard evento={e} destaque={comDestaque && i === 0} />
                 </li>
               ))}

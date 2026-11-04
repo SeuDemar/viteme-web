@@ -27,7 +27,7 @@ export function EventoCard({ evento, destaque = false }: { evento: EventoResumo;
     <Link to={`/eventos/${evento.id}`} onMouseEnter={prepararDetalhe}
       onFocus={prepararDetalhe}
       onTouchStart={prepararDetalhe}
-      className={`evento-card evento-card--tom-${tomDaCategoria(evento.categoria)}${destaque ? ' evento-card--destaque' : ''}`}>
+      className={`evento-card evento-card--tom-${tomDaCategoria(evento.categoria)}${destaque ? ' evento-card--destaque' : ''}${evento.imagemUrl ? ' evento-card--imagem' : ''}`}>
       <div className={`evento-card__capa evento-card__capa--${tomDaCategoria(evento.categoria)}`}>
         {!evento.imagemUrl && (
           <span className="evento-card__arte" aria-hidden="true">
