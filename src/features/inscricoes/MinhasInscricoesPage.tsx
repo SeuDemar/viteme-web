@@ -146,7 +146,7 @@ function ItemInscricao({ inscricao, agora, aoComprovante, aoCancelar }: { inscri
 }
 
 export function MinhasInscricoesPage() {
-  useTitulo('Minhas inscrições')
+  useTitulo('Minhas inscrições', { indexar: false })
   const local = useLocation()
   const novaInscricao = (local.state as { novaInscricao?: string | null; pagamentoAprovado?: boolean } | null) ?? null
   const [situacao, setSituacao] = useState<Extract<SituacaoInscricoes, 'proximas' | 'passadas'>>('proximas')

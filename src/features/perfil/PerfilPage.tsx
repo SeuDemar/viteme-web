@@ -298,7 +298,7 @@ function FormularioPerfil({ perfil }: { perfil: Perfil }) {
 }
 
 export function PerfilPage() {
-  useTitulo('Meu perfil')
+  useTitulo('Meu perfil', { indexar: false })
   const consulta = useQuery({ queryKey: ['perfil'], queryFn: obterPerfil })
 
   return (

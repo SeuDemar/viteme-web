@@ -371,7 +371,7 @@ export function GestaoEventoPage() {
   const [mensagem, setMensagem] = useState<string | null>(null)
   const consulta = useQuery({ queryKey: ['evento', id], queryFn: () => obterEvento(id), retry: false })
   const evento = consulta.data?.evento
-  useTitulo(evento ? `Gestão: ${evento.titulo}` : 'Gestão do evento')
+  useTitulo(evento ? `Gestão: ${evento.titulo}` : 'Gestão do evento', { indexar: false })
 
   const publicar = useMutation({
     mutationFn: () => publicarEvento(id),

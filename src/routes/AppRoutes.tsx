@@ -33,7 +33,7 @@ const NotificacoesPage = lazy(carregarNotificacoes)
 const PerfilPage = lazy(carregarPerfil)
 
 function NaoEncontrada() {
-  useTitulo('Página não encontrada')
+  useTitulo('Página não encontrada', { indexar: false })
   return (
     <main className="pagina pagina--estreita" id="conteudo">
       <div className="estado">

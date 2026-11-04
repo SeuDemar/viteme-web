@@ -60,7 +60,7 @@ function ItemEvento({ evento }: { evento: EventoMeu }) {
 }
 
 export function MeusEventosPage() {
-  useTitulo('Meus eventos')
+  useTitulo('Meus eventos', { indexar: false })
   const [filtro, setFiltro] = useState<Filtro>('todos')
   const consulta = useQuery({
     queryKey: ['meus-eventos', filtro],

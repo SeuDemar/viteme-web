@@ -16,6 +16,9 @@ export const carregarPerfil = () => import('../features/perfil/PerfilPage').then
 
 /** Baixa, em segundo plano, os pacotes das telas mais prováveis (o navegador guarda; a navegação deixa de mostrar "Carregando"). */
 export function aquecerTelas(logado: boolean) {
+  // Com economia de dados ou conexão muito lenta, não gasta a rede do usuário com telas que ele pode nem abrir.
+  const conexao = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection
+  if (conexao?.saveData || conexao?.effectiveType === 'slow-2g' || conexao?.effectiveType === '2g') return
   const carregadores = logado
     ? [carregarDetalhe, carregarMinhasInscricoes, carregarMeusEventos, carregarNotificacoes, carregarPerfil]
     : [carregarDetalhe, carregarLogin, carregarCadastro]
