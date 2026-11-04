@@ -55,6 +55,21 @@ async function passo(nome, fn, page) {
 }
 const ver = (page, texto, t = 10000) => page.getByText(texto).first().waitFor({ timeout: t })
 const rotulo = (page, r) => page.getByLabel(r, { exact: true })
+// Controles próprios do site (sem select nem datetime-local nativos): a lista de opções e o calendário.
+const escolher = async (page, r, texto) => {
+  await rotulo(page, r).click()
+  await page.getByRole('option', { name: texto, exact: true }).click()
+}
+const dataHora = async (page, r, valor) => {
+  const [dia, hora] = valor.split('T')
+  const [ano, mes, d] = dia.split('-')
+  await rotulo(page, r).click()
+  const calendario = page.getByRole('dialog', { name: 'Escolher data e hora' })
+  await calendario.getByLabel('Data').fill(`${d}/${mes}/${ano}`)
+  await calendario.getByLabel('Hora').fill(hora)
+  await page.keyboard.press('Escape')
+  await calendario.waitFor({ state: 'detached' })
+}
 // Espera uma consulta ao banco devolver o valor esperado (toasts ficam alguns segundos na tela e não provam um novo envio).
 const esperarNoBanco = async (consulta, condicao, t = 10000) => {
   const fim = Date.now() + t
@@ -111,12 +126,12 @@ const criarEvento = async (titulo, preco, inicioMin, fimInscMin) => {
   await A.goto(BASE + '/meus-eventos/novo')
   await rotulo(A, 'Título do evento').fill(titulo)
   await rotulo(A, 'Descrição').fill('Evento criado pelo teste ponta a ponta.')
-  await rotulo(A, 'Categoria').selectOption('Workshop')
+  await escolher(A, 'Categoria', 'Workshop')
   await rotulo(A, 'Local').fill('Laboratório 04')
-  await rotulo(A, 'Início do evento').fill(local(inicioMin))
-  await rotulo(A, 'Término do evento').fill(local(inicioMin + 240))
-  await rotulo(A, 'Inscrições abrem em').fill(local(-120))
-  await rotulo(A, 'Inscrições encerram em').fill(local(fimInscMin))
+  await dataHora(A, 'Início do evento', local(inicioMin))
+  await dataHora(A, 'Término do evento', local(inicioMin + 240))
+  await dataHora(A, 'Inscrições abrem em', local(-120))
+  await dataHora(A, 'Inscrições encerram em', local(fimInscMin))
   await rotulo(A, 'Preço').fill(preco)
   await rotulo(A, 'Capacidade (opcional)').fill('5')
   await rotulo(A, 'Carga horária em horas (opcional)').fill('3')
@@ -135,8 +150,8 @@ await passo('A: cria evento gratuito como rascunho (T10 → E12) e vai para a ed
 await passo('A: adiciona atividade à programação (E18)', async () => {
   await A.getByRole('button', { name: 'Adicionar atividade' }).click()
   await rotulo(A, 'Título da atividade').fill('Abertura')
-  await rotulo(A, 'Início').fill(local(90))
-  await rotulo(A, 'Término').fill(local(120))
+  await dataHora(A, 'Início', local(90))
+  await dataHora(A, 'Término', local(120))
   await A.getByRole('button', { name: 'Salvar atividade' }).click()
   await ver(A, 'Abertura')
 }, A)
@@ -322,12 +337,12 @@ await passo('B: salvar perfil com novo nome (E06)', async () => {
 await passo('B: denunciar evento (E37), repetir mostra erro de denúncia existente', async () => {
   await B.goto(BASE + `/eventos/${idPago}`)
   await B.getByRole('button', { name: 'Denunciar este evento' }).click()
-  await B.getByLabel('Motivo').selectOption('SPAM')
+  await escolher(B, 'Motivo', 'Spam')
   await B.getByRole('button', { name: 'Enviar denúncia' }).click()
   await ver(B, 'Denúncia enviada')
   await B.getByRole('button', { name: 'Fechar' }).click()
   await B.getByRole('button', { name: 'Denunciar este evento' }).click()
-  await B.getByLabel('Motivo').selectOption('SPAM')
+  await escolher(B, 'Motivo', 'Spam')
   await B.getByRole('button', { name: 'Enviar denúncia' }).click()
   await B.getByRole('alert').first().waitFor({ timeout: 8000 })
 }, B)
