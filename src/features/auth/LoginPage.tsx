@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Campo } from '../../components/Campo'
+import { CampoSenha } from '../../components/CampoSenha'
 import { mapearErro } from '../../lib/erros'
 import { useTitulo } from '../../lib/formulario'
 import { loginSchema, type LoginForm } from '../../schemas/auth'
@@ -49,7 +50,7 @@ export function LoginPage() {
           {(a) => <input className="entrada" type="email" autoComplete="email" placeholder="seu@email.com" {...a} {...register('email')} />}
         </Campo>
         <Campo rotulo="Senha" erro={errors.senha?.message}>
-          {(a) => <input className="entrada" type="password" autoComplete="current-password" placeholder="Sua senha" {...a} {...register('senha')} />}
+          {(a) => <CampoSenha autoComplete="current-password" placeholder="Sua senha" {...a} {...register('senha')} />}
         </Campo>
         <button type="submit" className="botao botao--bloco" disabled={isSubmitting}>
           {isSubmitting ? 'Entrando…' : 'Entrar'}

@@ -4,6 +4,7 @@ import { delay, http, HttpResponse } from 'msw'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { EventoMeu } from '../api/tipos'
 import { eventoDetalhe, eventoResumo, inscricaoExemplo, perfilExemplo, problema, rota, sessaoRestauravel, visitante } from './api'
+import { escolherOpcao } from './interacao'
 import { renderizarApp } from './render'
 import { servidor } from './servidor'
 
@@ -221,7 +222,7 @@ describe('cancelar evento e denunciar', () => {
     await usuario.click(within(dialogo).getByRole('button', { name: 'Enviar denúncia' }))
     expect(corpos).toHaveLength(0)
 
-    await usuario.selectOptions(within(dialogo).getByLabelText('Motivo'), 'OUTRO')
+    await escolherOpcao(usuario, within(dialogo).getByLabelText('Motivo'), 'Outro')
     await usuario.click(within(dialogo).getByRole('button', { name: 'Enviar denúncia' }))
     expect(corpos).toHaveLength(0)
     expect(within(dialogo).getByLabelText('Descrição')).toHaveAttribute('aria-invalid', 'true')
@@ -234,7 +235,7 @@ describe('cancelar evento e denunciar', () => {
 
     await usuario.click(screen.getByRole('button', { name: 'Denunciar este evento' }))
     dialogo = screen.getByRole('dialog', { name: 'Denunciar evento' })
-    await usuario.selectOptions(within(dialogo).getByLabelText('Motivo'), 'SPAM')
+    await escolherOpcao(usuario, within(dialogo).getByLabelText('Motivo'), 'Spam')
     await usuario.click(within(dialogo).getByRole('button', { name: 'Enviar denúncia' }))
     expect(await within(dialogo).findByRole('alert')).toHaveTextContent('Você já denunciou este evento.')
   })
