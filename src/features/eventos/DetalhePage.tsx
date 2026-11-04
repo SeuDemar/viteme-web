@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { acompanharEvento, deixarDeAcompanhar, denunciarEvento, obterEvento } from '../../api/eventos'
 import { inscrever } from '../../api/inscricoes'
@@ -11,6 +11,7 @@ import { Carregando, Erro } from '../../components/Estados'
 import { Icone } from '../../components/Icone'
 import { LinhaDoTempo } from '../../components/LinhaDoTempo'
 import { Modal } from '../../components/Modal'
+import { Seletor } from '../../components/Seletor'
 import { Selo, SeloStatusEvento } from '../../components/Selo'
 import { useToast } from '../../components/Toasts'
 import { dataLonga, dataEHora, hora, moeda, precoOuGratuito } from '../../lib/formatar'
@@ -105,16 +106,21 @@ function DenunciaModal({ eventoId, aoFechar }: { eventoId: string; aoFechar: () 
           )}
           <Campo rotulo="Motivo" erro={errors.motivo?.message}>
             {(a) => (
-              <select className="entrada" defaultValue="" {...a} {...register('motivo')}>
-                <option value="" disabled>
-                  Selecione um motivo
-                </option>
-                {MOTIVOS_DENUNCIA.map(([valor, rotulo]) => (
-                  <option key={valor} value={valor}>
-                    {rotulo}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                control={control}
+                name="motivo"
+                render={({ field }) => (
+                  <Seletor
+                    {...a}
+                    ref={field.ref}
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    placeholder="Selecione um motivo"
+                    opcoes={MOTIVOS_DENUNCIA.map(([valor, rotulo]) => ({ valor, rotulo }))}
+                  />
+                )}
+              />
             )}
           </Campo>
           <Campo rotulo={motivoEscolhido === 'OUTRO' ? 'Descrição' : 'Descrição (opcional)'} erro={errors.descricao?.message} ajuda="Até 500 caracteres.">

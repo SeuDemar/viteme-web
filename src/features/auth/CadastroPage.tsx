@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { cadastrar } from '../../api/auth'
 import { Campo } from '../../components/Campo'
+import { CampoSenha } from '../../components/CampoSenha'
 import { mapearErro } from '../../lib/erros'
 import { aplicarErrosDosCampos, useTitulo } from '../../lib/formulario'
 import { mascararTelefone, telefoneParaE164 } from '../../lib/formatar'
@@ -70,10 +71,10 @@ export function CadastroPage() {
           {(a) => <input className="entrada" type="email" autoComplete="email" placeholder="seu@email.com" {...a} {...register('email')} />}
         </Campo>
         <Campo rotulo="Senha" erro={errors.senha?.message} ajuda="Mínimo de 8 caracteres, com letra e número.">
-          {(a) => <input className="entrada" type="password" autoComplete="new-password" placeholder="Crie uma senha" {...a} {...register('senha')} />}
+          {(a) => <CampoSenha autoComplete="new-password" placeholder="Crie uma senha" {...a} {...register('senha')} />}
         </Campo>
         <Campo rotulo="Confirmar senha" erro={errors.confirmarSenha?.message}>
-          {(a) => <input className="entrada" type="password" autoComplete="new-password" placeholder="Repita a senha" {...a} {...register('confirmarSenha')} />}
+          {(a) => <CampoSenha autoComplete="new-password" placeholder="Repita a senha" {...a} {...register('confirmarSenha')} />}
         </Campo>
         <Campo rotulo="Telefone (opcional)" erro={errors.telefone?.message} ajuda="Usado só para avisos por SMS, se você aceitar receber.">
           {(a) => (

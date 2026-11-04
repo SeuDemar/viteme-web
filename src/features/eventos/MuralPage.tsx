@@ -2,10 +2,11 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { useEffect, useState, type CSSProperties } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { listarEventos } from '../../api/eventos'
+import { CampoBusca } from '../../components/CampoBusca'
 import { CarregandoCards, Erro, Vazio } from '../../components/Estados'
 import { EventoCard } from '../../components/EventoCard'
 import { Icone } from '../../components/Icone'
-import { FILTROS_MURAL, tomDaCategoria } from '../../lib/categorias'
+import { FILTROS_MURAL, iconeDaCategoria, tomDaCategoria } from '../../lib/categorias'
 import { comDestaqueNaFrente, escolherDestaque } from '../../lib/destaque'
 import { mapearErro } from '../../lib/erros'
 import { useTitulo } from '../../lib/formulario'
@@ -72,15 +73,15 @@ export function MuralPage() {
           <label className="sr-only" htmlFor="busca">
             Buscar eventos
           </label>
-          <div className="entrada-com-icone">
-            <Icone nome="busca" tamanho={20} />
-            <input id="busca" className="entrada" type="search" placeholder="Pesquisar por nome ou tema…" value={busca} onChange={(e) => setBusca(e.target.value)} />
-          </div>
+          <CampoBusca id="busca" placeholder="Pesquisar por nome ou tema…" value={busca} onChange={setBusca} />
         </div>
 
         {total !== undefined && total > 0 && (
           <p className="hero__numeros">
-            <span>{total === 1 ? '1 evento para explorar' : `${total} eventos para explorar`}</span>
+            <span>
+              <Icone nome="eventos" tamanho={18} />
+              {total === 1 ? '1 evento para explorar' : `${total} eventos para explorar`}
+            </span>
           </p>
         )}
       </section>
@@ -88,11 +89,18 @@ export function MuralPage() {
       <div className="chips espaco-topo" role="group" aria-label="Filtrar por categoria">
         {FILTROS_MURAL.map((f) => (
           <button key={f.rotulo} type="button" className="chip" aria-pressed={categoria === f.categoria} onClick={() => alternar('categoria', f.categoria)}>
-            {f.categoria && <span className={`chip__ponto chip__ponto--${tomDaCategoria(f.categoria)}`} aria-hidden="true" />}
+            {f.categoria ? (
+              <span className={`chip__icone chip__icone--${tomDaCategoria(f.categoria)}`}>
+                <Icone nome={iconeDaCategoria(f.categoria)} tamanho={16} />
+              </span>
+            ) : (
+              <Icone nome="grade" tamanho={16} />
+            )}
             {f.rotulo}
           </button>
         ))}
         <button type="button" className="chip" aria-pressed={gratuito} onClick={() => alternar('gratuitos', gratuito ? undefined : '1')}>
+          <Icone nome="etiqueta" tamanho={16} />
           Gratuitos
         </button>
       </div>
@@ -119,6 +127,7 @@ export function MuralPage() {
           {consulta.hasNextPage && (
             <div className="linha espaco-topo" style={{ justifyContent: 'center' }}>
               <button type="button" className="botao botao--secundario" onClick={() => consulta.fetchNextPage()} disabled={consulta.isFetchingNextPage}>
+                <Icone nome="mais" tamanho={18} />
                 {consulta.isFetchingNextPage ? 'Carregando…' : 'Carregar mais eventos'}
               </button>
             </div>

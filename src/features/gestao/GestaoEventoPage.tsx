@@ -7,10 +7,12 @@ import { adicionarColaborador, cancelarEvento, listarAlteracoes, listarColaborad
 import { listarInscritos, registrarCheckin } from '../../api/inscricoes'
 import type { Colaborador, EventoDetalhe, StatusInscricao } from '../../api/tipos'
 import { Campo } from '../../components/Campo'
+import { CampoBusca } from '../../components/CampoBusca'
 import { Carregando, Erro, Vazio } from '../../components/Estados'
 import { Icone } from '../../components/Icone'
 import { Confirmacao, Modal } from '../../components/Modal'
 import { Selo, SeloStatusEvento, SeloStatusInscricao } from '../../components/Selo'
+import { Seletor } from '../../components/Seletor'
 import { useToast } from '../../components/Toasts'
 import { dataEHora, dataNumerica, hora } from '../../lib/formatar'
 import { mapearErro } from '../../lib/erros'
@@ -41,17 +43,22 @@ function AbaInscritos({ eventoId }: { eventoId: string }) {
       <h2 className="cartao__titulo">Lista de inscritos</h2>
       <div className="formulario__grade espaco-topo">
         <Campo rotulo="Buscar por nome ou e-mail">
-          {(a) => <input className="entrada" type="search" value={busca} onChange={(e) => (setBusca(e.target.value), setPagina(1))} {...a} />}
+          {(a) => <CampoBusca value={busca} onChange={(v) => (setBusca(v), setPagina(1))} {...a} />}
         </Campo>
         <Campo rotulo="Situação">
           {(a) => (
-            <select className="entrada" value={status} onChange={(e) => (setStatus(e.target.value), setPagina(1))} {...a}>
-              <option value="">Todas</option>
-              <option value="CONFIRMADA">Confirmada</option>
-              <option value="PENDENTE_PAGAMENTO">Pendente de pagamento</option>
-              <option value="CANCELADA">Cancelada</option>
-              <option value="EXPIRADA">Expirada</option>
-            </select>
+            <Seletor
+              value={status}
+              onChange={(v) => (setStatus(v), setPagina(1))}
+              opcoes={[
+                { valor: '', rotulo: 'Todas' },
+                { valor: 'CONFIRMADA', rotulo: 'Confirmada' },
+                { valor: 'PENDENTE_PAGAMENTO', rotulo: 'Pendente de pagamento' },
+                { valor: 'CANCELADA', rotulo: 'Cancelada' },
+                { valor: 'EXPIRADA', rotulo: 'Expirada' },
+              ]}
+              {...a}
+            />
           )}
         </Campo>
       </div>

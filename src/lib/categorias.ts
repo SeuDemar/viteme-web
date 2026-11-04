@@ -1,3 +1,5 @@
+import type { NomeIcone } from '../components/Icone'
+
 /** Categorias oferecidas na criação e no filtro do mural. A API aceita qualquer texto até 60 caracteres (pendência PW11). */
 export const CATEGORIAS = ['Palestra', 'Workshop', 'Curso', 'Feira', 'Seminário', 'Outro'] as const
 
@@ -29,3 +31,14 @@ export function tomDaCategoria(categoria: string): number {
   if (fixo !== undefined) return fixo
   return [...nome].reduce((soma, c) => soma + c.charCodeAt(0), 0) % TONS_CATEGORIA
 }
+
+// Ícone da categoria, usado na capa dos cards e nos chips de filtro (as livres caem em "eventos").
+const ICONE_POR_CATEGORIA: Record<string, NomeIcone> = {
+  palestra: 'usuarios',
+  curso: 'certificado',
+  feira: 'estrela',
+  workshop: 'editar',
+  seminário: 'bandeira',
+}
+
+export const iconeDaCategoria = (categoria: string): NomeIcone => ICONE_POR_CATEGORIA[categoria.trim().toLowerCase()] ?? 'eventos'

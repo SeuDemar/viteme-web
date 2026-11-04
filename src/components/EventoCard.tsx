@@ -1,20 +1,10 @@
 import { Link } from 'react-router-dom'
 import type { EventoResumo } from '../api/tipos'
-import { tomDaCategoria } from '../lib/categorias'
+import { iconeDaCategoria, tomDaCategoria } from '../lib/categorias'
 import { partesDaData, precoOuGratuito } from '../lib/formatar'
-import { Icone, type NomeIcone } from './Icone'
+import { Icone } from './Icone'
 import { Selo } from './Selo'
 
-
-// Ícone grande e discreto na capa, conforme a categoria (as categorias livres caem em "eventos").
-const ARTE: Record<string, NomeIcone> = {
-  palestra: 'usuarios',
-  workshop: 'editar',
-  curso: 'certificado',
-  feira: 'estrela',
-  seminário: 'bandeira',
-}
-const arteDaCategoria = (categoria: string): NomeIcone => ARTE[categoria.trim().toLowerCase()] ?? 'eventos'
 
 /** Card do mural. O selo "Alterado" saiu do card a pedido da equipe; a alteração aparece em destaque no detalhe (T02). */
 export function EventoCard({ evento, destaque = false }: { evento: EventoResumo; destaque?: boolean }) {
@@ -28,7 +18,7 @@ export function EventoCard({ evento, destaque = false }: { evento: EventoResumo;
       <div className={`evento-card__capa evento-card__capa--${tomDaCategoria(evento.categoria)}`}>
         {!evento.imagemUrl && (
           <span className="evento-card__arte" aria-hidden="true">
-            <Icone nome={arteDaCategoria(evento.categoria)} tamanho={destaque ? 150 : 112} />
+            <Icone nome={iconeDaCategoria(evento.categoria)} tamanho={destaque ? 150 : 112} />
           </span>
         )}
         {evento.imagemUrl && <img className="evento-card__imagem" src={evento.imagemUrl} alt="" loading="lazy" />}
@@ -66,7 +56,10 @@ export function EventoCard({ evento, destaque = false }: { evento: EventoResumo;
           </span>
         )}
         <div className="evento-card__rodape">
-          <span className={evento.preco > 0 ? 'evento-card__preco' : 'evento-card__preco evento-card__preco--gratuito'}>{precoOuGratuito(evento.preco)}</span>
+          <span className={evento.preco > 0 ? 'evento-card__preco' : 'evento-card__preco evento-card__preco--gratuito'}>
+            <Icone nome="etiqueta" tamanho={16} />
+            {precoOuGratuito(evento.preco)}
+          </span>
           <span className="linha linha--compacta">
             {encerradas ? (
               <Selo tom="neutro">Inscrições encerradas</Selo>

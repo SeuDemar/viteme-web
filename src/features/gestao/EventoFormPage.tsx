@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { obterPerfil } from '../../api/auth'
 import { atualizarAtividade, atualizarEvento, criarAtividade, criarEvento, obterEvento, publicarEvento, removerAtividade } from '../../api/eventos'
@@ -10,6 +10,8 @@ import { Campo } from '../../components/Campo'
 import { Carregando, Erro } from '../../components/Estados'
 import { Confirmacao } from '../../components/Modal'
 import { Icone } from '../../components/Icone'
+import { Seletor } from '../../components/Seletor'
+import { SeletorDataHora } from '../../components/SeletorDataHora'
 import { SeloStatusEvento } from '../../components/Selo'
 import { useToast } from '../../components/Toasts'
 import { CATEGORIAS } from '../../lib/categorias'
@@ -50,7 +52,7 @@ function AtividadesEditor({ evento, publicado, aoMudar }: { evento: EventoDetalh
   const [mensagem, setMensagem] = useState<string | null>(null)
   const atividades = [...evento.atividades].sort((a, b) => a.inicio.localeCompare(b.inicio))
 
-  const { register, handleSubmit, setError, reset, formState: { errors, isSubmitting } } = useForm<AtividadeForm>({
+  const { register, handleSubmit, setError, control, reset, formState: { errors, isSubmitting } } = useForm<AtividadeForm>({
     resolver: zodResolver(atividadeSchema),
     defaultValues: { titulo: '', palestrante: '', local: '', inicio: '', fim: '', motivoAlteracao: '' },
   })
@@ -162,10 +164,14 @@ function AtividadesEditor({ evento, publicado, aoMudar }: { evento: EventoDetalh
               {(a) => <input className="entrada" {...a} {...register('local')} />}
             </Campo>
             <Campo rotulo="Início" erro={errors.inicio?.message}>
-              {(a) => <input className="entrada" type="datetime-local" {...a} {...register('inicio')} />}
+              {(a) => (
+              <Controller control={control} name="inicio" render={({ field }) => <SeletorDataHora {...a} ref={field.ref} value={field.value ?? ''} onChange={field.onChange} onBlur={field.onBlur} />} />
+            )}
             </Campo>
             <Campo rotulo="Término" erro={errors.fim?.message}>
-              {(a) => <input className="entrada" type="datetime-local" {...a} {...register('fim')} />}
+              {(a) => (
+              <Controller control={control} name="fim" render={({ field }) => <SeletorDataHora {...a} ref={field.ref} value={field.value ?? ''} onChange={field.onChange} onBlur={field.onBlur} />} />
+            )}
             </Campo>
             {publicado && (
               <Campo rotulo="Motivo da alteração" erro={errors.motivoAlteracao?.message} ajuda="Os inscritos e interessados serão avisados. 10 a 300 caracteres." cheio>
@@ -227,6 +233,10 @@ function Formulario({ inicial, versao, eventoId }: { inicial?: EventoDetalhe; ve
   const toast = useToast()
   // Valor do campo de início como veio da API: na edição, só a troca da data é conferida (RN05, D53 da API).
   const [inicioOriginal] = useState(() => (inicial ? paraCampoDataHora(inicial.dataInicio) : undefined))
+  const opcoesDeCategoria = [
+    ...CATEGORIAS.map((c) => ({ valor: c, rotulo: c })),
+    ...(inicial && !(CATEGORIAS as readonly string[]).includes(inicial.categoria) ? [{ valor: inicial.categoria, rotulo: inicial.categoria }] : []),
+  ]
   const [agoraNoCampo] = useState(() => paraCampoDataHora(new Date().toISOString()))
   const publicado = inicial?.status === 'PUBLICADO' || inicial?.status === 'OCULTO'
   const finalizado = inicial?.status === 'CANCELADO' || inicial?.status === 'ENCERRADO'
@@ -343,31 +353,45 @@ function Formulario({ inicial, versao, eventoId }: { inicial?: EventoDetalhe; ve
           </Campo>
           <Campo rotulo="Categoria" erro={errors.categoria?.message}>
             {(a) => (
-              <select className="entrada" {...a} {...register('categoria')}>
-                <option value="">Selecione uma categoria</option>
-                {CATEGORIAS.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-                {inicial && !(CATEGORIAS as readonly string[]).includes(inicial.categoria) && <option value={inicial.categoria}>{inicial.categoria}</option>}
-              </select>
+              <Controller
+                control={control}
+                name="categoria"
+                render={({ field }) => (
+                  <Seletor
+                    {...a}
+                    ref={field.ref}
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    placeholder="Selecione uma categoria"
+                    opcoes={opcoesDeCategoria}
+                  />
+                )}
+              />
             )}
           </Campo>
           <Campo rotulo="Local" erro={errors.local?.message}>
             {(a) => <input className="entrada" placeholder="Local ou link" maxLength={200} {...a} {...register('local')} />}
           </Campo>
           <Campo rotulo="Início do evento" erro={errors.dataInicio?.message}>
-            {(a) => <input className="entrada" type="datetime-local" min={agoraNoCampo} {...a} {...register('dataInicio')} />}
+            {(a) => (
+              <Controller control={control} name="dataInicio" render={({ field }) => <SeletorDataHora {...a} ref={field.ref} value={field.value ?? ''} onChange={field.onChange} onBlur={field.onBlur} min={agoraNoCampo} />} />
+            )}
           </Campo>
           <Campo rotulo="Término do evento" erro={errors.dataFim?.message}>
-            {(a) => <input className="entrada" type="datetime-local" {...a} {...register('dataFim')} />}
+            {(a) => (
+              <Controller control={control} name="dataFim" render={({ field }) => <SeletorDataHora {...a} ref={field.ref} value={field.value ?? ''} onChange={field.onChange} onBlur={field.onBlur} />} />
+            )}
           </Campo>
           <Campo rotulo="Inscrições abrem em" erro={errors.inscricaoInicio?.message}>
-            {(a) => <input className="entrada" type="datetime-local" {...a} {...register('inscricaoInicio')} />}
+            {(a) => (
+              <Controller control={control} name="inscricaoInicio" render={({ field }) => <SeletorDataHora {...a} ref={field.ref} value={field.value ?? ''} onChange={field.onChange} onBlur={field.onBlur} />} />
+            )}
           </Campo>
           <Campo rotulo="Inscrições encerram em" erro={errors.inscricaoFim?.message} ajuda="Até o início do evento.">
-            {(a) => <input className="entrada" type="datetime-local" {...a} {...register('inscricaoFim')} />}
+            {(a) => (
+              <Controller control={control} name="inscricaoFim" render={({ field }) => <SeletorDataHora {...a} ref={field.ref} value={field.value ?? ''} onChange={field.onChange} onBlur={field.onBlur} />} />
+            )}
           </Campo>
           <Campo rotulo="Preço" erro={errors.preco?.message} ajuda={comTaxaAviso ? 'Atenção: o gateway de pagamento pode cobrar uma taxa de processamento do organizador. O Viteme não cobra taxa.' : 'Use 0 para evento gratuito.'}>
             {(a) => <input className="entrada" inputMode="decimal" placeholder="R$ 0,00" {...a} {...register('preco')} />}
