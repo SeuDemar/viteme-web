@@ -39,8 +39,7 @@
     radial-gradient(900px 520px at 88% -140px, rgba(255, 233, 160, 0.6), transparent 65%),
     radial-gradient(800px 440px at -10% -90px, rgba(255, 140, 120, 0.26), transparent 65%),
     linear-gradient(180deg, #bde8fb 0%, #dcf5fd 36%, #eefaff 62%, #fff5e8 100%);
-  --bolha: radial-gradient(circle closest-side at 50% 50%, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.16) 62%, rgba(255, 255, 255, 0.62) 91%, rgba(255, 255, 255, 0) 100%);
-  --opacidade-bolhas: 0.5;
+  --opacidade-bolhas: 0.6;
   --brilho-capa-a: 0.4;
   --brilho-capa-b: 0.08;
 
@@ -114,7 +113,7 @@
       radial-gradient(900px 520px at 88% -160px, rgba(255, 200, 110, 0.14), transparent 65%),
       radial-gradient(800px 440px at -10% -90px, rgba(255, 111, 97, 0.14), transparent 65%),
       linear-gradient(180deg, #0e3466 0%, #09284a 40%, #061a30 100%);
-    --opacidade-bolhas: 0.24;
+    --opacidade-bolhas: 0.22;
     --brilho-capa-a: 0.14;
     --brilho-capa-b: 0.03;
     --capa-0: linear-gradient(135deg, #0f4a6b 0%, #0a2f48 100%);
@@ -178,7 +177,7 @@
     radial-gradient(900px 520px at 88% -160px, rgba(255, 200, 110, 0.14), transparent 65%),
     radial-gradient(800px 440px at -10% -90px, rgba(255, 111, 97, 0.14), transparent 65%),
     linear-gradient(180deg, #0e3466 0%, #09284a 40%, #061a30 100%);
-  --opacidade-bolhas: 0.24;
+  --opacidade-bolhas: 0.22;
   --brilho-capa-a: 0.14;
   --brilho-capa-b: 0.03;
   --capa-0: linear-gradient(135deg, #0f4a6b 0%, #0a2f48 100%);
@@ -253,19 +252,6 @@ body {
 .contador,
 .tabela {
   font-variant-numeric: tabular-nums;
-}
-
-/* Bolhas flutuando atrás do conteúdo (só decoração). */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: var(--opacidade-bolhas);
-  background:
-    var(--bolha) 94% 34% / 150px 150px no-repeat,
-    var(--bolha) 5% 80% / 84px 84px no-repeat;
 }
 
 h1,
@@ -570,6 +556,16 @@ textarea {
 /* Resultados do mural: altura mínima de ~2 fileiras de cards (lista, esqueleto ou estado vazio ocupam o mesmo espaço). */
 .mural__resultados {
   min-height: 660px;
+}
+
+/* Enquanto o novo filtro carrega, a lista anterior fica esmaecida (sem pular para o esqueleto). */
+.mural__resultados .grade-eventos {
+  transition: opacity 0.2s ease;
+}
+
+.mural__resultados[data-atualizando='true'] .grade-eventos {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .mural__resultados > .estado {
@@ -1823,6 +1819,45 @@ textarea.entrada {
   border-top: 1px solid var(--cor-borda);
 }
 
+/* ---------- Bolhas (só decoração) ---------- */
+/* Círculos simples e bem transparentes, só nos cantos: um fio de borda e quase nenhum preenchimento, para não chamarem atenção.
+   Cada uma é um elemento próprio (não uma camada de fundo): ficam por cima das ondas do hero e não são cortadas em quadrado. */
+.bolha {
+  position: absolute;
+  width: var(--t, 120px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.bolhas-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: var(--opacidade-bolhas);
+}
+
+.bolhas-fundo .bolha {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+}
+
+.bolha--a {
+  --t: 240px;
+  right: -80px;
+  top: 110px;
+}
+
+.bolha--b {
+  --t: 300px;
+  left: -100px;
+  bottom: -100px;
+}
+
 /* ---------- Hero do mural ---------- */
 .hero {
   position: relative;
@@ -1832,13 +1867,29 @@ textarea.entrada {
   border-radius: 32px;
   border: 1px solid rgba(255, 255, 255, 0.45);
   background:
-    var(--bolha) right 6% top 12% / 120px 120px no-repeat,
-    var(--bolha) right -30px bottom -44px / 190px 190px no-repeat,
     radial-gradient(420px 260px at 0% 112%, rgba(255, 111, 97, 0.6), transparent 70%),
     radial-gradient(520px 320px at 100% 0%, rgba(255, 232, 150, 0.5), transparent 70%),
     var(--grad-hero);
   color: #fff;
   box-shadow: 0 22px 48px rgba(6, 90, 150, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.hero > .bolha--h1 {
+  --t: 240px;
+  right: -64px;
+  top: -84px;
+}
+
+.hero > .bolha--h2 {
+  --t: 220px;
+  right: -52px;
+  bottom: -76px;
+}
+
+/* O texto do hero fica acima das bolhas. */
+.hero > :not(.bolha) {
+  position: relative;
+  z-index: 1;
 }
 
 /* Reflexo de vidro no topo, característico do Frutiger Aero. */
@@ -2394,8 +2445,6 @@ input::-ms-clear {
     border-radius: 24px;
     /* Bolhas menores e só nos cantos, para não passarem por cima do texto. */
     background:
-      var(--bolha) right -26px bottom -34px / 120px 120px no-repeat,
-      var(--bolha) right 16px top 14px / 40px 40px no-repeat,
       radial-gradient(320px 200px at 0% 112%, rgba(255, 111, 97, 0.5), transparent 70%),
       var(--grad-hero);
   }
@@ -2404,6 +2453,31 @@ input::-ms-clear {
     height: 30%;
     opacity: 0.6;
   }
+
+  .hero > .bolha--h1 {
+    --t: 100px;
+    right: -28px;
+    top: -42px;
+  }
+
+  .hero > .bolha--h2 {
+    --t: 150px;
+    right: -44px;
+    bottom: -54px;
+  }
+
+  .bolha--a {
+    --t: 150px;
+    right: -50px;
+    top: 90px;
+  }
+
+  .bolha--b {
+    --t: 190px;
+    left: -70px;
+    bottom: -70px;
+  }
+
 
   .hero .pagina__sub {
     color: rgba(255, 255, 255, 0.95);

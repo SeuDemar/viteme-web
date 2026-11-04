@@ -1,7 +1,10 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { obterEvento } from '../api/eventos'
 import type { EventoResumo } from '../api/tipos'
 import { iconeDaCategoria, tomDaCategoria } from '../lib/categorias'
 import { partesDaData, precoOuGratuito } from '../lib/formatar'
+import { carregarDetalhe } from '../routes/telas'
 import { Icone } from './Icone'
 import { Selo } from './Selo'
 
@@ -12,9 +15,19 @@ export function EventoCard({ evento, destaque = false }: { evento: EventoResumo;
   const lotado = !encerradas && evento.vagasRestantes === 0
   const poucasVagas = !encerradas && !lotado && evento.vagasRestantes !== null && evento.vagasRestantes <= 20
   const data = partesDaData(evento.dataInicio)
+  const queryClient = useQueryClient()
+
+  // Ao chegar o mouse, o foco ou o dedo, já busca o detalhe e baixa a tela: ao clicar, abre na hora.
+  const prepararDetalhe = () => {
+    void carregarDetalhe().catch(() => undefined)
+    void queryClient.prefetchQuery({ queryKey: ['evento', evento.id], queryFn: () => obterEvento(evento.id), staleTime: 30_000 })
+  }
 
   return (
-    <Link to={`/eventos/${evento.id}`} className={`evento-card evento-card--tom-${tomDaCategoria(evento.categoria)}${destaque ? ' evento-card--destaque' : ''}`}>
+    <Link to={`/eventos/${evento.id}`} onMouseEnter={prepararDetalhe}
+      onFocus={prepararDetalhe}
+      onTouchStart={prepararDetalhe}
+      className={`evento-card evento-card--tom-${tomDaCategoria(evento.categoria)}${destaque ? ' evento-card--destaque' : ''}`}>
       <div className={`evento-card__capa evento-card__capa--${tomDaCategoria(evento.categoria)}`}>
         {!evento.imagemUrl && (
           <span className="evento-card__arte" aria-hidden="true">

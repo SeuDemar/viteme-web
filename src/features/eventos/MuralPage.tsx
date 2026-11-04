@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
 import { useEffect, useState, type CSSProperties } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { listarEventos } from '../../api/eventos'
@@ -49,6 +49,9 @@ export function MuralPage() {
     queryFn: ({ pageParam }) => listarEventos({ busca: buscaNaUrl, categoria, gratuito, pagina: pageParam }),
     initialPageParam: 1,
     getNextPageParam: (ultima) => (ultima.pagina * ultima.tamanhoPagina < ultima.total ? ultima.pagina + 1 : undefined),
+    // Trocar de filtro não volta ao esqueleto: a lista anterior fica (esmaecida) até a nova chegar; filtros já vistos abrem na hora.
+    placeholderData: keepPreviousData,
+    staleTime: 60_000,
   })
 
   const paginas = consulta.data?.pages ?? []
@@ -64,6 +67,8 @@ export function MuralPage() {
   return (
     <main className="pagina" id="conteudo">
       <section className="hero" aria-labelledby="titulo-mural">
+        <span className="bolha bolha--h1" aria-hidden="true" />
+        <span className="bolha bolha--h2" aria-hidden="true" />
         <h1 className="pagina__titulo" id="titulo-mural">
           Descubra eventos
         </h1>
@@ -111,7 +116,7 @@ export function MuralPage() {
       <h2 className="secao-titulo">Próximos eventos</h2>
 
       {/* Altura mínima: ao trocar de filtro (ou ficar sem eventos) o rodapé não pula. */}
-      <div className="mural__resultados">
+      <div className="mural__resultados" aria-busy={consulta.isPlaceholderData} data-atualizando={consulta.isPlaceholderData}>
         {consulta.isPending ? (
           <CarregandoCards />
         ) : consulta.isError ? (
