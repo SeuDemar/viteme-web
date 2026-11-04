@@ -10,6 +10,13 @@ export function dataCurta(valor: string | Date): string {
   return `${d.getDate()} ${MESES_CURTOS[d.getMonth()]}`
 }
 
+/** Partes para o bloco de data dos cards: dia "12", mês "nov" e "qua, 19h". */
+export function partesDaData(valor: string | Date): { dia: string; mes: string; semanaEHora: string } {
+  const d = paraData(valor)
+  const semana = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' }).format(d).replace('.', '')
+  return { dia: String(d.getDate()), mes: MESES_CURTOS[d.getMonth()]!, semanaEHora: `${semana}, ${hora(d)}` }
+}
+
 /** "12 de novembro de 2026" */
 export function dataLonga(valor: string | Date): string {
   return new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }).format(paraData(valor))

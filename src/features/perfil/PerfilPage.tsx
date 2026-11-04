@@ -6,7 +6,9 @@ import { atualizarPerfil, definirAceiteSms, definirCnpj, enviarCodigoTelefone, o
 import type { Perfil } from '../../api/tipos'
 import { Campo } from '../../components/Campo'
 import { Carregando, Erro } from '../../components/Estados'
+import { Icone } from '../../components/Icone'
 import { Selo } from '../../components/Selo'
+import { useToast } from '../../components/Toasts'
 import { dataCurta, mascararCnpj, mascararTelefone, telefoneDeE164, telefoneParaE164 } from '../../lib/formatar'
 import { mapearErro } from '../../lib/erros'
 import { aplicarErrosDosCampos, useTitulo } from '../../lib/formulario'
@@ -94,6 +96,7 @@ function VerificacaoTelefone({ aoVerificar }: { aoVerificar: () => void }) {
 function DadosOrganizador({ perfil, aoSalvar }: { perfil: Perfil; aoSalvar: (novo: Perfil) => void }) {
   const [editando, setEditando] = useState(!perfil.podeOrganizar)
   const [mensagem, setMensagem] = useState<{ tom: 'sucesso' | 'erro'; texto: string } | null>(null)
+  const toast = useToast()
   const { register, handleSubmit, setError, setValue, reset, formState: { errors, isSubmitting } } = useForm<CnpjForm>({
     resolver: zodResolver(cnpjSchema),
     defaultValues: { cnpj: '' },
@@ -106,7 +109,7 @@ function DadosOrganizador({ perfil, aoSalvar }: { perfil: Perfil; aoSalvar: (nov
       aoSalvar(novo)
       reset({ cnpj: '' })
       setEditando(false)
-      setMensagem({ tom: 'sucesso', texto: 'CNPJ verificado. Você já pode criar eventos.' })
+      toast.sucesso('CNPJ verificado. Você já pode criar eventos.')
     } catch (e) {
       const erro = mapearErro(e)
       if (!aplicarErrosDosCampos(erro, setError, ['cnpj'])) setMensagem({ tom: 'erro', texto: erro.mensagem })
@@ -159,6 +162,7 @@ function DadosOrganizador({ perfil, aoSalvar }: { perfil: Perfil; aoSalvar: (nov
           </Campo>
           <div className="linha">
             <button type="submit" className="botao botao--secundario" disabled={isSubmitting}>
+              {!isSubmitting && <Icone nome="check" tamanho={18} />}
               {isSubmitting ? 'Verificando…' : 'Verificar CNPJ'}
             </button>
             {perfil.podeOrganizar && (
@@ -181,6 +185,7 @@ function FormularioPerfil({ perfil }: { perfil: Perfil }) {
   const queryClient = useQueryClient()
   const { atualizarUsuario } = useSessao()
   const [mensagem, setMensagem] = useState<{ tom: 'sucesso' | 'erro'; texto: string } | null>(null)
+  const toast = useToast()
   const {
     register,
     handleSubmit,
@@ -205,7 +210,7 @@ function FormularioPerfil({ perfil }: { perfil: Perfil }) {
       const novo = await atualizarPerfil(dados.nome, telefoneParaE164(dados.telefone))
       atualizarCache(novo)
       reset({ nome: novo.nome, telefone: telefoneDeE164(novo.telefone) })
-      setMensagem({ tom: 'sucesso', texto: 'Perfil atualizado.' })
+      toast.sucesso('Perfil atualizado.')
     } catch (e) {
       const erro = mapearErro(e)
       if (!aplicarErrosDosCampos(erro, setError, ['nome', 'telefone'])) setMensagem({ tom: 'erro', texto: erro.mensagem })
@@ -214,7 +219,10 @@ function FormularioPerfil({ perfil }: { perfil: Perfil }) {
 
   const sms = useMutation({
     mutationFn: (aceita: boolean) => definirAceiteSms(aceita),
-    onSuccess: (r) => atualizarCache({ ...perfil, aceitaSms: r.aceitaSms, aceiteSmsEm: r.aceiteSmsEm }),
+    onSuccess: (r) => {
+      atualizarCache({ ...perfil, aceitaSms: r.aceitaSms, aceiteSmsEm: r.aceiteSmsEm })
+      toast.sucesso(r.aceitaSms ? 'Avisos por SMS ativados.' : 'Avisos por SMS desativados.')
+    },
     onError: (e) => setMensagem({ tom: 'erro', texto: mapearErro(e).mensagem }),
   })
 
@@ -260,7 +268,12 @@ function FormularioPerfil({ perfil }: { perfil: Perfil }) {
         </button>
       </form>
 
-      {telefoneSalvo && !perfil.telefoneVerificado && !isDirty && <VerificacaoTelefone aoVerificar={() => void queryClient.invalidateQueries({ queryKey: ['perfil'] })} />}
+      {telefoneSalvo && !perfil.telefoneVerificado && !isDirty && <VerificacaoTelefone
+          aoVerificar={() => {
+            void queryClient.invalidateQueries({ queryKey: ['perfil'] })
+            toast.sucesso('Telefone verificado. Agora você pode ativar os avisos por SMS.')
+          }}
+        />}
 
       <DadosOrganizador perfil={perfil} aoSalvar={(novo) => queryClient.setQueryData(['perfil'], novo)} />
 

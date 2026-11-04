@@ -21,7 +21,7 @@ Não há administrador no Viteme: o papel de cada pessoa é definido **por event
 |---|---|
 | **Visitante** (sem login) | Ver o mural e os detalhes dos eventos, ver o histórico de alterações e validar certificados |
 | **Participante** | Tudo do visitante, mais: inscrever-se, pagar, cancelar a própria inscrição, acompanhar eventos, receber notificações, denunciar eventos e baixar o próprio certificado |
-| **Colaborador** de um evento | Ver os inscritos e fazer o check-in daquele evento |
+| **Colaborador** de um evento | Ver os inscritos e fazer o check-in daquele evento. Também pode se inscrever nele, como participante |
 | **Organizador** de um evento | Tudo do colaborador, mais: editar, publicar e cancelar o evento, gerenciar a programação e os colaboradores |
 
 ## Telas principais
@@ -29,7 +29,7 @@ Não há administrador no Viteme: o papel de cada pessoa é definido **por event
 | Menu | Para que serve |
 |---|---|
 | **Explorar eventos** | Mural com busca e filtros (Palestras, Workshops, Cursos, Feiras, Gratuitos). Eventos alterados nos últimos 3 dias têm o selo **Alterado** |
-| **Minhas inscrições** | Suas inscrições (próximas e anteriores), o **código de check-in**, comprovante, pagamento pendente, cancelamento e certificado |
+| **Minhas inscrições** | Suas inscrições (próximas e anteriores), o **código de check-in** e o **QR code** (em "Mostrar QR code"), pagamento pendente, cancelamento e certificado |
 | **Meus eventos** | Eventos que você organiza ou em que colabora; botão **+ Novo evento** |
 | **Notificações** | Avisos de inscrição, pagamento, alterações e lembretes. O número no menu mostra as não lidas |
 | **Perfil** | Seus dados, verificação do telefone e avisos por SMS |
@@ -43,7 +43,7 @@ O roteiro segue o fluxo pedido na Entrega 3. Use **duas janelas** (ou uma janela
 ### 1. Conta e acesso
 1. Abra **Criar conta**, preencha nome, e-mail, senha (mínimo de 8 caracteres, com letra e número) e confirme. Telefone é opcional.
 2. Você entra automaticamente. Recarregue a página (F5): a sessão continua.
-3. **Sair** encerra a sessão. Tentar abrir uma tela de participante sem estar logado leva ao login e volta ao ponto de origem depois.
+3. No topo, o **sino** leva às notificações (o número mostra as não lidas) e o **círculo com suas iniciais** abre o menu com **Meu perfil** e **Sair**. No celular, use o menu (☰) e a barra inferior. **Sair** encerra a sessão. Tentar abrir uma tela de participante sem estar logado leva ao login e volta ao ponto de origem depois.
 
 ### 2. Organizador: criar e publicar um evento
 1. Primeira vez? Em **Perfil > Dados de organizador**, informe o CNPJ e clique em **Verificar CNPJ**. O Viteme confere na Receita Federal se ele está ativo (uma vez só).
@@ -66,8 +66,9 @@ O roteiro segue o fluxo pedido na Entrega 3. Use **duas janelas** (ou uma janela
 3. No mural o evento ganha o selo **Alterado**, e a página do evento mostra o que mudou e por quê. O participante vê a notificação no sino.
 
 ### 5. Check-in no dia do evento
-1. O organizador (ou um colaborador) abre **Meus eventos > Gerenciar evento > Check-in**.
-2. Digita o **código de 12 caracteres** que o participante mostra. O check-in vale **de 2 horas antes do início até o fim do evento** e não pode ser repetido.
+1. O participante abre **Minhas inscrições > Mostrar QR code** no celular.
+2. O organizador (ou um colaborador) abre **Meus eventos > Gerenciar evento > Check-in** e toca em **Ler QR code**. Na primeira vez o navegador pede permissão para usar a câmera.
+3. Basta apontar a câmera para o QR code: a presença é registrada sozinha e aparece "Presença de … confirmada". Se a câmera não funcionar, digite o **código de 12 caracteres** que aparece embaixo do QR code. O check-in vale **de 2 horas antes do início até o fim do evento** e não pode ser repetido.
 3. A aba **Inscritos** mostra a presença confirmada. O telefone dos participantes nunca é exibido.
 
 ### 6. Certificado
@@ -90,7 +91,9 @@ O roteiro segue o fluxo pedido na Entrega 3. Use **duas janelas** (ou uma janela
 | "Inscrições encerradas" | O prazo de inscrição do evento acabou |
 | "Cadastre um CNPJ para criar eventos" | Só quem tem CNPJ verificado cria eventos. Cadastre em **Perfil > Dados de organizador** |
 | "CNPJ inativo" ou "CNPJ não encontrado" | A Receita Federal não tem o CNPJ como ativo; confira o número |
-| Não consigo me inscrever no meu próprio evento | Organizadores e colaboradores não se inscrevem no evento que gerenciam |
+| Não consigo me inscrever no meu próprio evento | O organizador não se inscreve no próprio evento. Colaboradores podem se inscrever |
+| "A data e a hora de início precisam ser posteriores ao momento atual" | O início do evento precisa ser no futuro, já no rascunho |
+| A câmera não abre em "Ler QR code" | Libere a câmera nas permissões do navegador (ícone de cadeado na barra de endereço) ou digite o código. A câmera só funciona no endereço com https |
 | Não consigo cancelar minha inscrição | O cancelamento só é possível até **24 horas antes** do início; se houve pagamento, o estorno é integral |
 | "Conta bloqueada" | Houve 5 tentativas de login erradas; aguarde 15 minutos |
 | O evento sumiu do mural | Ele foi cancelado, encerrado, ou ocultado após denúncias (com 5 denúncias de pessoas diferentes). Quem está inscrito ainda o vê |

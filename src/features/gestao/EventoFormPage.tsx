@@ -9,12 +9,14 @@ import type { Atividade, EventoDetalhe } from '../../api/tipos'
 import { Campo } from '../../components/Campo'
 import { Carregando, Erro } from '../../components/Estados'
 import { Confirmacao } from '../../components/Modal'
+import { Icone } from '../../components/Icone'
 import { SeloStatusEvento } from '../../components/Selo'
+import { useToast } from '../../components/Toasts'
 import { CATEGORIAS } from '../../lib/categorias'
 import { dataEHora, doCampoDataHora, paraCampoDataHora } from '../../lib/formatar'
 import { mapearErro } from '../../lib/erros'
 import { aplicarErrosDosCampos, useTitulo } from '../../lib/formulario'
-import { atividadeSchema, eventoSchema, motivoSchema, paraNumeroPreco, type AtividadeForm, type EventoForm } from '../../schemas/evento'
+import { atividadeSchema, criarEventoSchema, MENSAGEM_INICIO_PASSADO, motivoSchema, paraNumeroPreco, type AtividadeForm, type EventoForm } from '../../schemas/evento'
 
 const CAMPOS_EVENTO = ['titulo', 'descricao', 'categoria', 'local', 'imagemUrl', 'dataInicio', 'dataFim', 'inscricaoInicio', 'inscricaoFim', 'capacidade', 'preco', 'cargaHoraria', 'motivoAlteracao'] as const
 const CAMPOS_ATIVIDADE = ['titulo', 'palestrante', 'local', 'inicio', 'fim', 'motivoAlteracao'] as const
@@ -104,7 +106,8 @@ function AtividadesEditor({ evento, publicado, aoMudar }: { evento: EventoDetalh
         <h2 className="cartao__titulo">Programação</h2>
         {!editando && (
           <button type="button" className="botao botao--secundario botao--pequeno" onClick={() => abrir('nova')}>
-            + Adicionar atividade
+            <Icone nome="mais" tamanho={16} />
+            Adicionar atividade
           </button>
         )}
       </div>
@@ -221,11 +224,15 @@ function Formulario({ inicial, versao, eventoId }: { inicial?: EventoDetalhe; ve
   const versaoAtual = salva && salva.base === versao ? salva.valor : versao
   const [mensagem, setMensagem] = useState<{ tom: 'sucesso' | 'erro'; texto: string } | null>(null)
   const [conflito, setConflito] = useState(false)
+  const toast = useToast()
+  // Valor do campo de início como veio da API: na edição, só a troca da data é conferida (RN05, D53 da API).
+  const [inicioOriginal] = useState(() => (inicial ? paraCampoDataHora(inicial.dataInicio) : undefined))
+  const [agoraNoCampo] = useState(() => paraCampoDataHora(new Date().toISOString()))
   const publicado = inicial?.status === 'PUBLICADO' || inicial?.status === 'OCULTO'
   const finalizado = inicial?.status === 'CANCELADO' || inicial?.status === 'ENCERRADO'
 
   const { register, handleSubmit, setError, control, reset, formState: { errors, isSubmitting, dirtyFields } } = useForm<EventoForm>({
-    resolver: zodResolver(eventoSchema),
+    resolver: zodResolver(criarEventoSchema(inicioOriginal)),
     defaultValues: valoresIniciais(inicial),
   })
 
@@ -259,7 +266,8 @@ function Formulario({ inicial, versao, eventoId }: { inicial?: EventoDetalhe; ve
       setConflito(true)
       return
     }
-    if (erro.codigo === 'MOTIVO_OBRIGATORIO') setError('motivoAlteracao', { type: 'server', message: 'Informe o motivo da alteração (10 a 300 caracteres).' })
+    if (erro.codigo === 'DATA_INICIO_PASSADA') setError('dataInicio', { type: 'server', message: MENSAGEM_INICIO_PASSADO })
+    else if (erro.codigo === 'MOTIVO_OBRIGATORIO') setError('motivoAlteracao', { type: 'server', message: 'Informe o motivo da alteração (10 a 300 caracteres).' })
     else if (erro.codigo === 'PRECO_BLOQUEADO') setError('preco', { type: 'server', message: erro.mensagem })
     else if (erro.codigo === 'CAPACIDADE_ABAIXO_DAS_VAGAS_OCUPADAS') setError('capacidade', { type: 'server', message: erro.mensagem })
     else if (!aplicarErrosDosCampos(erro, setError, CAMPOS_EVENTO)) setMensagem({ tom: 'erro', texto: erro.mensagem })
@@ -275,14 +283,15 @@ function Formulario({ inicial, versao, eventoId }: { inicial?: EventoDetalhe; ve
       if (!eventoId) {
         const criado = await criarEvento(montarEntrada(dados))
         await invalidar()
-        navegar(`/meus-eventos/${criado.evento.id}/editar`, { replace: true, state: { criado: true } })
+        toast.sucesso('Rascunho criado. Agora monte a programação e publique quando estiver pronto.')
+        navegar(`/meus-eventos/${criado.evento.id}/editar`, { replace: true })
         return
       }
       const resposta = await atualizarEvento(eventoId, { ...montarEntrada(dados), motivoAlteracao: exigeMotivo ? dados.motivoAlteracao : undefined }, versaoAtual)
       setSalva({ base: versao, valor: resposta.versao })
       await invalidar()
       reset({ ...valoresIniciais(resposta.evento) })
-      setMensagem({ tom: 'sucesso', texto: publicado ? 'Alterações salvas. Inscritos e interessados foram avisados.' : 'Rascunho salvo.' })
+      toast.sucesso(publicado ? 'Alterações salvas. Inscritos e interessados foram avisados.' : 'Rascunho salvo.')
     } catch (e) {
       tratarErro(e)
     }
@@ -292,10 +301,12 @@ function Formulario({ inicial, versao, eventoId }: { inicial?: EventoDetalhe; ve
     mutationFn: () => publicarEvento(eventoId!),
     onSuccess: async () => {
       await invalidar()
-      navegar(`/meus-eventos/${eventoId}`, { state: { publicado: true } })
+      toast.sucesso('Evento publicado! Ele já aparece no mural.')
+      navegar(`/meus-eventos/${eventoId}`)
     },
     onError: (e) => {
       const erro = mapearErro(e)
+      if (erro.codigo === 'DATA_INICIO_PASSADA') setError('dataInicio', { type: 'server', message: MENSAGEM_INICIO_PASSADO })
       setMensagem({ tom: 'erro', texto: erro.mensagem })
     },
   })
@@ -347,7 +358,7 @@ function Formulario({ inicial, versao, eventoId }: { inicial?: EventoDetalhe; ve
             {(a) => <input className="entrada" placeholder="Local ou link" maxLength={200} {...a} {...register('local')} />}
           </Campo>
           <Campo rotulo="Início do evento" erro={errors.dataInicio?.message}>
-            {(a) => <input className="entrada" type="datetime-local" {...a} {...register('dataInicio')} />}
+            {(a) => <input className="entrada" type="datetime-local" min={agoraNoCampo} {...a} {...register('dataInicio')} />}
           </Campo>
           <Campo rotulo="Término do evento" erro={errors.dataFim?.message}>
             {(a) => <input className="entrada" type="datetime-local" {...a} {...register('dataFim')} />}
@@ -378,6 +389,7 @@ function Formulario({ inicial, versao, eventoId }: { inicial?: EventoDetalhe; ve
         </div>
         <div className="linha">
           <button type="submit" className="botao" disabled={isSubmitting}>
+            {!isSubmitting && <Icone nome="check" tamanho={18} />}
             {isSubmitting ? 'Salvando…' : eventoId ? (publicado ? 'Salvar alterações' : 'Salvar rascunho') : 'Salvar rascunho'}
           </button>
           {eventoId && inicial?.status !== 'PUBLICADO' && (
@@ -394,6 +406,7 @@ function Formulario({ inicial, versao, eventoId }: { inicial?: EventoDetalhe; ve
                 publicar.mutate()
               }}
             >
+              {!publicar.isPending && <Icone nome="enviar" tamanho={18} />}
               {publicar.isPending ? 'Publicando…' : inicial?.status === 'OCULTO' ? 'Republicar evento' : 'Publicar evento'}
             </button>
           )}

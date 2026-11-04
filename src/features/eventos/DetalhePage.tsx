@@ -8,8 +8,11 @@ import { inscrever } from '../../api/inscricoes'
 import type { EventoDetalhe } from '../../api/tipos'
 import { Campo } from '../../components/Campo'
 import { Carregando, Erro } from '../../components/Estados'
+import { Icone } from '../../components/Icone'
+import { LinhaDoTempo } from '../../components/LinhaDoTempo'
 import { Modal } from '../../components/Modal'
 import { Selo, SeloStatusEvento } from '../../components/Selo'
+import { useToast } from '../../components/Toasts'
 import { dataLonga, dataEHora, hora, moeda, precoOuGratuito } from '../../lib/formatar'
 import { mapearErro } from '../../lib/erros'
 import { aplicarErrosDosCampos, useTitulo } from '../../lib/formulario'
@@ -131,6 +134,7 @@ export function DetalhePage() {
   const queryClient = useQueryClient()
   const [denunciando, setDenunciando] = useState(false)
   const [mensagem, setMensagem] = useState<string | null>(null)
+  const toast = useToast()
 
   const consulta = useQuery({ queryKey: ['evento', id], queryFn: () => obterEvento(id), retry: false })
   const evento = consulta.data?.evento
@@ -153,7 +157,10 @@ export function DetalhePage() {
 
   const interesse = useMutation({
     mutationFn: (acompanhar: boolean) => (acompanhar ? acompanharEvento(id) : deixarDeAcompanhar(id)),
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['evento', id] }),
+    onSuccess: (_, acompanhar) => {
+      void queryClient.invalidateQueries({ queryKey: ['evento', id] })
+      toast.sucesso(acompanhar ? 'Pronto! Você vai receber os avisos deste evento.' : 'Você deixou de acompanhar este evento.')
+    },
     onError: (e) => setMensagem(mapearErro(e).mensagem),
   })
 
@@ -188,11 +195,12 @@ export function DetalhePage() {
   }
 
   const gestor = evento.souOrganizador || evento.souColaborador
+  // Colaborador também pode se inscrever (D52 da API); só o organizador não.
+  const podeSeInscrever = !evento.souOrganizador
   const minha = evento.minhaInscricao
   const inscritoAtivo = minha && (minha.status === 'CONFIRMADA' || minha.status === 'PENDENTE_PAGAMENTO')
   const abertas = inscricoesAbertas(evento)
   const fechado = motivoFechado(evento)
-  const atividades = [...evento.atividades].sort((a, b) => a.inicio.localeCompare(b.inicio))
   const alteracoes = evento.ultimasAlteracoes
   const rotuloInscrever = evento.preco > 0 ? `Inscrever-se por ${moeda(evento.preco)}` : 'Inscrever-se gratuitamente'
 
@@ -216,8 +224,21 @@ export function DetalhePage() {
       <article className="pilha pilha--grande espaco-topo">
         <section className="cartao cartao--destaque">
           {evento.imagemUrl && <img src={evento.imagemUrl} alt="" style={{ width: '100%', maxHeight: 260, objectFit: 'cover', borderRadius: 10, marginBottom: 16 }} />}
-          <h2 style={{ fontSize: 24, fontWeight: 700 }}>{evento.titulo}</h2>
-          <p className="cartao__meta">{periodo(evento.dataInicio, evento.dataFim)}</p>
+          <h2 className="detalhe__titulo">{evento.titulo}</h2>
+          <ul className="detalhe__meta">
+            <li>
+              <Icone nome="eventos" tamanho={18} />
+              {periodo(evento.dataInicio, evento.dataFim)}
+            </li>
+            <li>
+              <Icone nome="local" tamanho={18} />
+              {evento.local}
+            </li>
+            <li>
+              <Icone nome="cartao" tamanho={18} />
+              {precoOuGratuito(evento.preco)}
+            </li>
+          </ul>
           <p className="espaco-topo" style={{ whiteSpace: 'pre-line' }}>
             {evento.descricao}
           </p>
@@ -283,60 +304,52 @@ export function DetalhePage() {
 
         <section className="cartao">
           <h2 className="cartao__titulo">Programação</h2>
-          {atividades.length === 0 ? (
-            <p className="cartao__meta">A programação ainda não foi divulgada.</p>
-          ) : (
-            <div className="programacao">
-              {atividades.map((a) => (
-                <div className="programacao__item" key={a.id}>
-                  <span className="programacao__hora">{hora(a.inicio)}</span>
-                  <div>
-                    <strong>{a.titulo}</strong>
-                    {(a.palestrante || a.local) && <p className="texto-suave texto-pequeno">{[a.palestrante, a.local].filter(Boolean).join(' · ')}</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          {evento.atividades.length === 0 ? <p className="cartao__meta">A programação ainda não foi divulgada.</p> : <LinhaDoTempo atividades={evento.atividades} />}
         </section>
 
         <section className="pilha" aria-label="Ações">
-          {gestor ? (
+          {gestor && (
             <>
               <p className="alerta">Você {evento.souOrganizador ? 'organiza' : 'colabora com'} este evento.</p>
               <Link to={`/meus-eventos/${evento.id}`} className="botao botao--bloco">
+                <Icone nome="usuarios" tamanho={18} />
                 Gerenciar evento
               </Link>
             </>
-          ) : inscritoAtivo ? (
-            minha.status === 'CONFIRMADA' ? (
-              <>
-                <p className="alerta alerta--sucesso">Você está inscrito neste evento.</p>
-                <Link to="/minhas-inscricoes" className="botao botao--bloco">
-                  Ver minha inscrição
-                </Link>
-              </>
+          )}
+          {podeSeInscrever &&
+            (inscritoAtivo ? (
+              minha.status === 'CONFIRMADA' ? (
+                <>
+                  <p className="alerta alerta--sucesso">Você está inscrito neste evento.</p>
+                  <Link to="/minhas-inscricoes" className={`botao botao--bloco${gestor ? ' botao--secundario' : ''}`}>
+                    <Icone nome="qr" tamanho={18} />
+                    Ver minha inscrição
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="alerta alerta--aviso">Sua vaga está reservada. Conclua o pagamento para confirmar.</p>
+                  <Link to={`/inscricoes/${minha.id}/pagamento`} className="botao botao--bloco">
+                    <Icone nome="cartao" tamanho={18} />
+                    Continuar pagamento
+                  </Link>
+                </>
+              )
             ) : (
               <>
-                <p className="alerta alerta--aviso">Sua vaga está reservada. Conclua o pagamento para confirmar.</p>
-                <Link to={`/inscricoes/${minha.id}/pagamento`} className="botao botao--bloco">
-                  Continuar pagamento
-                </Link>
+                {fechado && !abertas && <p className="alerta alerta--aviso">{fechado}.</p>}
+                <button
+                  type="button"
+                  className={`botao botao--bloco${gestor ? ' botao--secundario' : ''}`}
+                  disabled={inscricao.isPending || (logado && !abertas)}
+                  onClick={() => (logado ? inscricao.mutate() : irParaLogin())}
+                >
+                  {!inscricao.isPending && <Icone nome="check" tamanho={18} />}
+                  {inscricao.isPending ? 'Inscrevendo…' : logado ? rotuloInscrever : `Entre para se inscrever${evento.preco > 0 ? ` (${moeda(evento.preco)})` : ''}`}
+                </button>
               </>
-            )
-          ) : (
-            <>
-              {fechado && !abertas && <p className="alerta alerta--aviso">{fechado}.</p>}
-              <button
-                type="button"
-                className="botao botao--bloco"
-                disabled={inscricao.isPending || (logado && !abertas)}
-                onClick={() => (logado ? inscricao.mutate() : irParaLogin())}
-              >
-                {inscricao.isPending ? 'Inscrevendo…' : logado ? rotuloInscrever : `Entre para se inscrever${evento.preco > 0 ? ` (${moeda(evento.preco)})` : ''}`}
-              </button>
-            </>
-          )}
+            ))}
 
           {evento.status === 'PUBLICADO' && (
             <button
@@ -346,12 +359,14 @@ export function DetalhePage() {
               aria-pressed={logado ? evento.interessado : undefined}
               onClick={() => (logado ? interesse.mutate(!evento.interessado) : irParaLogin())}
             >
+              <Icone nome="estrela" tamanho={18} />
               {evento.interessado ? 'Deixar de acompanhar' : 'Acompanhar evento'}
             </button>
           )}
 
           {!gestor && (
-            <button type="button" className="botao-link texto-pequeno" style={{ alignSelf: 'center' }} onClick={() => (logado ? setDenunciando(true) : irParaLogin())}>
+            <button type="button" className="botao-link botao-link--discreto texto-pequeno" style={{ alignSelf: 'center' }} onClick={() => (logado ? setDenunciando(true) : irParaLogin())}>
+              <Icone nome="bandeira" tamanho={16} />
               Denunciar este evento
             </button>
           )}

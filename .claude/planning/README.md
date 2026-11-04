@@ -31,4 +31,5 @@ SPA em **React + TypeScript (Vite)** que consome a API REST do Viteme em `/api/v
 - Etapas W0–W5 do [roadmap.md](roadmap.md) concluídas: as 12 telas (T01–T12) seguem o Figma e estão integradas à API; 40 testes passando, inclusive CT58–CT63 ([testes-execucao.md](testes-execucao.md)).
 - **Validado com a API real** (PostgreSQL + ASP.NET Core) em Chromium: 39 de 39 passos ([validacao-api-real.md](../../docs/validacao-api-real.md)). **Não validado:** sites diferentes com cookie `SameSite=None`, HTTPS, Firefox/Safari, rate limiting, pagamento e SMS reais.
 - W7 (2026-10-28): CNPJ do organizador (D-W22): só quem tem CNPJ verificado cria eventos. 71 testes; ponta a ponta 41 de 41.
-- Próximo passo: rodar a migration `CnpjUsuario` antes de publicar (PW15), fechar W6 e, depois, as telas dos pagamentos reais (Asaas sandbox).
+- W7 (2026-11-03): revisão visual, toasts, check-in por QR code, início futuro e colaborador inscrito (D-W23 a D-W28). 81 testes; ponta a ponta 42 de 42.
+- Próximo passo: publicar e testar a câmera em celulares (PW16), fechar W6 e, depois, as telas dos pagamentos reais (Asaas sandbox).

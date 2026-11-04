@@ -1,6 +1,7 @@
 import { lazy } from 'react'
 import { Link, Route, Routes } from 'react-router-dom'
 import { Layout } from '../components/Layout'
+import { ProvedorDeToasts } from '../components/Toasts'
 import { useTitulo } from '../lib/formulario'
 import { MuralPage } from '../features/eventos/MuralPage'
 import { RotaProtegida } from './RotaProtegida'
@@ -38,28 +39,30 @@ function NaoEncontrada() {
 
 export function AppRoutes() {
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route index element={<MuralPage />} />
-        <Route path="eventos/:id" element={<DetalhePage />} />
-        <Route path="entrar" element={<LoginPage />} />
-        <Route path="cadastro" element={<CadastroPage />} />
-        <Route path="certificados" element={<ValidarCertificadoPage />} />
-        <Route path="certificados/:codigo" element={<ValidarCertificadoPage />} />
+    <ProvedorDeToasts>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<MuralPage />} />
+          <Route path="eventos/:id" element={<DetalhePage />} />
+          <Route path="entrar" element={<LoginPage />} />
+          <Route path="cadastro" element={<CadastroPage />} />
+          <Route path="certificados" element={<ValidarCertificadoPage />} />
+          <Route path="certificados/:codigo" element={<ValidarCertificadoPage />} />
 
-        <Route element={<RotaProtegida />}>
-          <Route path="minhas-inscricoes" element={<MinhasInscricoesPage />} />
-          <Route path="inscricoes/:id/pagamento" element={<PagamentoPage />} />
-          <Route path="notificacoes" element={<NotificacoesPage />} />
-          <Route path="perfil" element={<PerfilPage />} />
-          <Route path="meus-eventos" element={<MeusEventosPage />} />
-          <Route path="meus-eventos/novo" element={<EventoFormPage />} />
-          <Route path="meus-eventos/:id/editar" element={<EventoFormPage />} />
-          <Route path="meus-eventos/:id" element={<GestaoEventoPage />} />
+          <Route element={<RotaProtegida />}>
+            <Route path="minhas-inscricoes" element={<MinhasInscricoesPage />} />
+            <Route path="inscricoes/:id/pagamento" element={<PagamentoPage />} />
+            <Route path="notificacoes" element={<NotificacoesPage />} />
+            <Route path="perfil" element={<PerfilPage />} />
+            <Route path="meus-eventos" element={<MeusEventosPage />} />
+            <Route path="meus-eventos/novo" element={<EventoFormPage />} />
+            <Route path="meus-eventos/:id/editar" element={<EventoFormPage />} />
+            <Route path="meus-eventos/:id" element={<GestaoEventoPage />} />
+          </Route>
+
+          <Route path="*" element={<NaoEncontrada />} />
         </Route>
-
-        <Route path="*" element={<NaoEncontrada />} />
-      </Route>
-    </Routes>
+      </Routes>
+    </ProvedorDeToasts>
   )
 }
