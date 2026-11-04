@@ -39,7 +39,7 @@
     radial-gradient(900px 520px at 88% -140px, rgba(255, 233, 160, 0.6), transparent 65%),
     radial-gradient(800px 440px at -10% -90px, rgba(255, 140, 120, 0.26), transparent 65%),
     linear-gradient(180deg, #bde8fb 0%, #dcf5fd 36%, #eefaff 62%, #fff5e8 100%);
-  --opacidade-bolhas: 0.6;
+  --opacidade-bolhas: 0.5;
   --brilho-capa-a: 0.4;
   --brilho-capa-b: 0.08;
 
@@ -1820,16 +1820,16 @@ textarea.entrada {
 }
 
 /* ---------- Bolhas (só decoração) ---------- */
-/* Círculos simples e bem transparentes, só nos cantos: um fio de borda e quase nenhum preenchimento, para não chamarem atenção.
-   Cada uma é um elemento próprio (não uma camada de fundo): ficam por cima das ondas do hero e não são cortadas em quadrado. */
+/* Bolhas foscas e bem transparentes, só nos cantos: miolo quase vazio e uma borda difusa e fraca (sem fio rígido nem reflexo),
+   para não chamarem atenção. Cada uma é um elemento próprio (não uma camada de fundo): ficam por cima das ondas do hero e
+   não são cortadas em quadrado. */
 .bolha {
   position: absolute;
   width: var(--t, 120px);
   aspect-ratio: 1;
   border-radius: 50%;
   pointer-events: none;
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 62%, rgba(255, 255, 255, 0.2) 91%, rgba(255, 255, 255, 0) 100%);
 }
 
 .bolhas-fundo {
@@ -1842,8 +1842,7 @@ textarea.entrada {
 }
 
 .bolhas-fundo .bolha {
-  background: rgba(255, 255, 255, 0.3);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+  background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.1) 62%, rgba(255, 255, 255, 0.3) 91%, rgba(255, 255, 255, 0) 100%);
 }
 
 .bolha--a {
