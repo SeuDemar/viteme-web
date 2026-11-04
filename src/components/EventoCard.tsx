@@ -14,7 +14,7 @@ export function EventoCard({ evento, destaque = false }: { evento: EventoResumo;
   const data = partesDaData(evento.dataInicio)
 
   return (
-    <Link to={`/eventos/${evento.id}`} className={destaque ? 'evento-card evento-card--destaque' : 'evento-card'}>
+    <Link to={`/eventos/${evento.id}`} className={`evento-card evento-card--tom-${tomDaCategoria(evento.categoria)}${destaque ? ' evento-card--destaque' : ''}`}>
       <div className={`evento-card__capa evento-card__capa--${tomDaCategoria(evento.categoria)}`}>
         {!evento.imagemUrl && (
           <span className="evento-card__arte" aria-hidden="true">

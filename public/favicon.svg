@@ -1,1 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#27bfdc"/><stop offset="1" stop-color="#26308f"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#g)"/><path d="M12 28c6-7 11 7 20 0s14 7 20 0M12 42c6-7 11 7 20 0s14 7 20 0" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="mar" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#34c6e4"/>
+      <stop offset="0.55" stop-color="#0a84be"/>
+      <stop offset="1" stop-color="#0a5a9a"/>
+    </linearGradient>
+    <linearGradient id="coral" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff9a88"/>
+      <stop offset="1" stop-color="#f2574a"/>
+    </linearGradient>
+    <clipPath id="c"><rect x="3" y="10" width="58" height="44" rx="12"/></clipPath>
+  </defs>
+  <rect x="3" y="10" width="58" height="44" rx="12" fill="url(#mar)"/>
+  <ellipse cx="32" cy="8" rx="38" ry="19" fill="#fff" opacity="0.22" clip-path="url(#c)"/>
+  <path d="M14 21 32 39 50 21" fill="none" stroke="url(#coral)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

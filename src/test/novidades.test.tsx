@@ -74,6 +74,26 @@ describe('menu por sessão', () => {
   })
 })
 
+describe('tema', () => {
+  it('CTW36 — o botão alterna entre tema claro e escuro e guarda a escolha', async () => {
+    servidor.use(visitante(), http.get(rota('/eventos'), () => HttpResponse.json({ itens: [], pagina: 1, tamanhoPagina: 12, total: 0 })))
+    const usuario = userEvent.setup()
+    renderizarApp('/')
+    try {
+      await usuario.click(await screen.findByRole('button', { name: 'Ativar tema escuro' }))
+      expect(document.documentElement.dataset.tema).toBe('escuro')
+      expect(localStorage.getItem('viteme:tema')).toBe('escuro')
+
+      await usuario.click(screen.getByRole('button', { name: 'Ativar tema claro' }))
+      expect(document.documentElement.dataset.tema).toBe('claro')
+      expect(localStorage.getItem('viteme:tema')).toBe('claro')
+    } finally {
+      localStorage.removeItem('viteme:tema')
+      delete document.documentElement.dataset.tema
+    }
+  })
+})
+
 describe('programação', () => {
   it('CTW33 — a programação aparece em ordem, como linha do tempo, com início e fim', async () => {
     servidor.use(

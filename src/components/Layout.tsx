@@ -3,10 +3,12 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { listarNotificacoes } from '../api/notificacoes'
 import { useSessao } from '../features/auth/sessao'
+import { useTema } from '../lib/tema'
 import { Dica } from './Dica'
 import { Carregando } from './Estados'
 import { Icone, type NomeIcone } from './Icone'
 import { LimiteDeErro } from './LimiteDeErro'
+import { LogoMarca } from './LogoMarca'
 
 // Notificações e perfil saíram do menu de texto: viraram ícones à direita (pedido da equipe).
 // "Meus eventos" (área do organizador) só aparece com a sessão iniciada.
@@ -44,6 +46,19 @@ const iniciais = (nome: string) =>
     .slice(0, 2)
     .map((p) => p[0]!.toUpperCase())
     .join('')
+
+/** Alterna entre tema claro e escuro; a escolha fica guardada neste aparelho. */
+function BotaoTema() {
+  const { tema, alternar } = useTema()
+  const rotulo = tema === 'escuro' ? 'Ativar tema claro' : 'Ativar tema escuro'
+  return (
+    <Dica texto={rotulo}>
+      <button type="button" className="botao-icone" aria-label={rotulo} onClick={alternar}>
+        <Icone nome={tema === 'escuro' ? 'sol' : 'lua'} />
+      </button>
+    </Dica>
+  )
+}
 
 function Sino({ naoLidas }: { naoLidas: number }) {
   const rotulo = naoLidas > 0 ? `Notificações, ${naoLidas} não lidas` : 'Notificações'
@@ -163,7 +178,7 @@ function Cabecalho() {
     <header className="cabecalho">
       <div className="cabecalho__interno">
         <Link to="/" className="logo" aria-label="Viteme, página inicial">
-          <Icone nome="onda" tamanho={26} />
+          <LogoMarca altura={32} />
           Viteme
         </Link>
         <nav className="menu" aria-label="Principal">
@@ -175,6 +190,7 @@ function Cabecalho() {
           ))}
         </nav>
         <div className="cabecalho__acoes">
+          <BotaoTema />
           {autenticado && usuario ? (
             <>
               <Sino naoLidas={naoLidas} />
@@ -254,7 +270,7 @@ export function Layout() {
       <footer className="rodape">
         <div className="rodape__marca">
           <strong>
-            <Icone nome="onda" tamanho={22} />
+            <LogoMarca altura={26} />
             Viteme
           </strong>
           <span>Divulgação, inscrição e acompanhamento dos eventos da faculdade.</span>
