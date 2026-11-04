@@ -3,6 +3,7 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { listarNotificacoes } from '../api/notificacoes'
 import { useSessao } from '../features/auth/sessao'
+import { useTema } from '../lib/tema'
 import { Dica } from './Dica'
 import { Carregando } from './Estados'
 import { Icone, type NomeIcone } from './Icone'
@@ -44,6 +45,19 @@ const iniciais = (nome: string) =>
     .slice(0, 2)
     .map((p) => p[0]!.toUpperCase())
     .join('')
+
+/** Alterna entre tema claro e escuro; a escolha fica guardada neste aparelho. */
+function BotaoTema() {
+  const { tema, alternar } = useTema()
+  const rotulo = tema === 'escuro' ? 'Ativar tema claro' : 'Ativar tema escuro'
+  return (
+    <Dica texto={rotulo}>
+      <button type="button" className="botao-icone" aria-label={rotulo} onClick={alternar}>
+        <Icone nome={tema === 'escuro' ? 'sol' : 'lua'} />
+      </button>
+    </Dica>
+  )
+}
 
 function Sino({ naoLidas }: { naoLidas: number }) {
   const rotulo = naoLidas > 0 ? `Notificações, ${naoLidas} não lidas` : 'Notificações'
@@ -175,6 +189,7 @@ function Cabecalho() {
           ))}
         </nav>
         <div className="cabecalho__acoes">
+          <BotaoTema />
           {autenticado && usuario ? (
             <>
               <Sino naoLidas={naoLidas} />

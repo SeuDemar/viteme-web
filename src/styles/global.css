@@ -40,17 +40,17 @@
     radial-gradient(800px 440px at -10% -90px, rgba(255, 140, 120, 0.26), transparent 65%),
     linear-gradient(180deg, #bde8fb 0%, #dcf5fd 36%, #eefaff 62%, #fff5e8 100%);
   --bolha: radial-gradient(circle closest-side at 50% 50%, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.16) 62%, rgba(255, 255, 255, 0.62) 91%, rgba(255, 255, 255, 0) 100%);
-  --opacidade-bolhas: 0.75;
+  --opacidade-bolhas: 0.5;
   --brilho-capa-a: 0.4;
   --brilho-capa-b: 0.08;
 
   /* Tons das categorias (Palestra, Curso, Feira, Workshop, Seminário, Outro): capa em degradê + cor forte de apoio. */
-  --capa-0: linear-gradient(135deg, #c8edff 0%, #7fd0f5 100%);
-  --capa-1: linear-gradient(135deg, #d2f8f0 0%, #86e3d2 100%);
-  --capa-2: linear-gradient(135deg, #fff1c4 0%, #ffd27a 100%);
-  --capa-3: linear-gradient(135deg, #ffe2da 0%, #ff9f8f 100%);
-  --capa-4: linear-gradient(135deg, #e4e8ff 0%, #aab6f7 100%);
-  --capa-5: linear-gradient(135deg, #e3edf4 0%, #b9ccd9 100%);
+  --capa-0: linear-gradient(135deg, #dbf1ff 0%, #a6daf6 100%);
+  --capa-1: linear-gradient(135deg, #e0f9f1 0%, #a9ebd8 100%);
+  --capa-2: linear-gradient(135deg, #fff5d6 0%, #ffe39f 100%);
+  --capa-3: linear-gradient(135deg, #ffe9e3 0%, #ffbcae 100%);
+  --capa-4: linear-gradient(135deg, #ebeeff 0%, #c3cbfa 100%);
+  --capa-5: linear-gradient(135deg, #eaf1f6 0%, #ccdae5 100%);
   --tom-0: #0a7db3;
   --tom-1: #0f9d8f;
   --tom-2: #f0a000;
@@ -86,7 +86,7 @@
 
 /* ---------- Modo escuro: "mar à noite" (segue a preferência do sistema) ---------- */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-tema='claro']) {
     --cor-primaria-suave: #0f3a52;
     --cor-primaria-suave-hover: #154b6a;
     --cor-texto: #e6f6ff;
@@ -114,7 +114,7 @@
       radial-gradient(900px 520px at 88% -160px, rgba(255, 200, 110, 0.14), transparent 65%),
       radial-gradient(800px 440px at -10% -90px, rgba(255, 111, 97, 0.14), transparent 65%),
       linear-gradient(180deg, #0e3466 0%, #09284a 40%, #061a30 100%);
-    --opacidade-bolhas: 0.32;
+    --opacidade-bolhas: 0.24;
     --brilho-capa-a: 0.14;
     --brilho-capa-b: 0.03;
     --capa-0: linear-gradient(135deg, #0f4a6b 0%, #0a2f48 100%);
@@ -147,6 +147,74 @@
     --esqueleto-a: #12354a;
     --esqueleto-b: #1b4a66;
   }
+}
+
+/* Escolha feita no botão de tema do cabeçalho (vale mais que a preferência do sistema). */
+:root[data-tema='escuro'] {
+  --cor-primaria-suave: #0f3a52;
+  --cor-primaria-suave-hover: #154b6a;
+  --cor-texto: #e6f6ff;
+  --cor-texto-suave: #9fb8c9;
+  --cor-fundo: #08233f;
+  --cor-superficie: #0e2f4a;
+  --cor-borda: #1f4a62;
+  --cor-borda-forte: #2b6182;
+  --cor-sucesso: #5fe0b0;
+  --cor-sucesso-fundo: #0c3a2c;
+  --cor-aviso: #ffd067;
+  --cor-aviso-fundo: #3b2e0e;
+  --cor-perigo: #ff9a92;
+  --cor-perigo-fundo: #3d1a1a;
+  --sombra: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --sombra-media: 0 2px 6px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.38);
+  --sombra-forte: 0 18px 44px rgba(0, 0, 0, 0.6);
+  --vidro: rgba(14, 62, 90, 0.42);
+  --vidro-forte: rgba(10, 44, 66, 0.82);
+  --vidro-borda: rgba(160, 225, 255, 0.2);
+  --vidro-brilho: inset 0 1px 0 rgba(160, 225, 255, 0.28), inset 0 -1px 0 rgba(160, 225, 255, 0.06);
+  --cor-vidro: rgba(8, 40, 60, 0.6);
+  --cor-vidro-forte: rgba(8, 40, 60, 0.88);
+  --fundo-pagina:
+    radial-gradient(900px 520px at 88% -160px, rgba(255, 200, 110, 0.14), transparent 65%),
+    radial-gradient(800px 440px at -10% -90px, rgba(255, 111, 97, 0.14), transparent 65%),
+    linear-gradient(180deg, #0e3466 0%, #09284a 40%, #061a30 100%);
+  --opacidade-bolhas: 0.24;
+  --brilho-capa-a: 0.14;
+  --brilho-capa-b: 0.03;
+  --capa-0: linear-gradient(135deg, #0f4a6b 0%, #0a2f48 100%);
+  --capa-1: linear-gradient(135deg, #0f5a55 0%, #0a3a3a 100%);
+  --capa-2: linear-gradient(135deg, #6b4f10 0%, #463208 100%);
+  --capa-3: linear-gradient(135deg, #6b2f2a 0%, #451d1b 100%);
+  --capa-4: linear-gradient(135deg, #2c3478 0%, #1b2150 100%);
+  --capa-5: linear-gradient(135deg, #2d4252 0%, #1c2a36 100%);
+  --tom-0: #5cc8f5;
+  --tom-1: #4fe0cc;
+  --tom-2: #ffc24d;
+  --tom-3: #ff8f82;
+  --tom-4: #9aa7ff;
+  --tom-5: #9bb4c6;
+  --cor-destaque: #ff8f82;
+  --cor-destaque-suave: #3d211d;
+  --cor-link: #6fd3f5;
+  --cor-primaria-texto: #8fdcf7;
+  --cor-alerta-texto: #a9e4fa;
+  --cor-neutro-fundo: #1a3a4e;
+  --cor-neutro-texto: #aac3d3;
+  --cor-abas-fundo: #0c2c40;
+  --cor-codigo-fundo: #0f3248;
+  --cor-codigo-borda: #2f7396;
+  --cor-destaque-borda: #1f4f6b;
+  --cor-destaque-fundo: #0c2a3c;
+  --cor-nova-borda: #26607f;
+  --cor-nova-fundo: #0c2a3c;
+  --cor-perigo-hover: #512424;
+  --esqueleto-a: #12354a;
+  --esqueleto-b: #1b4a66;
+  color-scheme: dark;
+}
+
+:root[data-tema='claro'] {
+  color-scheme: light;
 }
 
 *,
@@ -196,12 +264,8 @@ body::before {
   pointer-events: none;
   opacity: var(--opacidade-bolhas);
   background:
-    var(--bolha) 4% 18% / 120px 120px no-repeat,
-    var(--bolha) 93% 30% / 170px 170px no-repeat,
-    var(--bolha) 8% 72% / 70px 70px no-repeat,
-    var(--bolha) 88% 82% / 100px 100px no-repeat,
-    var(--bolha) 50% 94% / 54px 54px no-repeat,
-    var(--bolha) 70% 8% / 44px 44px no-repeat;
+    var(--bolha) 94% 34% / 150px 150px no-repeat,
+    var(--bolha) 5% 80% / 84px 84px no-repeat;
 }
 
 h1,
@@ -653,14 +717,39 @@ textarea {
   background: var(--capa-0);
 }
 
-/* Brilho de vidro e bolhas: a capa sem imagem deixa de ser um bloco chapado. */
+/* O card inteiro leva um toque pastel da cor da categoria (borda, fundo, ícones, divisória e brilho no hover). */
+.evento-card {
+  --tom: var(--tom-0);
+  background: color-mix(in srgb, var(--tom) 9%, var(--vidro));
+  border-color: color-mix(in srgb, var(--tom) 30%, var(--vidro-borda));
+}
+
+.evento-card--tom-0 { --tom: var(--tom-0); }
+.evento-card--tom-1 { --tom: var(--tom-1); }
+.evento-card--tom-2 { --tom: var(--tom-2); }
+.evento-card--tom-3 { --tom: var(--tom-3); }
+.evento-card--tom-4 { --tom: var(--tom-4); }
+.evento-card--tom-5 { --tom: var(--tom-5); }
+
+.evento-card:hover {
+  border-color: color-mix(in srgb, var(--tom) 55%, white);
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--tom) 26%, transparent), var(--vidro-brilho);
+}
+
+.evento-card__rodape {
+  border-top-color: color-mix(in srgb, var(--tom) 24%, transparent);
+}
+
+.evento-card__info .icone {
+  color: var(--tom);
+}
+
+/* Brilho de vidro: a capa sem imagem deixa de ser um bloco chapado. */
 .evento-card__capa::before {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    var(--bolha) 62% 18% / 46px 46px no-repeat,
-    var(--bolha) 46% 78% / 28px 28px no-repeat,
     linear-gradient(180deg, rgba(255, 255, 255, var(--brilho-capa-a)) 0%, rgba(255, 255, 255, var(--brilho-capa-b)) 46%, rgba(255, 255, 255, 0) 47%);
 }
 
@@ -1707,10 +1796,8 @@ textarea.entrada {
   border-radius: 32px;
   border: 1px solid rgba(255, 255, 255, 0.45);
   background:
-    var(--bolha) right 6% top 10% / 150px 150px no-repeat,
-    var(--bolha) right 22% bottom 12% / 84px 84px no-repeat,
-    var(--bolha) right 36% top 14% / 52px 52px no-repeat,
-    var(--bolha) right -30px bottom -40px / 210px 210px no-repeat,
+    var(--bolha) right 6% top 12% / 120px 120px no-repeat,
+    var(--bolha) right -30px bottom -44px / 190px 190px no-repeat,
     radial-gradient(420px 260px at 0% 112%, rgba(255, 111, 97, 0.6), transparent 70%),
     radial-gradient(520px 320px at 100% 0%, rgba(255, 232, 150, 0.5), transparent 70%),
     var(--grad-hero);
