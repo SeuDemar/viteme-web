@@ -39,7 +39,7 @@
     radial-gradient(900px 520px at 88% -140px, rgba(255, 233, 160, 0.6), transparent 65%),
     radial-gradient(800px 440px at -10% -90px, rgba(255, 140, 120, 0.26), transparent 65%),
     linear-gradient(180deg, #bde8fb 0%, #dcf5fd 36%, #eefaff 62%, #fff5e8 100%);
-  --opacidade-bolhas: 0.5;
+  --opacidade-bolhas: 0.42;
   --brilho-capa-a: 0.4;
   --brilho-capa-b: 0.08;
 
@@ -1829,7 +1829,8 @@ textarea.entrada {
   aspect-ratio: 1;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 62%, rgba(255, 255, 255, 0.2) 91%, rgba(255, 255, 255, 0) 100%);
+  /* Sombreamento largo: o degradê da borda começa cedo (a partir de ~35% do raio) e sobe devagar, em vez de uma faixa fina. */
+  background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.005) 0%, rgba(255, 255, 255, 0.02) 35%, rgba(255, 255, 255, 0.07) 68%, rgba(255, 255, 255, 0.12) 86%, rgba(255, 255, 255, 0) 100%);
 }
 
 .bolhas-fundo {
@@ -1842,7 +1843,7 @@ textarea.entrada {
 }
 
 .bolhas-fundo .bolha {
-  background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.1) 62%, rgba(255, 255, 255, 0.3) 91%, rgba(255, 255, 255, 0) 100%);
+  background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.01) 0%, rgba(255, 255, 255, 0.05) 35%, rgba(255, 255, 255, 0.14) 68%, rgba(255, 255, 255, 0.22) 86%, rgba(255, 255, 255, 0) 100%);
 }
 
 .bolha--a {
