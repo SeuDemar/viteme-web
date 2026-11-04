@@ -251,7 +251,7 @@ export function Layout() {
   const { estado } = useSessao()
   const abas = ABAS.filter((a) => !a.soLogado || estado === 'autenticado')
   return (
-    <>
+    <div className="app">
       <a className="pular-conteudo" href="#conteudo">
         Pular para o conteúdo
       </a>
@@ -293,6 +293,6 @@ export function Layout() {
           </NavLink>
         ))}
       </nav>
-    </>
+    </div>
   )
 }

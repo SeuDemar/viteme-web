@@ -554,6 +554,29 @@ textarea {
   display: none;
 }
 
+/* ---------- Estrutura: o rodapé fica sempre no fim da tela ---------- */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.app > .pagina {
+  flex: 1 0 auto;
+  width: 100%;
+}
+
+/* Resultados do mural: altura mínima de ~2 fileiras de cards (lista, esqueleto ou estado vazio ocupam o mesmo espaço). */
+.mural__resultados {
+  min-height: 660px;
+}
+
+.mural__resultados > .estado {
+  min-height: 420px;
+  justify-content: center;
+}
+
 /* ---------- Páginas ---------- */
 .pagina {
   max-width: 1120px;
@@ -1229,10 +1252,23 @@ textarea.entrada {
 /* ---------- Filtros ---------- */
 .chips {
   display: flex;
+  align-items: center;
   gap: 10px;
   overflow-x: auto;
-  padding: 2px 2px 8px;
+  /* Folga para a sombra dos chips: a faixa rola na horizontal e, com overflow, recortaria tudo que passa do limite
+     (era isso que deixava a sombra cortada em linha reta). As margens negativas devolvem o espaço ao layout. */
+  padding: 10px 16px 30px;
+  margin: 12px -16px -18px; /* 12 + 10 de padding = os 22px de espaço que havia acima dos chips */
   scrollbar-width: none;
+}
+
+/* Separa o filtro de preço (que se soma à categoria) das categorias, que são exclusivas. */
+.chips__divisor {
+  flex: 0 0 auto;
+  width: 1px;
+  height: 24px;
+  margin: 0 4px;
+  background: var(--cor-borda-forte);
 }
 
 .chips::-webkit-scrollbar {
@@ -1245,9 +1281,7 @@ textarea.entrada {
   padding: 8px 20px;
   border: 1px solid var(--vidro-borda);
   border-radius: var(--raio-pilula);
-  background: var(--vidro);
-  -webkit-backdrop-filter: var(--desfoque);
-  backdrop-filter: var(--desfoque);
+  background: var(--vidro-forte);
   box-shadow: var(--sombra), var(--vidro-brilho);
   color: var(--cor-primaria-texto);
   font-size: 13.5px;
@@ -1279,9 +1313,11 @@ textarea.entrada {
   color: #fff;
 }
 
-.chip:hover {
-  background: var(--vidro-forte);
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .chip:hover {
+    background: var(--cor-primaria-suave);
+    transform: translateY(-1px);
+  }
 }
 
 .chip:active {
@@ -1292,7 +1328,7 @@ textarea.entrada {
 .chip[aria-selected='true'] {
   background: var(--grad-primaria);
   color: #fff;
-  box-shadow: var(--sombra-primaria);
+  box-shadow: 0 4px 12px rgba(8, 105, 158, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .abas {
@@ -1871,6 +1907,7 @@ textarea.entrada {
 }
 
 .hero__numeros {
+  min-height: 34px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px 22px;
@@ -1896,6 +1933,7 @@ textarea.entrada {
 
 /* ---------- Rodapé ---------- */
 .rodape {
+  width: 100%;
   max-width: 1120px;
   margin: 0 auto;
   padding: 28px 24px 40px;

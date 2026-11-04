@@ -76,14 +76,15 @@ export function MuralPage() {
           <CampoBusca id="busca" placeholder="Pesquisar por nome ou tema…" value={busca} onChange={setBusca} />
         </div>
 
-        {total !== undefined && total > 0 && (
-          <p className="hero__numeros">
+        {/* A linha tem altura reservada (inclusive carregando ou sem eventos), para o hero não encolher e empurrar a página. */}
+        <p className="hero__numeros">
+          {total !== undefined && (
             <span>
               <Icone nome="eventos" tamanho={18} />
-              {total === 1 ? '1 evento para explorar' : `${total} eventos para explorar`}
+              {total === 0 ? 'Nenhum evento para explorar' : total === 1 ? '1 evento para explorar' : `${total} eventos para explorar`}
             </span>
-          </p>
-        )}
+          )}
+        </p>
       </section>
 
       <div className="chips espaco-topo" role="group" aria-label="Filtrar por categoria">
@@ -99,41 +100,46 @@ export function MuralPage() {
             {f.rotulo}
           </button>
         ))}
+        {/* "Gratuitos" não é uma categoria: é um filtro de preço que se soma à categoria escolhida. */}
+        <span className="chips__divisor" role="separator" aria-orientation="vertical" />
         <button type="button" className="chip" aria-pressed={gratuito} onClick={() => alternar('gratuitos', gratuito ? undefined : '1')}>
-          <Icone nome="etiqueta" tamanho={16} />
+          <Icone nome={gratuito ? 'check' : 'etiqueta'} tamanho={16} />
           Gratuitos
         </button>
       </div>
 
       <h2 className="secao-titulo">Próximos eventos</h2>
 
-      {consulta.isPending ? (
-        <CarregandoCards />
-      ) : consulta.isError ? (
-        <Erro erro={mapearErro(consulta.error)} aoTentarNovamente={() => consulta.refetch()} />
-      ) : eventos.length === 0 ? (
-        <Vazio titulo={filtrando ? 'Nenhum evento encontrado' : 'Ainda não há eventos publicados'}>
-          {filtrando ? 'Tente outro termo ou limpe os filtros.' : 'Volte em breve para conferir as novidades.'}
-        </Vazio>
-      ) : (
-        <>
-          <ul className="grade-eventos" aria-label="Eventos">
-            {eventos.map((e, i) => (
-              <li key={e.id} className={comDestaque && i === 0 ? 'destaque' : undefined} style={{ '--i': i } as CSSProperties}>
-                <EventoCard evento={e} destaque={comDestaque && i === 0} />
-              </li>
-            ))}
-          </ul>
-          {consulta.hasNextPage && (
-            <div className="linha espaco-topo" style={{ justifyContent: 'center' }}>
-              <button type="button" className="botao botao--secundario" onClick={() => consulta.fetchNextPage()} disabled={consulta.isFetchingNextPage}>
-                <Icone nome="mais" tamanho={18} />
-                {consulta.isFetchingNextPage ? 'Carregando…' : 'Carregar mais eventos'}
-              </button>
-            </div>
-          )}
-        </>
-      )}
+      {/* Altura mínima: ao trocar de filtro (ou ficar sem eventos) o rodapé não pula. */}
+      <div className="mural__resultados">
+        {consulta.isPending ? (
+          <CarregandoCards />
+        ) : consulta.isError ? (
+          <Erro erro={mapearErro(consulta.error)} aoTentarNovamente={() => consulta.refetch()} />
+        ) : eventos.length === 0 ? (
+          <Vazio titulo={filtrando ? 'Nenhum evento encontrado' : 'Ainda não há eventos publicados'}>
+            {filtrando ? 'Tente outro termo ou limpe os filtros.' : 'Volte em breve para conferir as novidades.'}
+          </Vazio>
+        ) : (
+          <>
+            <ul className="grade-eventos" aria-label="Eventos">
+              {eventos.map((e, i) => (
+                <li key={e.id} className={comDestaque && i === 0 ? 'destaque' : undefined} style={{ '--i': i } as CSSProperties}>
+                  <EventoCard evento={e} destaque={comDestaque && i === 0} />
+                </li>
+              ))}
+            </ul>
+            {consulta.hasNextPage && (
+              <div className="linha espaco-topo" style={{ justifyContent: 'center' }}>
+                <button type="button" className="botao botao--secundario" onClick={() => consulta.fetchNextPage()} disabled={consulta.isFetchingNextPage}>
+                  <Icone nome="mais" tamanho={18} />
+                  {consulta.isFetchingNextPage ? 'Carregando…' : 'Carregar mais eventos'}
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </main>
   )
 }
