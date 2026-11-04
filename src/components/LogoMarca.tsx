@@ -25,7 +25,6 @@ export function LogoMarca({ altura = 30 }: { altura?: number }) {
       </defs>
       <rect x="5" y="11" width="86" height="60" rx="15" fill={`url(#${ref('mar')})`} />
       <ellipse cx="48" cy="9" rx="58" ry="28" fill="#fff" opacity="0.22" clipPath={`url(#${ref('corpo')})`} />
-      <rect x="5.75" y="11.75" width="84.5" height="58.5" rx="14.25" fill="none" stroke="#fff" strokeOpacity="0.55" strokeWidth="1.5" />
       <path d="M22 22 48 49 74 22" fill="none" stroke={`url(#${ref('coral')})`} strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M26 23 48 45" fill="none" stroke="#fff" strokeOpacity="0.45" strokeWidth="2.5" strokeLinecap="round" />
     </svg>
