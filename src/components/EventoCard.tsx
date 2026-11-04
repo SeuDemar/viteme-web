@@ -1,12 +1,10 @@
 import { Link } from 'react-router-dom'
 import type { EventoResumo } from '../api/tipos'
+import { tomDaCategoria } from '../lib/categorias'
 import { partesDaData, precoOuGratuito } from '../lib/formatar'
 import { Icone, type NomeIcone } from './Icone'
 import { Selo } from './Selo'
 
-// Sem imagem, a capa usa uma cor sólida por categoria (sempre a mesma para a mesma categoria).
-const TONS_CAPA = 5
-const tomDaCategoria = (categoria: string) => [...categoria.toLowerCase()].reduce((soma, c) => soma + c.charCodeAt(0), 0) % TONS_CAPA
 
 // Ícone grande e discreto na capa, conforme a categoria (as categorias livres caem em "eventos").
 const ARTE: Record<string, NomeIcone> = {
@@ -75,7 +73,7 @@ export function EventoCard({ evento, destaque = false }: { evento: EventoResumo;
             ) : lotado ? (
               <Selo tom="perigo">Lotado</Selo>
             ) : (
-              <Selo>Inscrições abertas</Selo>
+              <Selo tom="sucesso">Inscrições abertas</Selo>
             )}
             {poucasVagas && <Selo tom="aviso">{evento.vagasRestantes === 1 ? '1 vaga' : `${evento.vagasRestantes} vagas`}</Selo>}
           </span>

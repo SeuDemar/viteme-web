@@ -5,7 +5,8 @@ import { listarEventos } from '../../api/eventos'
 import { CarregandoCards, Erro, Vazio } from '../../components/Estados'
 import { EventoCard } from '../../components/EventoCard'
 import { Icone } from '../../components/Icone'
-import { FILTROS_MURAL } from '../../lib/categorias'
+import { FILTROS_MURAL, tomDaCategoria } from '../../lib/categorias'
+import { comDestaqueNaFrente, escolherDestaque } from '../../lib/destaque'
 import { mapearErro } from '../../lib/erros'
 import { useTitulo } from '../../lib/formulario'
 
@@ -49,11 +50,15 @@ export function MuralPage() {
     getNextPageParam: (ultima) => (ultima.pagina * ultima.tamanhoPagina < ultima.total ? ultima.pagina + 1 : undefined),
   })
 
-  const eventos = consulta.data?.pages.flatMap((p) => p.itens) ?? []
+  const paginas = consulta.data?.pages ?? []
   const filtrando = Boolean(buscaNaUrl || categoria || gratuito)
   const total = consulta.data?.pages[0]?.total
-  // Sem filtros e com eventos suficientes, o primeiro vira "Em destaque" (ocupa duas colunas).
-  const comDestaque = !filtrando && eventos.length >= 3
+  // Sem filtros, um evento da primeira página vira "Em destaque" (duas colunas, no topo da grade). A escolha é
+  // automática: inscrições abertas e com vagas, de preferência com imagem, e o que começa primeiro.
+  const indiceDestaque = !filtrando && paginas[0] ? escolherDestaque(paginas[0].itens) : -1
+  const primeiraPagina = indiceDestaque >= 0 ? comDestaqueNaFrente(paginas[0]!.itens, indiceDestaque) : (paginas[0]?.itens ?? [])
+  const eventos = [...primeiraPagina, ...paginas.slice(1).flatMap((p) => p.itens)]
+  const comDestaque = indiceDestaque >= 0
 
   return (
     <main className="pagina" id="conteudo">
@@ -83,6 +88,7 @@ export function MuralPage() {
       <div className="chips espaco-topo" role="group" aria-label="Filtrar por categoria">
         {FILTROS_MURAL.map((f) => (
           <button key={f.rotulo} type="button" className="chip" aria-pressed={categoria === f.categoria} onClick={() => alternar('categoria', f.categoria)}>
+            {f.categoria && <span className={`chip__ponto chip__ponto--${tomDaCategoria(f.categoria)}`} aria-hidden="true" />}
             {f.rotulo}
           </button>
         ))}
