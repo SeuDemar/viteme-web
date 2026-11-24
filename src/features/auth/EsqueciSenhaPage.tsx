@@ -9,7 +9,7 @@ import { useTitulo } from '../../lib/formulario'
 import { esqueciSenhaSchema, type EsqueciSenhaForm } from '../../schemas/auth'
 import { useSessao } from './sessao'
 
-/** E05: pede o link de redefinição. A resposta é a mesma exista ou não a conta, então a tela nunca confirma o cadastro. */
+/** E43: pede o link de redefinição. A resposta é a mesma exista ou não a conta, então a tela nunca confirma o cadastro. */
 export function EsqueciSenhaPage() {
   useTitulo('Esqueci minha senha', { indexar: false })
   const { estado } = useSessao()

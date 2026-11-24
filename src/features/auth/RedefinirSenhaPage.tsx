@@ -9,7 +9,7 @@ import { mapearErro } from '../../lib/erros'
 import { useTitulo } from '../../lib/formulario'
 import { redefinirSenhaSchema, type RedefinirSenhaForm } from '../../schemas/auth'
 
-/** E06: define a nova senha com o token do link recebido por e-mail (`?token=`). */
+/** E44: define a nova senha com o token do link recebido por e-mail (`?token=`). */
 export function RedefinirSenhaPage() {
   useTitulo('Redefinir senha', { indexar: false })
   const [params] = useSearchParams()

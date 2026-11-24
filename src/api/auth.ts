@@ -13,10 +13,10 @@ export const cadastrar = (entrada: CadastroEntrada) => http.post('/auth/cadastro
 export const entrar = (email: string, senha: string) =>
   http.post<LoginResposta>('/auth/login', { email, senha }).then((r) => r.data)
 
-/** E05: pede o e-mail de redefinição. A API responde 202 exista ou não a conta. */
+/** E43: pede o e-mail de redefinição. A API responde 202 exista ou não a conta. */
 export const esqueciSenha = (email: string) => http.post('/auth/esqueci-senha', { email }).then(() => undefined)
 
-/** E06: define a nova senha com o token recebido por e-mail (uso único, válido por 1 hora). */
+/** E44: define a nova senha com o token recebido por e-mail (uso único, válido por 1 hora). */
 export const redefinirSenha = (token: string, novaSenha: string) =>
   http.post('/auth/redefinir-senha', { token, novaSenha }).then(() => undefined)
 
