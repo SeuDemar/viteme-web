@@ -6,7 +6,7 @@
  * endereço do site: o cookie passa a ser de primeiro nível e o CORS deixa de ser necessário.
  */
 export interface Env {
-  /** Endereço da API sem barra final, ex.: https://viteme-api.onrender.com (variável do projeto no Pages). */
+  /** Endereço da API sem barra final, ex.: https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net (variável do projeto no painel do Pages; local: .dev.vars). */
   API_ORIGIN?: string
 }
 
@@ -38,7 +38,11 @@ export async function repassarParaApi(requisicao: Request, env: Env): Promise<Re
   }
 
   try {
-    return await fetch(await montarRequisicaoParaApi(requisicao, env.API_ORIGIN))
+    const original = await fetch(await montarRequisicaoParaApi(requisicao, env.API_ORIGIN))
+    // A API não tem páginas para buscadores: pede que nada vindo de /api/ seja indexado.
+    const resposta = new Response(original.body, original)
+    resposta.headers.set('X-Robots-Tag', 'noindex, nofollow')
+    return resposta
   } catch {
     return Response.json({ title: 'API indisponível', status: 502, detail: 'Não foi possível falar com a API. Se ela estiver em hospedagem gratuita, pode estar iniciando; tente de novo em instantes.', codigo: 'API_INDISPONIVEL' }, { status: 502 })
   }

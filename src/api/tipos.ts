@@ -48,6 +48,12 @@ export interface Perfil {
   telefoneVerificado: boolean
   aceitaSms: boolean
   aceiteSmsEm: string | null
+  /** CNPJ do organizador, sem máscara (RN24). */
+  cnpj: string | null
+  razaoSocial: string | null
+  cnpjVerificadoEm: string | null
+  /** Só quem tem CNPJ verificado cria e publica eventos. */
+  podeOrganizar: boolean
 }
 
 export interface EventoResumo {
@@ -60,6 +66,8 @@ export interface EventoResumo {
   vagasRestantes: number | null
   imagemUrl: string | null
   alteradoRecentemente: boolean
+  /** Dentro do período de inscrições (não considera vagas). Opcional: versões antigas da API não devolvem. */
+  inscricoesAbertas?: boolean
 }
 
 export interface EventoMeu {
@@ -73,6 +81,10 @@ export interface EventoMeu {
   status: StatusEvento
   papel: PapelEvento
   imagemUrl: string | null
+  /** `null` = ilimitada. Opcionais: versões antigas da API não devolvem. */
+  capacidade?: number | null
+  /** Vagas ocupadas: confirmadas + pendentes com reserva válida. */
+  inscritos?: number
 }
 
 export interface Atividade {

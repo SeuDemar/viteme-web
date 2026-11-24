@@ -36,6 +36,25 @@ export const perfilSchema = z.object({
 })
 export type PerfilForm = z.infer<typeof perfilSchema>
 
+const PESOS_CNPJ_1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+const PESOS_CNPJ_2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+
+/** Dígitos verificadores do CNPJ, numérico ou alfanumérico (cada caractere vale o código ASCII − 48). Mesma regra da API. */
+export function cnpjValido(valor: string): boolean {
+  const c = valor.toUpperCase().replace(/[\s./-]/g, '')
+  if (!/^[A-Z0-9]{12}[0-9]{2}$/.test(c) || new Set(c).size === 1) return false
+  const digito = (pesos: number[]) => {
+    const resto = pesos.reduce((soma, peso, i) => soma + (c.charCodeAt(i) - 48) * peso, 0) % 11
+    return resto < 2 ? 0 : 11 - resto
+  }
+  return Number(c[12]) === digito(PESOS_CNPJ_1) && Number(c[13]) === digito(PESOS_CNPJ_2)
+}
+
+export const cnpjSchema = z.object({
+  cnpj: z.string().trim().min(1, 'Informe o CNPJ.').refine(cnpjValido, 'Informe um CNPJ válido.'),
+})
+export type CnpjForm = z.infer<typeof cnpjSchema>
+
 export const codigoTelefoneSchema = z.object({
   codigo: z.string().regex(/^\d{6}$/, 'O código deve ter exatamente 6 dígitos numéricos.'),
 })

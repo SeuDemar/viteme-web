@@ -1,11 +1,12 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listarMeusEventos } from '../../api/eventos'
 import type { EventoMeu, PapelEvento } from '../../api/tipos'
 import { Carregando, Erro, Vazio } from '../../components/Estados'
-import { Selo, SeloStatusEvento } from '../../components/Selo'
+import { SeloStatusEvento } from '../../components/Selo'
 import { dataCurta } from '../../lib/formatar'
+import { Icone } from '../../components/Icone'
 import { mapearErro } from '../../lib/erros'
 import { useTitulo } from '../../lib/formulario'
 
@@ -13,8 +14,17 @@ type Filtro = 'todos' | Exclude<PapelEvento, 'PARTICIPANTE'>
 
 const ROTULO_PAPEL: Record<PapelEvento, string> = { ORGANIZADOR: 'Organizador', COLABORADOR: 'Colaborador', PARTICIPANTE: 'Participante' }
 
+function textoInscritos({ inscritos, capacidade }: EventoMeu): string | null {
+  if (inscritos === undefined) return null
+  const texto = inscritos === 1 ? '1 inscrito' : `${inscritos} inscritos`
+  if (capacidade === null || capacidade === undefined) return texto
+  const vagas = Math.max(capacidade - inscritos, 0)
+  return `${texto} • ${vagas === 1 ? '1 vaga' : `${vagas} vagas`}`
+}
+
 function ItemEvento({ evento }: { evento: EventoMeu }) {
   const organizador = evento.papel === 'ORGANIZADOR'
+  const inscritos = evento.status === 'RASCUNHO' ? null : textoInscritos(evento)
   const editavel = organizador && (evento.status === 'RASCUNHO' || evento.status === 'PUBLICADO' || evento.status === 'OCULTO')
   return (
     <li style={{ padding: 0, border: 0 }}>
@@ -25,6 +35,7 @@ function ItemEvento({ evento }: { evento: EventoMeu }) {
             <p className="cartao__meta">
               {ROTULO_PAPEL[evento.papel]} • {evento.status === 'RASCUNHO' ? 'Em edição' : dataCurta(evento.dataInicio)} • {evento.local}
             </p>
+            {inscritos && <p className="cartao__meta">{inscritos}</p>}
           </div>
           <SeloStatusEvento status={evento.status} />
         </div>
@@ -49,11 +60,12 @@ function ItemEvento({ evento }: { evento: EventoMeu }) {
 }
 
 export function MeusEventosPage() {
-  useTitulo('Meus eventos')
+  useTitulo('Meus eventos', { indexar: false })
   const [filtro, setFiltro] = useState<Filtro>('todos')
   const consulta = useQuery({
     queryKey: ['meus-eventos', filtro],
     queryFn: () => listarMeusEventos(filtro === 'todos' ? undefined : filtro),
+    placeholderData: keepPreviousData,
   })
 
   return (
@@ -61,7 +73,8 @@ export function MeusEventosPage() {
       <div className="linha linha--entre">
         <h1 className="pagina__titulo">Meus eventos</h1>
         <Link to="/meus-eventos/novo" className="botao">
-          + Novo evento
+          <Icone nome="mais" tamanho={18} />
+          Novo evento
         </Link>
       </div>
 
@@ -103,9 +116,6 @@ export function MeusEventosPage() {
           </ul>
         )}
       </div>
-      <p className="sr-only">
-        <Selo>{consulta.data?.length ?? 0} eventos</Selo>
-      </p>
     </main>
   )
 }

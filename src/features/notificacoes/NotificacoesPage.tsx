@@ -11,7 +11,7 @@ import { useTitulo } from '../../lib/formulario'
 const TAMANHO = 20
 
 export function NotificacoesPage() {
-  useTitulo('Notificações')
+  useTitulo('Notificações', { indexar: false })
   const [filtro, setFiltro] = useState<'todas' | 'nao-lidas'>('todas')
   const [mensagem, setMensagem] = useState<string | null>(null)
   const navegar = useNavigate()

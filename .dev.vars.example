@@ -1,0 +1,3 @@
+# Copie para .dev.vars (não vai para o Git) e ajuste. Lido por `npm run cf:dev` (wrangler pages dev).
+# Em produção, defina API_ORIGIN no painel da Cloudflare (Settings > Variables and Secrets).
+API_ORIGIN=http://localhost:5092

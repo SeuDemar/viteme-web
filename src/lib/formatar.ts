@@ -10,6 +10,13 @@ export function dataCurta(valor: string | Date): string {
   return `${d.getDate()} ${MESES_CURTOS[d.getMonth()]}`
 }
 
+/** Partes para o bloco de data dos cards: dia "12", mês "nov" e "qua, 19h". */
+export function partesDaData(valor: string | Date): { dia: string; mes: string; semanaEHora: string } {
+  const d = paraData(valor)
+  const semana = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' }).format(d).replace('.', '')
+  return { dia: String(d.getDate()), mes: MESES_CURTOS[d.getMonth()]!, semanaEHora: `${semana}, ${hora(d)}` }
+}
+
 /** "12 de novembro de 2026" */
 export function dataLonga(valor: string | Date): string {
   return new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }).format(paraData(valor))
@@ -62,6 +69,16 @@ export function mascararTelefone(valor: string): string {
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
 }
 
+/** Máscara do CNPJ enquanto digita: "12.ABC.345/01DE-35". Aceita letras (CNPJ alfanumérico da Receita). */
+export function mascararCnpj(valor: string): string {
+  const c = valor.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 14)
+  if (c.length <= 2) return c
+  if (c.length <= 5) return `${c.slice(0, 2)}.${c.slice(2)}`
+  if (c.length <= 8) return `${c.slice(0, 2)}.${c.slice(2, 5)}.${c.slice(5)}`
+  if (c.length <= 12) return `${c.slice(0, 2)}.${c.slice(2, 5)}.${c.slice(5, 8)}/${c.slice(8)}`
+  return `${c.slice(0, 2)}.${c.slice(2, 5)}.${c.slice(5, 8)}/${c.slice(8, 12)}-${c.slice(12)}`
+}
+
 /** "(44) 99999-9999" → "+5544999999999". Vazio → undefined. */
 export function telefoneParaE164(valor: string | null | undefined): string | undefined {
   const digitos = (valor ?? '').replace(/\D/g, '')
@@ -87,4 +104,14 @@ export function alteradoRecentemente(criadoEm: string, agora: Date = new Date())
 export function minutosRestantes(ate: string, agora: Date = new Date()): number | null {
   const ms = new Date(ate).getTime() - agora.getTime()
   return ms > 0 ? Math.ceil(ms / 60_000) : null
+}
+
+/** Trecho seguro para nome de arquivo: sem acentos, minúsculo, só letras, números e hífens. */
+export function paraNomeDeArquivo(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }

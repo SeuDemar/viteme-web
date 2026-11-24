@@ -1,0 +1,19 @@
+# Viteme
+
+> Plataforma de divulgação, inscrição e acompanhamento dos eventos da faculdade: palestras, workshops, cursos, feiras e seminários. Idioma: português do Brasil. Datas em ISO 8601 (horário de Brasília) e preços em reais (BRL).
+
+## Páginas públicas
+
+- [Explorar eventos](https://viteme-web.pages.dev/): lista dos próximos eventos publicados, com busca por nome ou tema (`/?busca=termo`) e filtros por categoria (`/?categoria=Palestra`) e por gratuidade (`/?gratuitos=1`).
+- [Detalhe de um evento](https://viteme-web.pages.dev/sitemap.xml): cada evento tem a própria página (`/eventos/{id}`) com título, descrição, data, local, preço, vagas e programação. As páginas de evento trazem dados estruturados schema.org do tipo `Event`; os endereços de todos os eventos estão no mapa do site.
+- [Conferir certificado](https://viteme-web.pages.dev/certificados): confere a autenticidade de um certificado de participação pelo código.
+
+## Mapa do site
+
+- [sitemap.xml](https://viteme-web.pages.dev/sitemap.xml): páginas públicas e todos os eventos publicados.
+
+## Observações para robôs e assistentes
+
+- Conta, inscrições, pagamento, notificações e a área do organizador (`/meus-eventos`) são privadas e exigem login. Não são indexadas e não têm conteúdo público.
+- O endereço `/api/` é a interface interna do site e não deve ser usada como fonte de páginas.
+- Para se inscrever em um evento é preciso criar uma conta e usar o site com JavaScript; as informações do evento em si estão no HTML de cada página.

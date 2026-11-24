@@ -20,6 +20,9 @@ export const obterPerfil = () => http.get<Perfil>('/usuarios/me').then((r) => r.
 export const atualizarPerfil = (nome: string, telefone?: string) =>
   http.put<Perfil>('/usuarios/me', { nome, telefone }).then((r) => r.data)
 
+/** E40: cadastra o CNPJ do organizador; a API confere na Receita se está ativo. */
+export const definirCnpj = (cnpj: string) => http.put<Perfil>('/usuarios/me/cnpj', { cnpj }).then((r) => r.data)
+
 export const enviarCodigoTelefone = () =>
   http.post<{ expiraEm: string }>('/usuarios/me/telefone/codigo').then((r) => r.data)
 

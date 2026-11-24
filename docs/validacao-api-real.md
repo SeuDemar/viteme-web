@@ -1,6 +1,6 @@
 # Validação do frontend contra a API real
 
-**Data:** 2026-10-25 · **Resultado:** 39 de 39 passos aprovados, em duas execuções seguidas (com dados novos a cada vez) · **Evidência:** [`evidencias/e2e-api-real-2026-10-25.txt`](evidencias/e2e-api-real-2026-10-25.txt)
+**Data:** 2026-11-03 · **Resultado:** 42 de 42 passos aprovados, em duas execuções seguidas, inclusive o **check-in lido do QR code pela câmera** · **Evidência:** [`evidencias/e2e-api-real-2026-11-03.txt`](evidencias/e2e-api-real-2026-11-03.txt). Anteriores: 2026-10-28, 41 de 41 ([evidência](evidencias/e2e-api-real-2026-10-28.txt)); 2026-10-25, 39 de 39 ([evidência](evidencias/e2e-api-real-2026-10-25.txt)).
 
 O roteiro `e2e/validacao-api-real.mjs` guia um Chromium de verdade pelo frontend em desenvolvimento, falando com a API ASP.NET Core real e um PostgreSQL 16 com o esquema de `viteme-api/docs/banco/schema.sql`. Usa dois usuários (organizador e participante) em contextos de navegador separados, mais um visitante.
 
@@ -8,7 +8,7 @@ O roteiro `e2e/validacao-api-real.mjs` guia um Chromium de verdade pelo frontend
 
 | Peça | Configuração |
 |---|---|
-| API | `dotnet run`, `ASPNETCORE_ENVIRONMENT=Development`, `http://localhost:5092`, `Cors__OrigemFrontend=http://localhost:5173`, `Gateway__Stub__HabilitarSimulador=true`, `Sms__LogarConteudo=true`, `RateLimiting__Habilitar=false` |
+| API | `dotnet run`, `ASPNETCORE_ENVIRONMENT=Development`, `http://localhost:5092`, `Cors__OrigemFrontend=http://localhost:5173`, `Gateway__Stub__HabilitarSimulador=true`, `Sms__LogarConteudo=true`, `RateLimiting__Habilitar=false`, `Cnpj__UsarStub=true` (sem acesso à BrasilAPI; com internet, pode ficar `false`) |
 | Banco | PostgreSQL 16 local, banco `viteme_e2e`, criado com `docs/banco/schema.sql` |
 | Frontend | `vite` em `http://localhost:5173` com `VITE_API_URL=http://localhost:5092/api/v1` e `VITE_SIMULADOR_PAGAMENTO=true` |
 | Navegador | Chromium (Playwright) |
@@ -21,7 +21,7 @@ createdb viteme_e2e && psql -d viteme_e2e -f docs/banco/schema.sql
 ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5092 \
 ConnectionStrings__Default="Host=localhost;Database=viteme_e2e;Username=postgres;Password=postgres" \
 Jwt__Chave="uma-chave-de-teste-com-mais-de-32-caracteres" Cors__OrigemFrontend=http://localhost:5173 \
-Gateway__Stub__HabilitarSimulador=true Sms__LogarConteudo=true RateLimiting__Habilitar=false \
+Gateway__Stub__HabilitarSimulador=true Sms__LogarConteudo=true RateLimiting__Habilitar=false Cnpj__UsarStub=true \
 dotnet run --project Viteme.Api --no-launch-profile > /tmp/api-e2e.log 2>&1 &
 
 # 2. frontend (neste repositório)
@@ -36,10 +36,11 @@ npm run e2e
 | Área | Passos |
 |---|---|
 | Sessão | Cadastro entra automaticamente; **F5 restaura a sessão** pelo cookie `HttpOnly; Secure; SameSite=None` e pelo cabeçalho `X-Requested-With`; logout remove o cookie e o F5 continua deslogado; rota protegida leva ao login e volta; senha errada mostra mensagem genérica; **três abas abrindo juntas** mantêm o login (Web Locks) |
+| Organizador (RN24) | Sem CNPJ, "Criar evento" pede o cadastro em vez do formulário; CNPJ cadastrado no perfil (E40) e conferido no banco |
 | Eventos | Criar rascunho, adicionar atividade, publicar (E12, E18, E14); evento pago de R$ 25,00; editar evento publicado exige motivo (RN13) e usa `If-Match`; salvar de novo na mesma tela não dá 412; histórico de alterações (E17); cancelar evento com motivo cancela as inscrições (RN14) |
 | Inscrição e pagamento | Mural e busca; filtros por categoria e "Gratuitos"; inscrição gratuita confirma e mostra o código de 12 caracteres; inscrição paga abre o pagamento; **simular aprovação** (webhook assinado) confirma e volta a Minhas inscrições; **simular recusa** permite tentar de novo; "Continuar pagamento"; cancelar com estorno solicitado |
-| Gestão | Lista de inscritos sem telefone (minimização de dados); check-in com o código em minúsculas e erro ao repetir; presença na lista; colaborador inexistente e já inscrito geram erro |
-| Notificações e perfil | Selo "Alterado" no mural e motivo no detalhe; sino com contador e "marcar todas como lidas"; **verificação do telefone com o código lido do log do SMS simulado** e ativação dos avisos (conferido no banco); salvar perfil; denúncia e denúncia repetida |
+| Gestão | Lista de inscritos sem telefone (minimização de dados); check-in com o código em minúsculas e erro ao repetir; presença na lista; colaborador inexistente e já inscrito geram erro; **check-in pela câmera**: um segundo Chromium usa como câmera um vídeo `.y4m` com o QR do participante (`e2e/camera-falsa.mjs`), o leitor decodifica com `jsqr` (o Chromium no Linux não tem leitor nativo) e a presença é registrada; repetir digitando o código dá "já realizado"; inscrito vira colaborador e é removido (D52) |
+| Notificações e perfil | Card do mural **sem** o selo "Alterado" e motivo da alteração no detalhe; sino com contador e "marcar todas como lidas"; **verificação do telefone com o código lido do log do SMS simulado** e ativação dos avisos (conferido no banco); salvar perfil; denúncia e denúncia repetida |
 | Certificado | Evento encerrado (por SQL) libera o botão; o arquivo baixado é um PDF; um visitante valida o código em `/certificados/:codigo` e um código inexistente mostra "não encontrado" |
 | Mobile | Viewport de 390 px: menu hambúrguer, barra de abas inferior e ausência de rolagem horizontal |
 
@@ -64,6 +65,8 @@ Os testes automáticos com a API simulada (MSW) não pegaram o bug 1: ele só ap
 - **HTTP:** foi `http://localhost`, não HTTPS. O Chromium aceita cookies `Secure` em `localhost`; Safari não. Em produção é HTTPS.
 - **Rate limiting desligado** para não atrapalhar o roteiro; os 429 não foram exercitados.
 - **Gateway e SMS são simulados** (stubs da API), como previsto na Entrega 3. O pagamento real (Asaas) e um provedor de SMS não foram testados.
+- **Câmera simulada**: o QR foi lido de um vídeo, não de um celular apontado para a tela; em celular real (Android/Chrome com leitor nativo, iPhone/Safari com `jsqr`) falta testar (PW16).
+- **Consulta de CNPJ simulada** (`Cnpj__UsarStub=true`): a consulta real à BrasilAPI não foi exercitada aqui (P43 da API).
 - **Evento encerrado por SQL:** o encerramento automático (tarefa em segundo plano, RN22) e a janela real de check-in não foram esperados; o roteiro atualiza as datas direto no banco para liberar o certificado.
 - Só Chromium; não foram testados Firefox e Safari.
 - A asserção do passo "participante já inscrito não pode ser colaborador" confere apenas que um alerta apareceu, não o texto.

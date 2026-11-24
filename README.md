@@ -4,7 +4,7 @@ Frontend do **Viteme**: site que centraliza a divulgação, a inscrição e o ac
 
 SPA em **React + TypeScript (Vite)** que consome a API REST em [`SeuDemar/viteme-api`](https://github.com/SeuDemar/viteme-api) (ASP.NET Core, `/api/v1`). As telas seguem o protótipo do Figma (desktop e mobile) e a seção 5 da especificação técnica.
 
-> **Estado:** as 12 telas (T01–T12) estão implementadas e foram validadas contra a API real em Chromium (39 passos, [relatório](docs/validacao-api-real.md)); 49 testes automáticos passando (inclui CT58–CT63). Pendências e decisões em [`.claude/planning/`](.claude/planning/README.md).
+> **Estado:** as 12 telas (T01–T12) estão implementadas e foram validadas contra a API real em Chromium (39 passos, [relatório](docs/validacao-api-real.md)); 64 testes automáticos passando (inclui CT58–CT63 e os CTW). Pendências e decisões em [`.claude/planning/`](.claude/planning/README.md).
 
 ## Como executar
 
@@ -41,7 +41,7 @@ Cors__OrigemFrontend=http://localhost:5173
 
 ### Publicação
 
-**Passo a passo completo (Supabase + Azure + Cloudflare, sem domínio e sem custo): [docs/passo-a-passo-publicacao.md](docs/passo-a-passo-publicacao.md).** O site vai para o **Cloudflare Pages**, com uma Function que repassa `/api/*` para a API (Render ou Azure), sem precisar de domínio próprio: veja [docs/hospedagem-cloudflare.md](docs/hospedagem-cloudflare.md). Comandos: `npm run cf:dev` (teste local) e `npm run cf:deploy`.
+**Passo a passo completo (Supabase + Azure + Cloudflare, sem domínio e sem custo): [docs/passo-a-passo-publicacao.md](docs/passo-a-passo-publicacao.md).** O site vai para o **Cloudflare Pages**, com uma Function que repassa `/api/*` para a API (Azure), sem precisar de domínio próprio: veja [docs/hospedagem-cloudflare.md](docs/hospedagem-cloudflare.md). A publicação é automática a cada merge na `main`, e as variáveis (`API_ORIGIN` e outras) ficam no painel da Cloudflare. Teste local: `npm run cf:dev` (configure antes o `.dev.vars` a partir de `.dev.vars.example`).
 
 ### Sessão e cookie
 
@@ -84,7 +84,7 @@ React 19, TypeScript, Vite, React Router, Axios, TanStack Query, React Hook Form
 
 ## Documentação
 
-Planejamento em [`.claude/planning/`](.claude/planning/README.md) (decisões, arquitetura, telas, fluxos, formulários, integração com a API, autenticação, testes, roadmap e pendências). Evidência dos testes em [`docs/evidencias/`](docs/evidencias/). **Guia de uso e roteiro da demonstração:** [docs/guia-de-uso.md](docs/guia-de-uso.md). Validação com a API real: [docs/validacao-api-real.md](docs/validacao-api-real.md). Falta preencher no guia o endereço do sistema e as contas de demonstração, quando a hospedagem estiver definida.
+Planejamento em [`.claude/planning/`](.claude/planning/README.md) (decisões, arquitetura, telas, fluxos, formulários, integração com a API, autenticação, testes, roadmap e pendências). Evidência dos testes em [`docs/evidencias/`](docs/evidencias/). **Guia de uso e roteiro da demonstração:** [docs/guia-de-uso.md](docs/guia-de-uso.md). Validação com a API real: [docs/validacao-api-real.md](docs/validacao-api-real.md). **Roteiro de testes manual** das mudanças de novembro (cabeçalho, cards, toasts, QR code, regras novas): [docs/roteiro-de-testes.md](docs/roteiro-de-testes.md). Falta preencher no guia o endereço do sistema e as contas de demonstração, quando a hospedagem estiver definida.
 
 ## Autores
 

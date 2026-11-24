@@ -23,8 +23,8 @@ Vá preenchendo esta tabela durante o roteiro. Vários passos usam valores de pa
 | Senha do banco | Passo 1 | |
 | Texto de conexão do banco | Passo 1 | |
 | Chave secreta da API (`Jwt__Chave`) | Passo 3 | |
-| Nome do app no Azure | Passo 3 | |
-| Endereço da API (`https://…azurewebsites.net`) | Passo 3 | |
+| Nome do app no Azure | Passo 3 | `viteme-api` |
+| Endereço da API (`https://…azurewebsites.net`) | Passo 3 | `https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net` |
 | Endereço do site (`https://…pages.dev`) | Passo 5 | |
 
 Você vai precisar também de: acesso de **administrador** aos repositórios `viteme-api` e `viteme-web` no GitHub (para criar segredos e conectar serviços) e, no computador, de um editor de texto.
@@ -34,7 +34,7 @@ Você vai precisar também de: acesso de **administrador** aos repositórios `vi
 ## Passo 1: banco de dados no Supabase
 
 1. Entre em <https://supabase.com> e crie uma conta (pode ser com o GitHub).
-2. **New project**: nome `viteme`, escolha uma **senha forte para o banco** (anote!) e a região mais próxima (por exemplo, *South America (São Paulo)*). Aguarde alguns minutos até o projeto ficar pronto.
+2. **New project**: nome `viteme`, escolha uma **senha forte para o banco** (anote!) e a região **mais próxima da API**. Como a API ficou em **West US 3** (Arizona), escolha **West US (North California)**: cada pedido ao site faz várias consultas ao banco, e com o banco em São Paulo cada consulta atravessaria o continente (a tela ficaria visivelmente lenta). Aguarde alguns minutos até o projeto ficar pronto.
 3. Pegue o **texto de conexão**: no projeto, clique em **Connect** (ou *Project Settings > Database*) e copie a conexão do tipo **Session pooler** (porta **5432**). Ela tem este formato:
 
    ```
@@ -43,7 +43,7 @@ Você vai precisar também de: acesso de **administrador** aos repositórios `vi
 
    Pontos importantes:
    - Use o **Session pooler (porta 5432)**, não o *Transaction pooler* (porta 6543): a API usa transações que ele não suporta.
-   - Prefira o pooler à "Direct connection": a conexão direta do Supabase costuma usar apenas IPv6, e o Azure pode não conseguir alcançá-la.
+   - **Não use a "Direct connection"** (`db.<id>.supabase.co`): ela só tem IPv6 e o App Service não sai por IPv6. O sintoma no *Fluxo de log* é `Failed to connect to [2600:...]:5432` com `Cannot assign requested address`.
    - `Trust Server Certificate=true` evita erro de certificado ao conectar; se tudo conectar sem ele, pode remover.
    - Troque `<SUA-SENHA>` pela senha do passo 2. Se a senha tiver caracteres como `;` ou `=`, troque por uma senha só com letras e números.
 4. **Crie as tabelas:** no menu do Supabase abra o **SQL Editor > New query**. Abra, no GitHub, o arquivo `docs/banco/schema.sql` do repositório `viteme-api`, copie **todo** o conteúdo, cole no editor e clique em **Run**. Deve terminar sem erro. Confira em **Table Editor**: devem existir cerca de 14 tabelas (`usuario`, `evento`, `inscricao`…).
@@ -96,17 +96,17 @@ Isso acontece, por exemplo, quando a conta gratuita foi atualizada ("Upgrade"). 
    |---|---|
    | Assinatura | a que você criou |
    | Grupo de recursos | **Criar novo**: `viteme-demo` (tudo fica aqui, o que facilita apagar depois) |
-   | Nome | algo único, por exemplo `viteme-api-<suas-iniciais>`. **Anote.** O endereço será `https://<nome>.azurewebsites.net` |
+   | Nome | por exemplo `viteme-api`. **Anote.** Com o "nome de host padrão exclusivo" ligado (padrão atual), o endereço fica `https://<nome>-<sufixo>.<região>.azurewebsites.net` |
    | Publicar | **Código** |
    | Pilha de runtime | **.NET 10 (LTS)** |
    | Sistema operacional | **Linux** |
-   | Região | uma próxima (Brasil Sul ou East US). Se o plano gratuito disser "sem cota", tente outra região |
+   | Região | **West US 3** foi a que aceitou o plano gratuito na nossa assinatura (Brasil Sul pediu cota). Se o plano gratuito disser "sem cota", tente outra região. Crie o banco do Supabase numa região próxima à escolhida aqui |
    | Plano do Linux | **Criar novo** |
    | Plano de preços | **Gratuito F1** (procure em *Explorar planos de preço* > *Desenvolvimento/Teste*). O custo estimado deve ser **R$ 0** |
 
    Se o **.NET 10 não aparecer** na lista, avise a equipe técnica antes de seguir: será preciso publicar de outra forma.
    Antes de continuar, confira na aba **Monitoramento** que **Application Insights** está desativado.
-3. Aba **Implantação**: se existir a opção **Autenticação básica** (*Basic authentication*), deixe **Habilitada**: ela é necessária para baixar o perfil de publicação no passo 4. Se você não a vir, siga em frente; está no passo 4 como recuperar.
+3. Aba **Implantação**: pode deixar a implantação contínua desativada aqui; a ligação com o GitHub é feita no passo 4.
 4. Clique em **Examinar + criar** e depois **Criar**. Aguarde terminar e clique em **Ir para o recurso**.
 5. **Gere a chave secreta da API** (um texto aleatório longo). No Windows, abra o **PowerShell** e rode:
 
@@ -123,6 +123,7 @@ Isso acontece, por exemplo, quando a conta gratuita foi atualizada ("Upgrade"). 
    | `ConnectionStrings__Default` | o texto de conexão do passo 1 |
    | `Jwt__Chave` | a chave do item 5 |
    | `Proxy__ConfiarEmCabecalhosEncaminhados` | `true` |
+   | `Proxy__SaltosConfiaveis` | `2` (o site repassa os pedidos pela Cloudflare; assim o limite de tentativas de login vale por pessoa, e não para todos juntos) |
    | `Gateway__Stub__HabilitarSimulador` | `true` (**só na demonstração**: habilita os botões de pagamento simulado) |
    | `Cors__OrigemFrontend` | por enquanto `https://exemplo.pages.dev` (você troca no passo 6) |
    | `Certificados__UrlValidacao` | por enquanto `https://exemplo.pages.dev/certificados` (troca no passo 6) |
@@ -137,18 +138,18 @@ Isso acontece, por exemplo, quando a conta gratuita foi atualizada ("Upgrade"). 
 
 ## Passo 4: publicar a API (GitHub Actions)
 
-O repositório `viteme-api` já tem o workflow **"Publicar API no Azure"** (`.github/workflows/azure-api.yml`). Ele compila a API e envia para o App Service quando você aciona manualmente.
+A publicação é feita pelo **Centro de Implantação** (*Deployment Center*) do Azure, que liga o app ao GitHub com login sem senha (OIDC): não há perfil de publicação nem senha para copiar.
 
-1. **Baixe o perfil de publicação:** na *Visão geral* do app, clique em **Baixar perfil de publicação** (*Get publish profile*). Isso baixa um arquivo `.PublishSettings` (é um XML). Abra no editor de texto e copie **tudo**.
-   - Se o botão estiver desabilitado ou o arquivo não baixar, vá em **Configurações > Configuração > Configurações gerais** e ative **Credenciais de publicação de autenticação básica SCM** (*SCM Basic Auth Publishing Credentials*); salve e tente de novo.
-2. No GitHub, no repositório `viteme-api`: **Settings > Secrets and variables > Actions**.
-   - Aba **Secrets > New repository secret**: nome `AZURE_WEBAPP_PUBLISH_PROFILE`, valor = o XML copiado.
-   - Aba **Variables > New repository variable**: nome `AZURE_WEBAPP_NAME`, valor = o nome do app do passo 3 (só o nome, sem `https://`).
-3. **Deixe o workflow na branch principal.** O código atual está na branch `claude/wizardly-knuth-9ob62s`. O GitHub só lista o botão "Run workflow" para arquivos que estão na branch principal (`main`), então faça o merge dessa branch na `main` (abra um *Pull Request* e peça a revisão de outro integrante; isso também ajuda a mostrar a participação de cada um na Entrega 3).
-4. No GitHub: **Actions > Publicar API no Azure > Run workflow** (escolha a `main`). Leva alguns minutos; ao final deve ficar verde.
-5. **Teste a API:** abra no navegador `https://<nome>.azurewebsites.net/api/v1/saude`. Na **primeira vez demora** (o plano gratuito "acorda" o app) e deve responder `200`. Abra também `https://<nome>.azurewebsites.net/api/v1/eventos`: deve responder `{"itens":[],...}`.
+> **Situação atual (2026-10-25):** este passo **já foi feito**. O app `viteme-api` (grupo `viteme-demo`, plano F1, região **West US 3**) está ligado ao repositório `viteme-api`, e o workflow `.github/workflows/main_viteme-api.yml` foi ajustado para publicar **só depois que o CI passa** em um push na `main`, e apenas o projeto da API. Os itens abaixo servem para refazer a ligação do zero.
 
-   Se não responder: no portal do Azure, **Monitoramento > Fluxo de log** mostra o erro. Os mais comuns estão na tabela de problemas no fim deste documento.
+1. No portal, abra o app > **Implantação > Centro de Implantação**.
+2. **Origem: GitHub**. Autorize, escolha a organização, o repositório `viteme-api` e a branch `main`.
+3. Em **Tipo de autenticação**, escolha **Identidade atribuída pelo usuário** (OIDC). Salve. O Azure cria os segredos `AZUREAPPSERVICE_CLIENTID_…`, `…TENANTID_…` e `…SUBSCRIPTIONID_…` no repositório e grava um workflow `main_<nome-do-app>.yml` na `main`.
+4. **Reaplique os ajustes do workflow** (o Azure grava um arquivo genérico, que publica a cada push sem esperar o CI). Os ajustes estão descritos em `docs/deploy.md` (seção 7) do `viteme-api`: manter os nomes dos segredos que o Azure criou e trocar o resto pelo modelo do repositório.
+5. Para publicar à mão: **Actions > Publicar API no Azure (viteme-api) > Run workflow**.
+6. **Teste a API:** abra no navegador `https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net/api/v1/saude`. Na **primeira vez demora** (o plano gratuito "acorda" o app) e deve responder `200`. Abra também `https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net/api/v1/eventos`: deve responder `{"itens":[],...}`.
+
+   Se não responder: no portal do Azure, **Monitoramento > Fluxo de log** mostra o erro. **Sem as variáveis do passo 3.6 a API não inicia**: a publicação fica verde no GitHub, mas o endereço responde com erro. Os casos mais comuns estão na tabela de problemas no fim deste documento.
 
 **Pronto quando:** `/api/v1/saude` e `/api/v1/eventos` respondem no endereço do Azure.
 
@@ -157,7 +158,7 @@ O repositório `viteme-api` já tem o workflow **"Publicar API no Azure"** (`.gi
 ## Passo 5: site no Cloudflare Pages
 
 1. Entre em <https://dash.cloudflare.com> e crie uma conta gratuita.
-2. **Antes de conectar**, ajuste o endereço da API no código do site: no GitHub, abra `wrangler.jsonc` do repositório `viteme-web`, edite o valor de `API_ORIGIN` para o endereço da API do passo 3 (sem barra no final, por exemplo `"https://viteme-api-abc.azurewebsites.net"`) e faça o commit. Faça o merge da branch de trabalho na `main` do `viteme-web`, como no passo 4.3.
+2. **Endereço da API:** é `https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net` (o Azure acrescenta um sufixo aleatório e a região ao nome do app; o endereço aparece no fim do log de publicação no GitHub e na *Visão geral* do app, campo *Domínio padrão*). Ele vai na variável `API_ORIGIN`, **no painel da Cloudflare** (item 4). O repositório não tem `wrangler.jsonc` de propósito: se tivesse, o painel deixaria as variáveis só para leitura.
 3. Na Cloudflare: **Workers & Pages > Create > Pages > Connect to Git**. Autorize o GitHub e escolha o repositório `viteme-web`.
 4. Configurações de build:
 
@@ -167,7 +168,9 @@ O repositório `viteme-api` já tem o workflow **"Publicar API no Azure"** (`.gi
    | Framework preset | *None* (ou *Vite*) |
    | Build command | `npm run build` |
    | Build output directory | `dist` |
-   | Variáveis de ambiente (build) | `VITE_SIMULADOR_PAGAMENTO` = `true` (**só para a demonstração**) e `NODE_VERSION` = `22` (o projeto precisa do Node 22; o arquivo `.nvmrc` do repositório também indica isso) |
+   | Variáveis de ambiente | `API_ORIGIN` = endereço da API do item 2 (tipo texto, **sem barra no final**); `VITE_SIMULADOR_PAGAMENTO` = `true` (**só para a demonstração**) e `NODE_VERSION` = `22` (o projeto precisa do Node 22; o arquivo `.nvmrc` do repositório também indica isso) |
+
+   Se o projeto já existe, as variáveis ficam em **Settings > Variables and Secrets** (ambiente *Production*). Depois de salvar, **refaça o deploy** (*Deployments >* último deploy *> Retry deployment*): variável nova só vale em implantação nova.
 
 5. **Save and Deploy**. Quando terminar, a Cloudflare mostra o endereço do site, algo como `https://viteme-web.pages.dev` (pode ter um sufixo se o nome já existir). **Anote.**
 
@@ -225,7 +228,7 @@ Se algo falhar, veja a tabela de problemas abaixo.
       ```
    5. Com o participante, abra **Minhas inscrições > Anteriores** e baixe o certificado. Guarde o código de validação impresso no PDF para mostrar a validação pública.
 5. **Ensaie** o roteiro do guia de uso inteiro uma vez.
-6. **No dia:** abra `https://<nome>.azurewebsites.net/api/v1/saude` uns 10 minutos antes, para a API acordar, e deixe a aba aberta.
+6. **No dia:** abra `https://viteme-api-f5f3f2b8eacdbehp.westus3-01.azurewebsites.net/api/v1/saude` uns 10 minutos antes, para a API acordar, e deixe a aba aberta.
 
 ---
 
@@ -242,16 +245,22 @@ Se algo falhar, veja a tabela de problemas abaixo.
 | Sintoma | Causa provável | O que fazer |
 |---|---|---|
 | `/api/v1/saude` demora ou dá erro logo depois de publicar | Plano gratuito acordando | Aguarde 1 a 2 minutos e tente de novo |
+| O endereço da API mostra a **página padrão do Azure** ("Your web app is running and waiting for your content") e o *Fluxo de log* avisa *"found 2 '.runtimeconfig.json'"* | Sobras de uma publicação antiga na pasta do app (`Viteme.Tests.runtimeconfig.json`) | O workflow da `main` do `viteme-api` limpa a pasta e fixa `dotnet Viteme.Api.dll`: rode *Publicar API no Azure > Run workflow*. Na hora, dá para pôr `dotnet Viteme.Api.dll` em *Configurações > Configuração > Comando de inicialização* |
 | API sobe e cai (erro 500.30, ou "Application Error") | Falta `Jwt__Chave` ou `ConnectionStrings__Default`, ou a chave tem menos de 32 caracteres | Confira as variáveis no passo 3.6 e o *Fluxo de log* |
 | `/api/v1/eventos` dá erro de banco | Texto de conexão errado, senha errada ou tabelas não criadas | Confira o passo 1; teste a conexão; confirme o `schema.sql` |
+| *Fluxo de log* mostra `Failed to connect to [2600:...]:5432` / `Cannot assign requested address` | `ConnectionStrings__Default` usa a conexão direta (`db.<id>.supabase.co`, só IPv6) | Troque pelo **Session pooler** (`...pooler.supabase.com`, porta 5432, usuário `postgres.<id>`) e reinicie o app |
 | Erro de certificado ao conectar no banco | Falta `Trust Server Certificate=true` | Acrescente ao texto de conexão |
 | O build do Pages falha com erro de versão do Node | Build usando um Node antigo | Defina `NODE_VERSION` = `22` nas variáveis de build e refaça o deploy |
-| O site abre, mas mostra erro **502 "API indisponível"** | API dormindo ou `API_ORIGIN` errado em `wrangler.jsonc` | Abra o `/saude` da API; confira `API_ORIGIN` (sem barra final) e faça novo deploy |
+| O site abre, mas mostra erro **502 "API indisponível"** | API dormindo ou `API_ORIGIN` errado no painel da Cloudflare | Abra o `/saude` da API; confira `API_ORIGIN` (sem barra final) e faça novo deploy |
+| `/api/v1/saude` no site responde **500 `API_ORIGIN_AUSENTE`** | `API_ORIGIN` não definido no painel, ou definido sem refazer o deploy | Defina em *Settings > Variables and Secrets* (Production) e use *Retry deployment* |
+| O painel diz que as variáveis são **gerenciadas pelo Wrangler** | Existe um `wrangler.jsonc` na branch publicada | Use a `main` atual (sem o arquivo) e refaça o deploy |
 | Login funciona, mas **F5 desconecta** ou aparece "403 requisição não permitida" | `Cors__OrigemFrontend` diferente do endereço do site | Copie o endereço exato do navegador, sem barra final |
 | O botão de simular pagamento não aparece | O site foi construído sem `VITE_SIMULADOR_PAGAMENTO=true` | Defina a variável de build na Cloudflare e faça novo deploy |
 | Simular pagamento dá erro | `Gateway__Stub__HabilitarSimulador` não está `true` na API | Ajuste no Azure e reinicie |
 | O "Run workflow" não aparece no GitHub | O arquivo do workflow não está na branch principal | Faça o merge na `main` |
-| O workflow falha em "Enviar para o App Service" | Perfil de publicação errado/expirado, ou nome do app errado | Baixe o perfil de novo; confira `AZURE_WEBAPP_NAME` |
+| A publicação não roda depois de um push | O workflow só publica quando o **CI** termina com sucesso em um push na `main` | Veja o CI em *Actions*; corrija e envie de novo, ou use *Run workflow* |
+| O workflow falha no login do Azure (`azure/login`) | Segredos `AZUREAPPSERVICE_…` apagados ou a ligação refeita com outros nomes | Refaça a ligação no Centro de Implantação (passo 4) e reaplique os ajustes do workflow |
+| Tentativas de login dão "Muitas requisições" (429) para várias pessoas ao mesmo tempo | Falta `Proxy__SaltosConfiaveis=2`: a API enxerga todos com o IP da Cloudflare | Adicione a variável no Azure e reinicie |
 | "Sem cota" ao criar o plano F1 | Região sem capacidade gratuita para a assinatura | Tente outra região |
 
 ## Para a equipe técnica

@@ -17,7 +17,7 @@ Todas as telas abaixo estão **implementadas**. As divergências entre o Figma e
 | T05 | Minhas inscrições | `/minhas-inscricoes` | Autenticado | E25, E26, E29, E38 | Frame "Minhas inscrições" (desktop e mobile). Acrescentado: cancelar, certificado, comprovante em janela |
 | T06 | Pagamento | `/inscricoes/:id/pagamento` | Autenticado | E29, E30 | Frame "Pagamento" (desktop e mobile). Acrescentado: polling de 5 s, prazo da reserva, modo demonstração |
 | T07 | Notificações | `/notificacoes` | Autenticado | E34, E35, E36 | Frame "Notificações" (desktop e mobile). Acrescentado: filtro Não lidas, destaque das novas, data |
-| T08 | Perfil e SMS | `/perfil` | Autenticado | E05–E09 | Frame "Meu perfil" (desktop e mobile). Acrescentado: verificação do telefone com código e contador de 60 s |
+| T08 | Perfil e SMS | `/perfil` | Autenticado | E05–E09, E40 | Frame "Meu perfil" (desktop e mobile). Acrescentado: verificação do telefone com código e contador de 60 s; seção "Dados de organizador" (CNPJ, D-W22) |
 | T09 | Meus eventos | `/meus-eventos` | Autenticado | E16 | Frame "Meus eventos" (desktop e mobile). Acrescentado: filtro por papel, links Editar e Ver página pública |
 | T10 | Criar/editar evento | `/meus-eventos/novo`, `/meus-eventos/:id/editar` | Organizador | E12, E13, E14, E18–E20 | Frame "Criar evento" (desktop; sem mobile no Figma). Acrescentado: término, janela de inscrições, carga horária, imagem, programação, motivo da alteração |
 | T11 | Gestão do evento | `/meus-eventos/:id` | Org./colab. | E15, E17, E21–E23, E27, E28 | Frame "Gestão do evento" (desktop; sem mobile no Figma). Acrescentado: abas Alterações e Colaboradores completas, busca e paginação, cancelamento |
@@ -27,14 +27,14 @@ Todas as telas abaixo estão **implementadas**. As divergências entre o Figma e
 
 ### T01 — Mural de eventos
 - Cards (`EventoCard`) com busca e filtros (conferir parâmetros aceitos por E10: busca, categoria, período, preço, paginação).
-- Selo **"Alterado"** para eventos alterados nas últimas 72 h (CT62).
+- Grade de cards (D-W23): bloco de data, capa por categoria (ou imagem), horário, local, preço e situação das inscrições. **Sem o selo "Alterado"** (D-W25); a alteração aparece em T02.
 - Eventos de rascunho/ocultos nunca aparecem (a API já filtra).
 - Paginação (`{ itens, pagina, tamanhoPagina, total }`).
 
 ### T02 — Detalhe do evento
-- Informações, programação (atividades), vagas restantes, preço, histórico de alterações (E17) com a mais recente em destaque.
+- Informações, programação como **linha do tempo** (D-W23), vagas restantes, preço, histórico de alterações (E17) com a mais recente em destaque.
 - Botões conforme o usuário:
-  - **Inscrever-se** (E24): visitante vai a T03 e volta; organizador/colaborador do evento vê indisponível (`PAPEL_NAO_PERMITE_INSCRICAO`); inscrito vê "Você já está inscrito"; evento lotado/encerrado mostra o motivo.
+  - **Inscrever-se** (E24): visitante vai a T03 e volta; o organizador não vê o botão (`PAPEL_NAO_PERMITE_INSCRICAO`); o colaborador vê "Gerenciar evento" e também pode se inscrever (D-W28); inscrito vê "Você já está inscrito"; evento lotado/encerrado mostra o motivo.
   - **Acompanhar / Deixar de acompanhar** (E32/E33), idempotentes.
   - **Denunciar** (E37): modal com motivo e descrição.
 - Evento OCULTO: inscrito vê normalmente; os demais recebem 404 → mostrar "Evento indisponível" (CT55).
@@ -51,7 +51,7 @@ Todas as telas abaixo estão **implementadas**. As divergências entre o Figma e
 
 ### T05 — Minhas inscrições
 - Abas **Próximas / Passadas** (`situacao=proximas|passadas|todas`).
-- Por inscrição: status, **código de check-in** (12 caracteres), prazo da reserva (`reservadaAte`) quando pendente, botões Cancelar (E26, com confirmação), Pagar/Retomar (E29) e **Certificado** (E38, quando `certificadoDisponivel`; baixa o PDF).
+- Por inscrição: status, **código de check-in** (12 caracteres) e **QR code** no comprovante ("Mostrar QR code", D-W26), prazo da reserva (`reservadaAte`) quando pendente, botões Cancelar (E26, com confirmação), Pagar/Retomar (E29) e **Certificado** (E38, quando `certificadoDisponivel`; baixa o PDF).
 - Cancelamento: tratar `PRAZO_CANCELAMENTO_ENCERRADO` (até 24 h antes) e mostrar se houve `estornoSolicitado`.
 
 ### T06 — Pagamento
@@ -67,6 +67,7 @@ Todas as telas abaixo estão **implementadas**. As divergências entre o Figma e
 - Dados pessoais (E05/E06: nome e telefone).
 - Verificação de telefone: pedir código (E07), digitar 6 dígitos (E08), **reenvio liberado após 60 s com contador**; erros `CODIGO_EXPIRADO`, `TENTATIVAS_EXCEDIDAS`, `AGUARDE_NOVO_CODIGO`.
 - Aceite de SMS (E09): só habilita com telefone verificado; pode revogar a qualquer momento. Trocar o telefone desfaz verificação e aceite (avisar antes).
+- Dados de organizador (E40, RN24): CNPJ com máscara (aceita o formato alfanumérico), verificado na Receita pela API; mostra razão social e data da verificação; "Trocar CNPJ". Erros `CNPJ_JA_CADASTRADO`, `CNPJ_NAO_ENCONTRADO`, `CNPJ_INATIVO`, `CONSULTA_CNPJ_INDISPONIVEL` com o texto da API.
 
 ### T09 — Meus eventos
 - Eventos que organiza ou colabora (E16), com status (rascunho, publicado, oculto, cancelado, encerrado) e o papel do usuário. Botão "Novo evento".
@@ -78,7 +79,7 @@ Todas as telas abaixo estão **implementadas**. As divergências entre o Figma e
 - Tratar 412 `VERSAO_DESATUALIZADA` (oferecer recarregar).
 
 ### T11 — Gestão do evento
-- Abas: **Inscritos** (E27: busca, filtro de status, paginação; sem telefone), **Check-in** (E28: código de 12 caracteres em maiúsculas), **Colaboradores** (E21–E23; só organizador altera), **Alterações** (E17) e **Cancelamento** (E15: motivo 10–300 caracteres + confirmação; só organizador).
+- Abas: **Inscritos** (E27: busca, filtro de status, paginação; sem telefone), **Check-in** (E28: código de 12 caracteres em maiúsculas, digitado ou lido do QR code pela câmera, D-W26), **Colaboradores** (E21–E23; só organizador altera), **Alterações** (E17) e **Cancelamento** (E15: motivo 10–300 caracteres + confirmação; só organizador).
 - Colaborador vê Inscritos e Check-in; abas de organizador ficam ocultas.
 
 ### T12 — Validar certificado
@@ -86,4 +87,4 @@ Todas as telas abaixo estão **implementadas**. As divergências entre o Figma e
 
 ## Navegação (Figura 4 do PDF)
 
-Cabeçalho fixo dá acesso a T01, T05, T07, T08 e T09. Telas de **participante** (T05–T08) e de **organizador** (T09–T11) exigem login. Visitante que tenta ação autenticada vai a T03 e volta ao ponto de origem. Sair (E04) no cabeçalho. T02 → T03 → T02; T02 → T06 (evento pago) ou T05 (gratuito); T04 ↔ T03; T09 → T11/T10; T10 → T11 ao salvar; T05 → T12 pelo link do certificado.
+Cabeçalho fixo (barra arredondada) dá acesso a T01, T05 e T09 por texto e a T07 (sino) e T08 (avatar → "Meu perfil") por ícone; "Sair" fica no menu do avatar (D-W23). Telas de **participante** (T05–T08) e de **organizador** (T09–T11) exigem login. Visitante que tenta ação autenticada vai a T03 e volta ao ponto de origem. Sair (E04) no cabeçalho. T02 → T03 → T02; T02 → T06 (evento pago) ou T05 (gratuito); T04 ↔ T03; T09 → T11/T10; T10 → T11 ao salvar; T05 → T12 pelo link do certificado.
