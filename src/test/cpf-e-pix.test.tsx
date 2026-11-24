@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cpfValido } from '../schemas/auth'
 import { eventoDetalhe, inscricaoExemplo, problema, rota, sessaoRestauravel } from './api'
 import { renderizarApp } from './render'
@@ -107,5 +107,53 @@ describe('Pix na tela de pagamento (E46)', () => {
 
     expect(await screen.findByRole('button', { name: 'Ir para pagamento' })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Pague com Pix' })).not.toBeInTheDocument()
+  })
+})
+
+describe('Simulador de pagamento (demonstração)', () => {
+  afterEach(() => vi.unstubAllEnvs())
+
+  const cobranca = http.post(rota('/inscricoes/i-1/pagamento'), () =>
+    HttpResponse.json({ pagamentoId: 'p-1', status: 'PENDENTE', valor: 25, urlPagamento: 'https://sandbox.asaas.com/i/abc' }),
+  )
+
+  it('com o Asaas sandbox (há QR Code), aprova pelo id do pagamento e não oferece recusa', async () => {
+    vi.stubEnv('VITE_SIMULADOR_PAGAMENTO', 'true')
+    const { handlers } = sessaoRestauravel()
+    let simulado: string | null = null
+    servidor.use(
+      http.get(rota('/inscricoes/minhas'), () => HttpResponse.json([minhaPendente()])),
+      statusPendente,
+      http.get(rota('/inscricoes/i-1/pagamento/pix'), () => HttpResponse.json({ copiaECola: '000201', imagemBase64: 'iVBORw0KGgo=', expiraEm: null })),
+      cobranca,
+      http.post(rota('/simulador/pagamentos/:id/:resultado'), ({ params }) => {
+        simulado = `${params.id}/${params.resultado}`
+        return HttpResponse.json({ processado: true })
+      }),
+      ...handlers,
+    )
+    const usuario = userEvent.setup()
+    renderizarApp('/inscricoes/i-1/pagamento')
+
+    await screen.findByRole('heading', { name: 'Pague com Pix' })
+    expect(screen.queryByRole('button', { name: 'Simular recusa' })).not.toBeInTheDocument()
+    await usuario.click(screen.getByRole('button', { name: 'Simular pagamento aprovado' }))
+
+    await expect.poll(() => simulado).toBe('p-1/aprovar')
+  })
+
+  it('com o gateway simulado (sem QR Code), oferece aprovar e recusar', async () => {
+    vi.stubEnv('VITE_SIMULADOR_PAGAMENTO', 'true')
+    const { handlers } = sessaoRestauravel()
+    servidor.use(
+      http.get(rota('/inscricoes/minhas'), () => HttpResponse.json([minhaPendente()])),
+      statusPendente,
+      http.get(rota('/inscricoes/i-1/pagamento/pix'), () => problema(404, 'PIX_INDISPONIVEL', 'Sem QR Code.')),
+      ...handlers,
+    )
+    renderizarApp('/inscricoes/i-1/pagamento')
+
+    expect(await screen.findByRole('button', { name: 'Simular recusa' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Simular pagamento aprovado' })).toBeInTheDocument()
   })
 })

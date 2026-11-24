@@ -42,9 +42,12 @@ export const obterPix = (inscricaoId: string) =>
 export const consultarPagamento = (inscricaoId: string) =>
   http.get<PagamentoStatus>(`/inscricoes/${inscricaoId}/pagamento`).then((r) => r.data)
 
-/** SOMENTE DEMONSTRAÇÃO (gateway stub): aprova, recusa ou expira a cobrança do usuário. */
-export const simularPagamento = (idTransacao: string, resultado: 'aprovar' | 'recusar' | 'expirar') =>
-  http.post(`/simulador/pagamentos/${idTransacao}/${resultado}`).then((r) => r.data)
+/**
+ * SOMENTE DEMONSTRAÇÃO: aprova, recusa ou expira a cobrança do usuário. Aceita o id do pagamento (E29) ou o da transação.
+ * Com o Asaas sandbox, só "aprovar": a API confirma a cobrança no próprio sandbox.
+ */
+export const simularPagamento = (pagamentoOuTransacao: string, resultado: 'aprovar' | 'recusar' | 'expirar') =>
+  http.post(`/simulador/pagamentos/${pagamentoOuTransacao}/${resultado}`).then((r) => r.data)
 
 /** Com `responseType: 'blob'` o ProblemDetails de erro também chega como Blob: converte de volta em JSON para `mapearErro`. */
 async function erroComCorpoLegivel(erro: unknown): Promise<never> {

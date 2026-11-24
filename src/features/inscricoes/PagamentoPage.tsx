@@ -12,10 +12,8 @@ import { CpfModal } from './CpfModal'
 
 const INTERVALO_MS = Number(import.meta.env.VITE_POLL_PAGAMENTO_MS ?? 5_000)
 const LIMITE_MS = 2 * 60_000
-const SIMULADOR = import.meta.env.VITE_SIMULADOR_PAGAMENTO === 'true'
-
-/** O id da transação do gateway stub é o último trecho da URL de pagamento. */
-const idTransacao = (url: string | null) => url?.split('/').filter(Boolean).pop() ?? null
+/** Lido na renderização (e não no carregamento do módulo) para os testes poderem ligar o simulador. */
+const simuladorLigado = () => import.meta.env.VITE_SIMULADOR_PAGAMENTO === 'true'
 
 export function PagamentoPage() {
   useTitulo('Pagamento', { indexar: false })
@@ -99,20 +97,19 @@ export function PagamentoPage() {
     setMensagem(null)
     setAviso(null)
     const resultado = await cobranca.mutateAsync().catch(() => null)
-    // O simulador só existe com o gateway stub, cujo endereço de pagamento é fictício: sair do site deixaria a tela em branco.
-    if (resultado && SIMULADOR) {
+    // Com o simulador a demonstração fica no site: o endereço do stub é fictício e a fatura do sandbox tiraria a pessoa daqui.
+    if (resultado && simuladorLigado()) {
       void pagamento.refetch()
-      setAviso('Cobrança gerada. Use o modo demonstração abaixo para aprovar ou recusar o pagamento.')
+      setAviso('Cobrança gerada. Use o modo demonstração abaixo para simular o pagamento.')
     } else if (resultado?.urlPagamento) window.location.assign(resultado.urlPagamento)
     else if (resultado) setMensagem('A cobrança foi criada, mas o endereço de pagamento ainda não está disponível. Tente novamente em instantes.')
   }
 
   const simular = useMutation({
     mutationFn: async (resultado: 'aprovar' | 'recusar') => {
+      // O id do pagamento serve tanto para o stub quanto para o Asaas sandbox (a URL da fatura do Asaas não traz o id da cobrança).
       const cobrancaAtual = await gerarCobranca(id)
-      const transacao = idTransacao(cobrancaAtual.urlPagamento)
-      if (!transacao) throw new Error('sem transação')
-      await simularPagamento(transacao, resultado)
+      await simularPagamento(cobrancaAtual.pagamentoId, resultado)
     },
     onSuccess: () => void pagamento.refetch(),
     onError: (e) => setMensagem(mapearErro(e).mensagem),
@@ -152,6 +149,8 @@ export function PagamentoPage() {
   const reservaExpirada = inscricao.status === 'EXPIRADA' || (inscricao.status === 'PENDENTE_PAGAMENTO' && minutos === null)
   const recusado = status === 'RECUSADO' || status === 'EXPIRADO'
   const valor = pagamento.data?.valor
+  // QR Code próprio só existe com o gateway real (Asaas sandbox), onde o simulador só confirma: o sandbox não recusa Pix.
+  const gatewayReal = Boolean(pix.data)
 
   return (
     <main className="pagina pagina--estreita" id="conteudo">
@@ -233,17 +232,23 @@ export function PagamentoPage() {
             <button type="button" className="botao botao--secundario botao--bloco" onClick={() => pagamento.refetch()} disabled={pagamento.isFetching}>
               {pagamento.isFetching ? 'Consultando…' : 'Consultar status'}
             </button>
-            {SIMULADOR && (
+            {simuladorLigado() && (
               <section className="cartao" style={{ borderStyle: 'dashed' }} aria-label="Simulador de pagamento (demonstração)">
                 <h2 className="cartao__titulo">Modo demonstração</h2>
-                <p className="cartao__meta">O gateway está simulado. Use os botões para aprovar ou recusar a cobrança.</p>
+                <p className="cartao__meta">
+                  {gatewayReal
+                    ? 'Ambiente de testes do meio de pagamento: o botão confirma esta cobrança como se o Pix tivesse sido pago.'
+                    : 'O gateway está simulado. Use os botões para aprovar ou recusar a cobrança.'}
+                </p>
                 <div className="linha espaco-topo">
                   <button type="button" className="botao botao--pequeno" onClick={() => simular.mutate('aprovar')} disabled={simular.isPending}>
-                    Simular pagamento aprovado
+                    {simular.isPending ? 'Confirmando…' : 'Simular pagamento aprovado'}
                   </button>
-                  <button type="button" className="botao botao--perigo botao--pequeno" onClick={() => simular.mutate('recusar')} disabled={simular.isPending}>
-                    Simular recusa
-                  </button>
+                  {!gatewayReal && (
+                    <button type="button" className="botao botao--perigo botao--pequeno" onClick={() => simular.mutate('recusar')} disabled={simular.isPending}>
+                      Simular recusa
+                    </button>
+                  )}
                 </div>
               </section>
             )}
