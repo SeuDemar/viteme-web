@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { lazy, Suspense, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useParams } from 'react-router-dom'
-import { adicionarColaborador, cancelarEvento, listarAlteracoes, listarColaboradores, obterEvento, publicarEvento, removerColaborador } from '../../api/eventos'
+import { adicionarColaborador, cancelarEvento, listarAlteracoes, listarColaboradores, obterEvento, obterRecebimentosDoEvento, publicarEvento, removerColaborador } from '../../api/eventos'
 import { listarInscritos, registrarCheckin } from '../../api/inscricoes'
 import type { Colaborador, EventoDetalhe, StatusInscricao } from '../../api/tipos'
 import { Campo } from '../../components/Campo'
@@ -15,7 +15,7 @@ import { Selo, SeloStatusEvento, SeloStatusInscricao } from '../../components/Se
 import { Seletor } from '../../components/Seletor'
 import { useToast } from '../../components/Toasts'
 import { descreverMudanca, rotuloCampo } from '../../lib/alteracoes'
-import { dataEHora, dataNumerica, hora } from '../../lib/formatar'
+import { dataEHora, dataNumerica, hora, moeda } from '../../lib/formatar'
 import { mapearErro } from '../../lib/erros'
 import { aplicarErrosDosCampos, useTitulo } from '../../lib/formulario'
 import { cancelamentoSchema, checkinSchema, colaboradorSchema, type CancelamentoForm, type CheckinForm, type ColaboradorForm } from '../../schemas/gestao'
@@ -358,6 +358,69 @@ function CancelarEventoModal({ evento, aoFechar }: { evento: EventoDetalhe; aoFe
   )
 }
 
+/** E47: quanto o evento já recebeu, quanto está retido na garantia e quanto já foi liberado. Só para o organizador de evento pago. */
+function CartaoRecebimentos({ eventoId }: { eventoId: string }) {
+  const consulta = useQuery({ queryKey: ['recebimentos', eventoId], queryFn: () => obterRecebimentosDoEvento(eventoId) })
+  const dados = consulta.data
+  return (
+    <section className="cartao espaco-topo" aria-label="Recebimentos do evento">
+      <div className="linha linha--entre">
+        <h2 className="cartao__titulo">Recebimentos</h2>
+        {consulta.isFetched && (
+          <button type="button" className="botao-link" onClick={() => void consulta.refetch()} disabled={consulta.isFetching}>
+            {consulta.isFetching ? 'Atualizando…' : 'Atualizar'}
+          </button>
+        )}
+      </div>
+      {consulta.isPending ? (
+        <div className="espaco-topo">
+          <Carregando />
+        </div>
+      ) : consulta.isError || !dados ? (
+        <p className="alerta alerta--erro espaco-topo" role="alert">
+          {mapearErro(consulta.error).mensagem}
+        </p>
+      ) : (
+        <>
+          <dl className="fatos">
+            <div>
+              <dt>Recebido</dt>
+              <dd>
+                {moeda(dados.recebido)} ({dados.pagamentosAprovados} {dados.pagamentosAprovados === 1 ? 'pagamento' : 'pagamentos'})
+              </dd>
+            </div>
+            <div>
+              <dt>Retido na garantia</dt>
+              <dd>{moeda(dados.retido)}</dd>
+            </div>
+            <div>
+              <dt>Liberado</dt>
+              <dd>{moeda(dados.liberado)}</dd>
+            </div>
+            {dados.aguardandoPagamento > 0 && (
+              <div>
+                <dt>Aguardando pagamento</dt>
+                <dd>{moeda(dados.aguardandoPagamento)}</dd>
+              </div>
+            )}
+            {dados.estornado > 0 && (
+              <div>
+                <dt>Estornado</dt>
+                <dd>
+                  {moeda(dados.estornado)} ({dados.pagamentosEstornados} {dados.pagamentosEstornados === 1 ? 'estorno' : 'estornos'})
+                </dd>
+              </div>
+            )}
+          </dl>
+          <p className="cartao__meta espaco-topo">
+            Valores brutos, antes das taxas do meio de pagamento. {dados.retido > 0 ? 'O valor retido é liberado 2 dias depois do término do evento.' : ''}
+          </p>
+        </>
+      )}
+    </section>
+  )
+}
+
 export function GestaoEventoPage() {
   const { id = '' } = useParams()
   const queryClient = useQueryClient()
@@ -461,6 +524,8 @@ export function GestaoEventoPage() {
           </div>
         )}
       </section>
+
+      {organizador && evento.preco > 0 && <CartaoRecebimentos eventoId={id} />}
 
       <div className="abas espaco-topo" role="tablist" aria-label="Gestão do evento">
         {abas.map(([valor, rotulo]) => (

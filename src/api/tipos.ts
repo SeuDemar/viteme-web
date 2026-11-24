@@ -44,6 +44,18 @@ export interface RenovarResposta {
 export type SituacaoContaRecebimento = 'PENDENTE' | 'APROVADA' | 'REJEITADA'
 
 /** E41/E42: conta de recebimento do organizador (Fase 2 do Asaas). */
+/** E47: totais das inscrições pagas do evento, em reais e brutos (antes das taxas do meio de pagamento). */
+export interface RecebimentosEvento {
+  recebido: number
+  /** Parte do recebido presa na garantia até 2 dias depois do término (RN26). */
+  retido: number
+  liberado: number
+  estornado: number
+  aguardandoPagamento: number
+  pagamentosAprovados: number
+  pagamentosEstornados: number
+}
+
 export interface ContaRecebimento {
   situacao: SituacaoContaRecebimento
   /** Página do gateway onde o organizador envia os documentos da análise. */

@@ -1,12 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
 import { ProvedorDeToasts } from '../components/Toasts'
 import { Recebimentos } from '../features/perfil/Recebimentos'
 import { valorEmReais } from '../schemas/auth'
-import { perfilExemplo, problema, rota, sessaoRestauravel } from './api'
+import { eventoDetalhe, perfilExemplo, problema, rota, sessaoRestauravel } from './api'
 import { renderizarApp } from './render'
 import { servidor } from './servidor'
 
@@ -159,6 +159,54 @@ describe('Recebimentos do organizador (E41/E42)', () => {
     const { container } = renderizar()
 
     await expect.poll(() => container.querySelector('section')).toBeNull()
+  })
+
+  it('E47: gestão de evento pago mostra recebido, retido e liberado ao organizador', async () => {
+    const { handlers } = sessaoRestauravel()
+    servidor.use(
+      http.get(rota('/eventos/e-1'), () => HttpResponse.json(eventoDetalhe({ souOrganizador: true, preco: 50 }))),
+      http.get(rota('/eventos/e-1/inscricoes'), () => HttpResponse.json({ itens: [], pagina: 1, tamanhoPagina: 20, total: 0 })),
+      http.get(rota('/eventos/e-1/recebimentos'), () =>
+        HttpResponse.json({
+          recebido: 150,
+          retido: 100,
+          liberado: 50,
+          estornado: 50,
+          aguardandoPagamento: 0,
+          pagamentosAprovados: 3,
+          pagamentosEstornados: 1,
+        }),
+      ),
+      ...handlers,
+    )
+    renderizarApp('/meus-eventos/e-1')
+
+    const cartao = await screen.findByRole('region', { name: 'Recebimentos do evento' })
+    expect(await within(cartao).findByText(/R\$\s150,00 \(3 pagamentos\)/)).toBeInTheDocument()
+    expect(within(cartao).getByText('Retido na garantia').nextSibling).toHaveTextContent(/R\$\s100,00/)
+    expect(within(cartao).getByText('Liberado').nextSibling).toHaveTextContent(/R\$\s50,00/)
+    expect(within(cartao).getByText(/R\$\s50,00 \(1 estorno\)/)).toBeInTheDocument()
+    expect(within(cartao).queryByText('Aguardando pagamento')).not.toBeInTheDocument()
+    expect(within(cartao).getByText(/liberado 2 dias depois do término/)).toBeInTheDocument()
+  })
+
+  it('E47: evento gratuito ou colaborador não veem os recebimentos', async () => {
+    const { handlers } = sessaoRestauravel()
+    let consultou = false
+    servidor.use(
+      http.get(rota('/eventos/e-1'), () => HttpResponse.json(eventoDetalhe({ souColaborador: true, preco: 50 }))),
+      http.get(rota('/eventos/e-1/inscricoes'), () => HttpResponse.json({ itens: [], pagina: 1, tamanhoPagina: 20, total: 0 })),
+      http.get(rota('/eventos/e-1/recebimentos'), () => {
+        consultou = true
+        return HttpResponse.json({})
+      }),
+      ...handlers,
+    )
+    renderizarApp('/meus-eventos/e-1')
+
+    expect(await screen.findByText('Você é colaborador')).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Recebimentos do evento' })).not.toBeInTheDocument()
+    expect(consultou).toBe(false)
   })
 
   it('sem VITE_RECEBIMENTOS, o perfil não mostra a seção nem consulta a conta', async () => {

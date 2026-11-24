@@ -1,8 +1,8 @@
 import { http } from './cliente'
 import type {
   Alteracao,
-  AtividadeEntrada,
   Atividade,
+  AtividadeEntrada,
   Colaborador,
   EventoAtualizacao,
   EventoDetalhe,
@@ -13,6 +13,7 @@ import type {
   FiltroMural,
   Pagina,
   PapelEvento,
+  RecebimentosEvento,
   StatusEvento,
 } from './tipos'
 
@@ -38,6 +39,10 @@ export const listarMeusEventos = (papel?: Exclude<PapelEvento, 'PARTICIPANTE'>, 
   http
     .get<EventoMeu[]>('/eventos/meus', { params: { papel: papel?.toLowerCase(), status } })
     .then((r) => r.data)
+
+/** E47: totais recebido, retido e liberado do evento (só o organizador). */
+export const obterRecebimentosDoEvento = (id: string) =>
+  http.get<RecebimentosEvento>(`/eventos/${id}/recebimentos`).then((r) => r.data)
 
 export const listarAlteracoes = (id: string) => http.get<Alteracao[]>(`/eventos/${id}/alteracoes`).then((r) => r.data)
 
