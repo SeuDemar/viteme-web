@@ -1128,6 +1128,16 @@ textarea {
   background: var(--cor-primaria-suave);
 }
 
+/* Dentro de um cartão o fundo de vidro e a borda branca são os mesmos do cartão: o botão sumia ("Trocar CNPJ"). */
+.cartao .botao--contorno {
+  background: var(--vidro-forte);
+  border-color: var(--cor-borda);
+}
+
+.cartao .botao--contorno:hover {
+  background: var(--cor-primaria-suave);
+}
+
 .botao--perigo {
   box-shadow: none;
   background: var(--cor-perigo-fundo);
