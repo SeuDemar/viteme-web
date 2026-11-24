@@ -62,6 +62,8 @@ export interface NovaContaRecebimento {
   numero: string
   complemento?: string
   bairro: string
+  /** E-mail da empresa no meio de pagamento; vazio usa o do perfil. */
+  email?: string
 }
 
 export interface Perfil {

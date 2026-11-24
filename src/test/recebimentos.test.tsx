@@ -64,6 +64,7 @@ describe('Recebimentos do organizador (E41/E42)', () => {
     await usuario.type(screen.getByLabelText('Endereço'), 'Av. Colombo')
     await usuario.type(screen.getByLabelText('Número'), '5790')
     await usuario.type(screen.getByLabelText('Bairro'), 'Zona 7')
+    await usuario.type(screen.getByLabelText('E-mail da empresa (opcional)'), 'financeiro@ca.org.br')
     await usuario.click(screen.getByRole('button', { name: 'Abrir conta de recebimento' }))
 
     expect(await screen.findByText('Em análise')).toBeInTheDocument()
@@ -76,7 +77,30 @@ describe('Recebimentos do organizador (E41/E42)', () => {
       endereco: 'Av. Colombo',
       numero: '5790',
       bairro: 'Zona 7',
+      email: 'financeiro@ca.org.br',
     })
+  })
+
+  it('recusa do meio de pagamento aparece com o motivo', async () => {
+    servidor.use(
+      http.get(rota('/usuarios/me/conta-recebimento'), () => problema(404, 'CONTA_RECEBIMENTO_NAO_ENCONTRADA', 'Sem conta.')),
+      http.post(rota('/usuarios/me/conta-recebimento'), () =>
+        problema(422, 'CONTA_RECEBIMENTO_RECUSADA', 'O meio de pagamento recusou os dados: O email teste@exemplo.com já está em uso.'),
+      ),
+    )
+    const usuario = userEvent.setup()
+    renderizar()
+
+    await usuario.click(await screen.findByRole('combobox', { name: 'Tipo de empresa' }))
+    await usuario.click(screen.getByRole('option', { name: 'MEI' }))
+    await usuario.type(screen.getByLabelText('Faturamento mensal (R$)'), '1000')
+    await usuario.type(screen.getByLabelText('CEP'), '87020000')
+    await usuario.type(screen.getByLabelText('Endereço'), 'Rua A')
+    await usuario.type(screen.getByLabelText('Número'), '1')
+    await usuario.type(screen.getByLabelText('Bairro'), 'Centro')
+    await usuario.click(screen.getByRole('button', { name: 'Abrir conta de recebimento' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('O email teste@exemplo.com já está em uso.')
   })
 
   it('dados incompletos são barrados no formulário, sem chamar a API', async () => {

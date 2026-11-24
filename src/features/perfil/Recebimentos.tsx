@@ -100,6 +100,7 @@ function FormularioConta({ perfil, aoCriar }: { perfil: Perfil; aoCriar: (conta:
       numero: '',
       complemento: '',
       bairro: '',
+      email: '',
     },
   })
 
@@ -111,12 +112,13 @@ function FormularioConta({ perfil, aoCriar }: { perfil: Perfil; aoCriar: (conta:
         telefone: telefoneParaE164(dados.telefone) ?? '',
         faturamentoMensal: valorEmReais(dados.faturamentoMensal),
         complemento: dados.complemento || undefined,
+        email: dados.email || undefined,
       })
       aoCriar(conta)
       toast.sucesso('Conta de recebimento aberta. Agora envie os documentos para a análise.')
     } catch (e) {
       const erro = mapearErro(e)
-      const campos = ['tipoEmpresa', 'telefone', 'faturamentoMensal', 'cep', 'endereco', 'numero', 'complemento', 'bairro'] as const
+      const campos = ['tipoEmpresa', 'telefone', 'faturamentoMensal', 'cep', 'endereco', 'numero', 'complemento', 'bairro', 'email'] as const
       if (!aplicarErrosDosCampos(erro, setError, [...campos])) setMensagem(erro.mensagem)
     }
   })
@@ -174,6 +176,13 @@ function FormularioConta({ perfil, aoCriar }: { perfil: Perfil; aoCriar: (conta:
       </Campo>
       <Campo rotulo="Bairro" erro={errors.bairro?.message}>
         {(a) => <input className="entrada" {...a} {...register('bairro')} />}
+      </Campo>
+      <Campo
+        rotulo="E-mail da empresa (opcional)"
+        erro={errors.email?.message}
+        ajuda={`Se ficar vazio, usamos ${perfil.email}. Use outro se esse e-mail já tiver conta no meio de pagamento.`}
+      >
+        {(a) => <input className="entrada" type="email" autoComplete="email" {...a} {...register('email')} />}
       </Campo>
       <button type="submit" className="botao botao--secundario" disabled={isSubmitting}>
         {!isSubmitting && <Icone nome="check" tamanho={18} />}

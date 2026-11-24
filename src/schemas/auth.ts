@@ -102,6 +102,7 @@ export const contaRecebimentoSchema = z.object({
   numero: z.string().trim().min(1, 'Informe o número.').max(20, 'Use até 20 caracteres.'),
   complemento: z.string().trim().max(100, 'Use até 100 caracteres.'),
   bairro: z.string().trim().min(1, 'Informe o bairro.').max(100, 'Use até 100 caracteres.'),
+  email: z.string().trim().refine((v) => v === '' || z.email().safeParse(v).success, 'Informe um e-mail válido.'),
 })
 export type ContaRecebimentoForm = z.infer<typeof contaRecebimentoSchema>
 
