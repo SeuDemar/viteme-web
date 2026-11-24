@@ -1,5 +1,5 @@
 import { http } from './cliente'
-import type { LoginResposta, Perfil } from './tipos'
+import type { ContaRecebimento, LoginResposta, NovaContaRecebimento, Perfil } from './tipos'
 
 export interface CadastroEntrada {
   nome: string
@@ -29,6 +29,13 @@ export const obterPerfil = () => http.get<Perfil>('/usuarios/me').then((r) => r.
 
 export const atualizarPerfil = (nome: string, telefone?: string) =>
   http.put<Perfil>('/usuarios/me', { nome, telefone }).then((r) => r.data)
+
+/** E42: situação da conta de recebimento. 404 quando ainda não existe (ou a função está desligada na API). */
+export const obterContaRecebimento = () => http.get<ContaRecebimento>('/usuarios/me/conta-recebimento').then((r) => r.data)
+
+/** E41: abre a conta de recebimento (subconta no gateway) com o CNPJ verificado do perfil. */
+export const criarContaRecebimento = (dados: NovaContaRecebimento) =>
+  http.post<ContaRecebimento>('/usuarios/me/conta-recebimento', dados).then((r) => r.data)
 
 /** E40: cadastra o CNPJ do organizador; a API confere na Receita se está ativo. */
 export const definirCnpj = (cnpj: string) => http.put<Perfil>('/usuarios/me/cnpj', { cnpj }).then((r) => r.data)

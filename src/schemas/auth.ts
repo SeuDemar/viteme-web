@@ -85,6 +85,26 @@ export const cnpjSchema = z.object({
 })
 export type CnpjForm = z.infer<typeof cnpjSchema>
 
+/** Valor em reais digitado como "5000", "5.000" ou "5.000,50". */
+export function valorEmReais(valor: string): number {
+  const limpo = valor.trim().replace(/[R$\s]/g, '')
+  const normalizado = limpo.includes(',') ? limpo.replace(/\./g, '').replace(',', '.') : limpo.replace(/\.(?=\d{3}(\D|$))/g, '')
+  return Number(normalizado)
+}
+
+/** E41: dados da empresa para abrir a conta de recebimento. CNPJ, razão social e e-mail vêm do perfil. */
+export const contaRecebimentoSchema = z.object({
+  tipoEmpresa: z.enum(['MEI', 'LIMITED', 'INDIVIDUAL', 'ASSOCIATION'], { message: 'Escolha o tipo de empresa.' }),
+  telefone: z.string().refine((v) => [10, 11].includes(digitosTelefone(v).length), 'Informe o telefone com DDD, ex.: (44) 99999-9999.'),
+  faturamentoMensal: z.string().refine((v) => valorEmReais(v) >= 1, 'Informe o faturamento mensal em reais.'),
+  cep: z.string().refine((v) => v.replace(/\D/g, '').length === 8, 'Informe o CEP com 8 dígitos.'),
+  endereco: z.string().trim().min(1, 'Informe o endereço.').max(200, 'Use até 200 caracteres.'),
+  numero: z.string().trim().min(1, 'Informe o número.').max(20, 'Use até 20 caracteres.'),
+  complemento: z.string().trim().max(100, 'Use até 100 caracteres.'),
+  bairro: z.string().trim().min(1, 'Informe o bairro.').max(100, 'Use até 100 caracteres.'),
+})
+export type ContaRecebimentoForm = z.infer<typeof contaRecebimentoSchema>
+
 export const codigoTelefoneSchema = z.object({
   codigo: z.string().regex(/^\d{6}$/, 'O código deve ter exatamente 6 dígitos numéricos.'),
 })

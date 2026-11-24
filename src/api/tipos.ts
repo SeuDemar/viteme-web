@@ -40,6 +40,30 @@ export interface RenovarResposta {
   expiraEm: string
 }
 
+/** Situação da conta de recebimento (subconta no gateway) do organizador. */
+export type SituacaoContaRecebimento = 'PENDENTE' | 'APROVADA' | 'REJEITADA'
+
+/** E41/E42: conta de recebimento do organizador (Fase 2 do Asaas). */
+export interface ContaRecebimento {
+  situacao: SituacaoContaRecebimento
+  /** Página do gateway onde o organizador envia os documentos da análise. */
+  urlOnboarding: string | null
+  criadoEm: string
+  aprovadaEm: string | null
+  garantiaHabilitada: boolean
+}
+
+export interface NovaContaRecebimento {
+  tipoEmpresa: 'MEI' | 'LIMITED' | 'INDIVIDUAL' | 'ASSOCIATION'
+  telefone: string
+  faturamentoMensal: number
+  cep: string
+  endereco: string
+  numero: string
+  complemento?: string
+  bairro: string
+}
+
 export interface Perfil {
   id: string
   nome: string

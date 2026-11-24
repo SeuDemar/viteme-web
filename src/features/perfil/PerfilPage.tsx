@@ -14,6 +14,7 @@ import { mapearErro } from '../../lib/erros'
 import { aplicarErrosDosCampos, useTitulo } from '../../lib/formulario'
 import { cnpjSchema, codigoTelefoneSchema, perfilSchema, type CnpjForm, type CodigoTelefoneForm, type PerfilForm } from '../../schemas/auth'
 import { useSessao } from '../auth/sessao'
+import { Recebimentos, RECEBIMENTOS } from './Recebimentos'
 
 const INTERVALO_REENVIO_S = 60
 
@@ -276,6 +277,8 @@ function FormularioPerfil({ perfil }: { perfil: Perfil }) {
         />}
 
       <DadosOrganizador perfil={perfil} aoSalvar={(novo) => queryClient.setQueryData(['perfil'], novo)} />
+
+      {RECEBIMENTOS && perfil.podeOrganizar && <Recebimentos perfil={perfil} />}
 
       <section className="cartao" aria-label="Avisos por SMS">
         <div className="linha linha--entre">

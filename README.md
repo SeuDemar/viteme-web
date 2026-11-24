@@ -38,6 +38,7 @@ Cors__OrigemFrontend=http://localhost:5173
 |---|---|
 | `VITE_API_URL` | URL base da API com o prefixo `/api/v1` |
 | `VITE_SIMULADOR_PAGAMENTO` | `true` mostra, na tela de pagamento, os botões que aprovam ou recusam a cobrança do gateway simulado. **Só para demonstração**; exige `Gateway__Stub__HabilitarSimulador=true` na API |
+| `VITE_RECEBIMENTOS` | `true` mostra a seção "Recebimentos" no perfil do organizador (abrir a conta de recebimento e acompanhar a análise). Ligar junto com `Gateway__Asaas__Subcontas__Habilitar=true` na API; desligada (padrão), nada muda |
 
 ### Publicação
 
