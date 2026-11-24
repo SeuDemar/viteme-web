@@ -1,13 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { consultarPagamento, gerarCobranca, listarMinhasInscricoes, simularPagamento } from '../../api/inscricoes'
+import { consultarPagamento, gerarCobranca, listarMinhasInscricoes, obterPix, simularPagamento } from '../../api/inscricoes'
 import { Carregando, Erro } from '../../components/Estados'
 import { SeloStatusPagamento } from '../../components/Selo'
 import { dataCurta, hora, minutosRestantes, moeda } from '../../lib/formatar'
 import { mapearErro } from '../../lib/erros'
 import { useTitulo } from '../../lib/formulario'
 import { useAgora } from '../../lib/useAgora'
+import { CpfModal } from './CpfModal'
 
 const INTERVALO_MS = Number(import.meta.env.VITE_POLL_PAGAMENTO_MS ?? 5_000)
 const LIMITE_MS = 2 * 60_000
@@ -25,6 +26,8 @@ export function PagamentoPage() {
   const [inicio] = useState(() => Date.now())
   const [mensagem, setMensagem] = useState<string | null>(null)
   const [esgotado, setEsgotado] = useState(false)
+  const [pedindoCpf, setPedindoCpf] = useState(false)
+  const [copiado, setCopiado] = useState(false)
 
   const inscricoes = useQuery({ queryKey: ['inscricoes', 'minhas', 'todas'], queryFn: () => listarMinhasInscricoes('todas') })
   const inscricao = inscricoes.data?.find((i) => i.id === id)
@@ -56,12 +59,35 @@ export function PagamentoPage() {
     return () => clearTimeout(t)
   }, [status, inicio])
 
+  // E46: QR Code e "copia e cola" no próprio site. Sem QR (404 PIX_INDISPONIVEL) cai no link de pagamento.
+  const pix = useQuery({
+    queryKey: ['pagamento', id, 'pix'],
+    queryFn: () => obterPix(id),
+    enabled: status === 'PENDENTE',
+    retry: false,
+    staleTime: 5 * 60_000,
+  })
+
+  const copiar = async (texto: string) => {
+    try {
+      await navigator.clipboard.writeText(texto)
+      setCopiado(true)
+      setTimeout(() => setCopiado(false), 3_000)
+    } catch {
+      setMensagem('Não foi possível copiar. Selecione o código e copie manualmente.')
+    }
+  }
+
   const cobranca = useMutation({
     mutationFn: () => gerarCobranca(id),
     onError: (e) => {
       const erro = mapearErro(e)
       if (erro.codigo === 'PAGAMENTO_JA_APROVADO') {
         navegar('/minhas-inscricoes', { replace: true })
+        return
+      }
+      if (erro.codigo === 'CPF_OBRIGATORIO') {
+        setPedindoCpf(true)
         return
       }
       setMensagem(erro.mensagem)
@@ -170,8 +196,28 @@ export function PagamentoPage() {
                 {mensagem}
               </p>
             )}
-            <button type="button" className="botao botao--bloco" onClick={irParaPagamento} disabled={cobranca.isPending}>
-              {cobranca.isPending ? 'Abrindo pagamento…' : recusado ? 'Tentar pagamento novamente' : 'Ir para pagamento'}
+            {pix.data && (
+              <section className="cartao" aria-label="Pagar com Pix">
+                <h2 className="cartao__titulo">Pague com Pix</h2>
+                <p className="cartao__meta">Abra o app do seu banco e leia o QR Code, ou copie o código.</p>
+                <img
+                  src={`data:image/png;base64,${pix.data.imagemBase64}`}
+                  alt="QR Code do Pix para pagar a inscrição"
+                  width={220}
+                  height={220}
+                  style={{ display: 'block', margin: '12px auto', background: '#fff', padding: 8, borderRadius: 8 }}
+                />
+                <label className="campo__rotulo" htmlFor="pix-copia-cola">
+                  Pix copia e cola
+                </label>
+                <textarea id="pix-copia-cola" className="entrada" readOnly rows={3} value={pix.data.copiaECola} onFocus={(e) => e.currentTarget.select()} />
+                <button type="button" className="botao botao--secundario botao--bloco espaco-topo" onClick={() => copiar(pix.data.copiaECola)}>
+                  {copiado ? 'Código copiado!' : 'Copiar código Pix'}
+                </button>
+              </section>
+            )}
+            <button type="button" className={`botao botao--bloco${pix.data ? ' botao--secundario' : ''}`} onClick={irParaPagamento} disabled={cobranca.isPending}>
+              {cobranca.isPending ? 'Abrindo pagamento…' : recusado ? 'Tentar pagamento novamente' : pix.data ? 'Abrir página de pagamento' : 'Ir para pagamento'}
             </button>
             <button type="button" className="botao botao--secundario botao--bloco" onClick={() => pagamento.refetch()} disabled={pagamento.isFetching}>
               {pagamento.isFetching ? 'Consultando…' : 'Consultar status'}
@@ -193,6 +239,15 @@ export function PagamentoPage() {
           </>
         )}
       </div>
+      {pedindoCpf && (
+        <CpfModal
+          aoFechar={() => setPedindoCpf(false)}
+          aoSalvar={() => {
+            setPedindoCpf(false)
+            void irParaPagamento()
+          }}
+        />
+      )}
     </main>
   )
 }

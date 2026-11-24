@@ -54,6 +54,16 @@ export interface Perfil {
   cnpjVerificadoEm: string | null
   /** Só quem tem CNPJ verificado cria e publica eventos. */
   podeOrganizar: boolean
+  /** CPF do pagador (E45): a API só devolve se existe e a versão mascarada, nunca o número. */
+  temCpf?: boolean
+  cpfMascarado?: string | null
+}
+
+/** E46: Pix da cobrança pendente. `imagemBase64` é um PNG sem o prefixo `data:`. */
+export interface PixCobranca {
+  copiaECola: string
+  imagemBase64: string
+  expiraEm: string | null
 }
 
 export interface EventoResumo {

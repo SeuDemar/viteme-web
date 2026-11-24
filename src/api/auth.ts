@@ -20,6 +20,9 @@ export const esqueciSenha = (email: string) => http.post('/auth/esqueci-senha', 
 export const redefinirSenha = (token: string, novaSenha: string) =>
   http.post('/auth/redefinir-senha', { token, novaSenha }).then(() => undefined)
 
+/** E45: guarda o CPF do pagador (o Asaas só cobra com ele). */
+export const definirCpf = (cpf: string) => http.put<Perfil>('/usuarios/me/cpf', { cpf }).then((r) => r.data)
+
 export const sair =() => http.post('/auth/logout').then(() => undefined)
 
 export const obterPerfil = () => http.get<Perfil>('/usuarios/me').then((r) => r.data)

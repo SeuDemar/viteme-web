@@ -19,6 +19,23 @@ export const senhaForte = z
   .refine((v) => /[A-Za-z]/.test(v), 'A senha deve ter pelo menos uma letra.')
   .refine((v) => /\d/.test(v), 'A senha deve ter pelo menos um número.')
 
+/** CPF com dígitos verificadores, com ou sem máscara. Mesma regra da API. */
+export function cpfValido(valor: string): boolean {
+  const c = valor.replace(/[\s.-]/g, '')
+  if (!/^\d{11}$/.test(c) || new Set(c).size === 1) return false
+  const digito = (n: number) => {
+    const soma = [...c.slice(0, n)].reduce((s, d, i) => s + Number(d) * (n + 1 - i), 0)
+    const resto = (soma * 10) % 11
+    return resto === 10 ? 0 : resto
+  }
+  return Number(c[9]) === digito(9) && Number(c[10]) === digito(10)
+}
+
+export const cpfSchema = z.object({
+  cpf: z.string().trim().min(1, 'Informe o CPF.').refine(cpfValido, 'Informe um CPF válido.'),
+})
+export type CpfForm = z.infer<typeof cpfSchema>
+
 export const esqueciSenhaSchema = z.object({
   email: z.string().trim().min(1, 'Informe o e-mail.').max(160, 'O e-mail deve ter no máximo 160 caracteres.').pipe(z.email('Informe um e-mail válido.')),
 })

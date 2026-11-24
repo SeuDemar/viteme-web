@@ -11,6 +11,7 @@ import { Carregando, Erro } from '../../components/Estados'
 import { Icone } from '../../components/Icone'
 import { LinhaDoTempo } from '../../components/LinhaDoTempo'
 import { Modal } from '../../components/Modal'
+import { CpfModal } from '../inscricoes/CpfModal'
 import { Seletor } from '../../components/Seletor'
 import { Selo, SeloStatusEvento } from '../../components/Selo'
 import { useToast } from '../../components/Toasts'
@@ -139,6 +140,7 @@ export function DetalhePage() {
   const local = useLocation()
   const queryClient = useQueryClient()
   const [denunciando, setDenunciando] = useState(false)
+  const [pedindoCpf, setPedindoCpf] = useState(false)
   const [mensagem, setMensagem] = useState<string | null>(null)
   const toast = useToast()
 
@@ -161,7 +163,12 @@ export function DetalhePage() {
       if (criada.pagamento) navegar(`/inscricoes/${criada.id}/pagamento`)
       else navegar('/minhas-inscricoes', { state: { novaInscricao: criada.codigoCheckin } })
     },
-    onError: (e) => setMensagem(mapearErro(e).mensagem),
+    onError: (e) => {
+      const erro = mapearErro(e)
+      // O meio de pagamento exige o CPF: pede na hora e repete a inscrição (a vaga ainda não foi reservada).
+      if (erro.codigo === 'CPF_OBRIGATORIO') setPedindoCpf(true)
+      else setMensagem(erro.mensagem)
+    },
   })
 
   const interesse = useMutation({
@@ -382,6 +389,15 @@ export function DetalhePage() {
         </section>
       </article>
 
+      {pedindoCpf && (
+        <CpfModal
+          aoFechar={() => setPedindoCpf(false)}
+          aoSalvar={() => {
+            setPedindoCpf(false)
+            inscricao.mutate()
+          }}
+        />
+      )}
       {denunciando && <DenunciaModal eventoId={evento.id} aoFechar={() => setDenunciando(false)} />}
     </main>
   )

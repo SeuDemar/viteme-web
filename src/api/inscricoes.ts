@@ -3,6 +3,7 @@ import { http } from './cliente'
 import type {
   CheckinResposta,
   Cobranca,
+  PixCobranca,
   Inscrito,
   InscricaoCriada,
   MinhaInscricao,
@@ -33,6 +34,10 @@ export const registrarCheckin = (eventoId: string, codigoCheckin: string) =>
 
 export const gerarCobranca = (inscricaoId: string) =>
   http.post<Cobranca>(`/inscricoes/${inscricaoId}/pagamento`).then((r) => r.data)
+
+/** E46: QR Code e "copia e cola" do Pix pendente. 404 PIX_INDISPONIVEL = use o link de pagamento da cobrança. */
+export const obterPix = (inscricaoId: string) =>
+  http.get<PixCobranca>(`/inscricoes/${inscricaoId}/pagamento/pix`).then((r) => r.data)
 
 export const consultarPagamento = (inscricaoId: string) =>
   http.get<PagamentoStatus>(`/inscricoes/${inscricaoId}/pagamento`).then((r) => r.data)
