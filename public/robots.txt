@@ -8,6 +8,8 @@ Allow: /
 Disallow: /api/
 Disallow: /entrar
 Disallow: /cadastro
+Disallow: /esqueci-senha
+Disallow: /redefinir-senha
 Disallow: /perfil
 Disallow: /notificacoes
 Disallow: /minhas-inscricoes

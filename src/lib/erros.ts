@@ -37,7 +37,7 @@ export function mapearErro(erro: unknown): ErroApi {
     }
     // 401 de login traz mensagem própria e genérica (não revela se o e-mail existe); os demais 401 viram "sessão expirou".
     // 403 CNPJ_NAO_VERIFICADO explica o que fazer (cadastrar o CNPJ no perfil), diferente do 403 genérico.
-    const usarDetalhe = (status === 409 || status === 422 || status === 423 || status === 429 || status === 502 || corpo.codigo === 'CREDENCIAIS_INVALIDAS' || corpo.codigo === 'CNPJ_NAO_VERIFICADO') && corpo.detail
+    const usarDetalhe = (status === 409 || status === 422 || status === 423 || status === 429 || status === 502 || corpo.codigo === 'CREDENCIAIS_INVALIDAS' || corpo.codigo === 'CNPJ_NAO_VERIFICADO' || corpo.codigo === 'LINK_REDEFINICAO_INVALIDO') && corpo.detail
     return {
       status,
       codigo: corpo.codigo ?? null,

@@ -4,7 +4,9 @@
  */
 export const carregarCadastro = () => import('../features/auth/CadastroPage').then((m) => ({ default: m.CadastroPage }))
 export const carregarLogin = () => import('../features/auth/LoginPage').then((m) => ({ default: m.LoginPage }))
-export const carregarDetalhe = () => import('../features/eventos/DetalhePage').then((m) => ({ default: m.DetalhePage }))
+export const carregarEsqueciSenha = () => import('../features/auth/EsqueciSenhaPage').then((m) => ({ default: m.EsqueciSenhaPage }))
+export const carregarRedefinirSenha = () => import('../features/auth/RedefinirSenhaPage').then((m) => ({ default: m.RedefinirSenhaPage }))
+export const carregarDetalhe =() => import('../features/eventos/DetalhePage').then((m) => ({ default: m.DetalhePage }))
 export const carregarValidarCertificado = () => import('../features/eventos/ValidarCertificadoPage').then((m) => ({ default: m.ValidarCertificadoPage }))
 export const carregarEventoForm = () => import('../features/gestao/EventoFormPage').then((m) => ({ default: m.EventoFormPage }))
 export const carregarGestaoEvento = () => import('../features/gestao/GestaoEventoPage').then((m) => ({ default: m.GestaoEventoPage }))

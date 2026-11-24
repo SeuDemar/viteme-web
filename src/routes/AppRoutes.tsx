@@ -8,6 +8,7 @@ import { RotaProtegida } from './RotaProtegida'
 import {
   carregarCadastro,
   carregarDetalhe,
+  carregarEsqueciSenha,
   carregarEventoForm,
   carregarGestaoEvento,
   carregarLogin,
@@ -16,12 +17,15 @@ import {
   carregarNotificacoes,
   carregarPagamento,
   carregarPerfil,
+  carregarRedefinirSenha,
   carregarValidarCertificado,
 } from './telas'
 
 // O mural (página inicial) vai no pacote principal; as demais telas são carregadas sob demanda (veja telas.ts).
 const CadastroPage = lazy(carregarCadastro)
 const LoginPage = lazy(carregarLogin)
+const EsqueciSenhaPage = lazy(carregarEsqueciSenha)
+const RedefinirSenhaPage = lazy(carregarRedefinirSenha)
 const DetalhePage = lazy(carregarDetalhe)
 const ValidarCertificadoPage = lazy(carregarValidarCertificado)
 const EventoFormPage = lazy(carregarEventoForm)
@@ -59,6 +63,8 @@ export function AppRoutes() {
           <Route path="eventos/:id" element={<DetalhePage />} />
           <Route path="entrar" element={<LoginPage />} />
           <Route path="cadastro" element={<CadastroPage />} />
+          <Route path="esqueci-senha" element={<EsqueciSenhaPage />} />
+          <Route path="redefinir-senha" element={<RedefinirSenhaPage />} />
           <Route path="certificados" element={<ValidarCertificadoPage />} />
           <Route path="certificados/:codigo" element={<ValidarCertificadoPage />} />
 

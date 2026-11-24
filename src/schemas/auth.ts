@@ -19,6 +19,19 @@ export const senhaForte = z
   .refine((v) => /[A-Za-z]/.test(v), 'A senha deve ter pelo menos uma letra.')
   .refine((v) => /\d/.test(v), 'A senha deve ter pelo menos um número.')
 
+export const esqueciSenhaSchema = z.object({
+  email: z.string().trim().min(1, 'Informe o e-mail.').max(160, 'O e-mail deve ter no máximo 160 caracteres.').pipe(z.email('Informe um e-mail válido.')),
+})
+export type EsqueciSenhaForm = z.infer<typeof esqueciSenhaSchema>
+
+export const redefinirSenhaSchema = z
+  .object({
+    novaSenha: senhaForte,
+    confirmarSenha: z.string().min(1, 'Confirme a senha.'),
+  })
+  .refine((v) => v.novaSenha === v.confirmarSenha, { message: 'A confirmação deve ser igual à senha.', path: ['confirmarSenha'] })
+export type RedefinirSenhaForm = z.infer<typeof redefinirSenhaSchema>
+
 export const cadastroSchema = z
   .object({
     nome: z.string().trim().min(3, 'O nome deve ter entre 3 e 120 caracteres.').max(120, 'O nome deve ter entre 3 e 120 caracteres.'),

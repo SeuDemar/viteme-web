@@ -56,6 +56,9 @@ export function LoginPage() {
           {isSubmitting ? 'Entrando…' : 'Entrar'}
         </button>
         <p className="texto-suave texto-pequeno">
+          <Link to="/esqueci-senha">Esqueci minha senha</Link>
+        </p>
+        <p className="texto-suave texto-pequeno">
           Ainda não tem conta? <Link to="/cadastro" state={local.state}>Cadastre-se</Link>
         </p>
       </form>
