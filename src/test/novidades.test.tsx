@@ -241,7 +241,8 @@ describe('colaborador inscrito (D52)', () => {
     renderizarApp('/eventos/e-1')
 
     expect(await screen.findByRole('link', { name: 'Gerenciar evento' })).toBeInTheDocument()
-    await usuario.click(screen.getByRole('button', { name: 'Inscrever-se gratuitamente' }))
+    // O evento pode chegar antes da sessão restaurada: até lá o botão é "Entre para se inscrever".
+    await usuario.click(await screen.findByRole('button', { name: 'Inscrever-se gratuitamente' }))
     await waitFor(() => expect(inscreveu).toBe(true))
   })
 

@@ -9,6 +9,8 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
     css: false,
+    // Acompanha o asyncUtilTimeout de 5 s do setup: um teste com várias esperas não pode estourar antes delas.
+    testTimeout: 15000,
     env: { VITE_API_URL: '/api/v1', VITE_POLL_PAGAMENTO_MS: '40' },
   },
 })
