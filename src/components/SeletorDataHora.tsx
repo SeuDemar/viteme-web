@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type ComponentProps, type KeyboardEvent } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ComponentProps, type FocusEvent as ReactFocusEvent, type KeyboardEvent, type MouseEvent as ReactMouseEvent } from 'react'
 import {
   HORA_PADRAO,
   HORARIOS_RAPIDOS,
@@ -48,6 +48,22 @@ export function SeletorDataHora({ id, value, onChange, onBlur, min, placeholder 
   const raiz = useRef<HTMLDivElement>(null)
   const botao = useRef<HTMLButtonElement | null>(null)
   const moverFoco = useRef(false)
+  const dialogo = useRef<HTMLDivElement>(null)
+  const [alturaMaxima, setAlturaMaxima] = useState<number | undefined>(undefined)
+  // Data e hora vêm preenchidas (a hora padrão entra junto com a data) e têm maxLength: sem selecionar o texto ao
+  // entrar no campo, o que se digita é ignorado e a hora fica em 08:00 sem aviso.
+  const selecionouAoFocar = useRef(false)
+  const selecionarAoEntrar = {
+    onFocus: (e: ReactFocusEvent<HTMLInputElement>) => {
+      e.currentTarget.select()
+      selecionouAoFocar.current = true
+    },
+    // O mouseup do mesmo clique desfaria a seleção feita no foco.
+    onMouseUp: (e: ReactMouseEvent<HTMLInputElement>) => {
+      if (selecionouAoFocar.current) e.preventDefault()
+      selecionouAoFocar.current = false
+    },
+  }
   const [aberto, setAberto] = useState(false)
   const [acima, setAcima] = useState(false)
   const [visivel, setVisivel] = useState({ ano: 2000, mes: 0 })
@@ -64,7 +80,9 @@ export function SeletorDataHora({ id, value, onChange, onBlur, min, placeholder 
     const caixa = raiz.current?.getBoundingClientRect()
     if (caixa) {
       const abaixo = window.innerHeight - caixa.bottom
-      setAcima(abaixo < 460 && caixa.top > abaixo)
+      // O cabeçalho fixo cobre o topo da tela: só abre para cima se o calendário couber inteiro abaixo dele.
+      const topoLivre = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0
+      setAcima(abaixo < 460 && caixa.top - topoLivre >= 460)
     }
     const base = dataDaChave(dia) ?? dataDaChave(minDia > hoje ? minDia : hoje) ?? new Date()
     setVisivel({ ano: base.getFullYear(), mes: base.getMonth() })
@@ -72,6 +90,7 @@ export function SeletorDataHora({ id, value, onChange, onBlur, min, placeholder 
     setTextoData(dia ? dataBrDaChave(dia) : '')
     setTextoHora(hora)
     moverFoco.current = true
+    setAlturaMaxima(undefined)
     setAberto(true)
   }
 
@@ -79,6 +98,29 @@ export function SeletorDataHora({ id, value, onChange, onBlur, min, placeholder 
     setAberto(false)
     if (devolverFoco) botao.current?.focus()
   }
+
+  // A altura real varia (meses com 6 semanas, fonte maior): se, aberto para cima, o calendário encostar no cabeçalho
+  // fixo, vira para baixo antes de pintar.
+  useLayoutEffect(() => {
+    if (!aberto || !dialogo.current) return
+    const caixa = dialogo.current.getBoundingClientRect()
+    const topoLivre = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0
+    // No celular a barra de abas fica presa embaixo e também cobre o calendário.
+    const barra = document.querySelector('.barra-abas')?.getBoundingClientRect()
+    const fundoLivre = barra && barra.height > 0 ? Math.min(barra.top, window.innerHeight) : window.innerHeight
+    if (acima && caixa.top < topoLivre) {
+      setAcima(false) // o efeito roda de novo, já com o calendário embaixo
+      return
+    }
+    // Tela baixa (notebook pequeno, celular deitado): o calendário não cabe entre o cabeçalho e a barra; rola por dentro.
+    const espaco = fundoLivre - topoLivre - 16
+    setAlturaMaxima(caixa.height > espaco ? Math.max(espaco, 240) : undefined)
+    // Aberto para baixo perto do fim da tela, o calendário ficava fora da área visível: rola até ele.
+    if (!acima && caixa.bottom > fundoLivre) {
+      const altura = Math.min(caixa.height, Math.max(espaco, 240))
+      window.scrollBy({ top: Math.min(caixa.top + altura - fundoLivre + 8, caixa.top - topoLivre - 8) })
+    }
+  }, [aberto, acima])
 
   useEffect(() => {
     if (!aberto) return
@@ -191,6 +233,8 @@ export function SeletorDataHora({ id, value, onChange, onBlur, min, placeholder 
       {aberto && (
         <div
           className={acima ? 'calendario calendario--acima' : 'calendario'}
+          ref={dialogo}
+          style={alturaMaxima ? { maxHeight: alturaMaxima, overflowY: 'auto' } : undefined}
           id={idDialogo}
           role="dialog"
           aria-label="Escolher data e hora"
@@ -268,13 +312,13 @@ export function SeletorDataHora({ id, value, onChange, onBlur, min, placeholder 
               <label className="campo__rotulo" htmlFor={idData}>
                 Data
               </label>
-              <input id={idData} className="entrada" inputMode="numeric" autoComplete="off" placeholder="dd/mm/aaaa" maxLength={10} value={textoData} onChange={(e) => aoDigitarData(e.target.value)} />
+              <input id={idData} className="entrada" inputMode="numeric" autoComplete="off" placeholder="dd/mm/aaaa" maxLength={10} value={textoData} onChange={(e) => aoDigitarData(e.target.value)} {...selecionarAoEntrar} />
             </div>
             <div className="campo">
               <label className="campo__rotulo" htmlFor={idHora}>
                 Hora
               </label>
-              <input id={idHora} className="entrada" inputMode="numeric" autoComplete="off" placeholder="hh:mm" maxLength={5} value={textoHora} onChange={(e) => definirHora(mascaraHora(e.target.value))} />
+              <input id={idHora} className="entrada" inputMode="numeric" autoComplete="off" placeholder="hh:mm" maxLength={5} value={textoHora} onChange={(e) => definirHora(mascaraHora(e.target.value))} {...selecionarAoEntrar} />
             </div>
           </div>
 

@@ -160,6 +160,25 @@ describe('SeletorDataHora', () => {
     expect(aoMudar).toHaveBeenLastCalledWith('2099-11-12T14:00')
   })
 
+  it('troca a hora padrão ao clicar no campo e digitar, sem precisar apagar antes', async () => {
+    const aoMudar = vi.fn()
+    const usuario = userEvent.setup()
+    render(<DataControlada aoMudar={aoMudar} />)
+
+    await usuario.click(screen.getByLabelText('Quando'))
+    const calendario = screen.getByRole('dialog', { name: 'Escolher data e hora' })
+    await usuario.type(within(calendario).getByLabelText('Data'), '12112099')
+    expect(within(calendario).getByLabelText('Hora')).toHaveValue('08:00')
+
+    await usuario.click(within(calendario).getByLabelText('Hora'))
+    await usuario.keyboard('1930')
+    expect(within(calendario).getByLabelText('Hora')).toHaveValue('19:30')
+    expect(aoMudar).toHaveBeenLastCalledWith('2099-11-12T19:30')
+
+    await usuario.click(within(calendario).getByRole('button', { name: 'Concluir' }))
+    expect(screen.getByLabelText('Quando')).toHaveTextContent('12/11/2099 às 19:30')
+  })
+
   it('ignora data impossível (31/02) e não chama onChange', async () => {
     const aoMudar = vi.fn()
     const usuario = userEvent.setup()
