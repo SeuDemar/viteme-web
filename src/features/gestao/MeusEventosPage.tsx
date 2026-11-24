@@ -19,7 +19,7 @@ function textoInscritos({ inscritos, capacidade }: EventoMeu): string | null {
   const texto = inscritos === 1 ? '1 inscrito' : `${inscritos} inscritos`
   if (capacidade === null || capacidade === undefined) return texto
   const vagas = Math.max(capacidade - inscritos, 0)
-  return `${texto} • ${vagas === 1 ? '1 vaga' : `${vagas} vagas`}`
+  return `${texto} • ${vagas === 1 ? '1 vaga restante' : `${vagas} vagas restantes`}`
 }
 
 function ItemEvento({ evento }: { evento: EventoMeu }) {

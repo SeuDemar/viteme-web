@@ -62,7 +62,7 @@ describe('mural e meus eventos (campos novos da API)', () => {
     )
     renderizarApp('/meus-eventos')
 
-    expect(await screen.findByText('96 inscritos • 24 vagas')).toBeInTheDocument()
+    expect(await screen.findByText('96 inscritos • 24 vagas restantes')).toBeInTheDocument()
     expect(screen.getByText('1 inscrito')).toBeInTheDocument()
     expect(screen.queryByText(/0 inscritos/)).not.toBeInTheDocument()
   })

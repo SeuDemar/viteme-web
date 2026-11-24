@@ -122,6 +122,14 @@ describe('inscrição e pagamento', () => {
     expect(screen.getByRole('button', { name: /Inscrever-se/ })).toBeDisabled()
   })
 
+  it('CTW08 — sem login, evento lotado também desabilita o "Entre para se inscrever"', async () => {
+    servidor.use(http.get(rota('/eventos/e-1'), () => HttpResponse.json(eventoDetalhe({ vagasRestantes: 0 }))))
+    renderizarApp('/eventos/e-1')
+
+    expect(await screen.findByText('Evento lotado.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Entre para se inscrever/ })).toBeDisabled()
+  })
+
   it('CTW09 — organizador não vê o botão de inscrição, e sim a gestão', async () => {
     const { handlers } = sessaoRestauravel()
     servidor.use(http.get(rota('/eventos/e-1'), () => HttpResponse.json(eventoDetalhe({ souOrganizador: true }))), ...handlers)

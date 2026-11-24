@@ -14,6 +14,7 @@ import { Confirmacao, Modal } from '../../components/Modal'
 import { Selo, SeloStatusEvento, SeloStatusInscricao } from '../../components/Selo'
 import { Seletor } from '../../components/Seletor'
 import { useToast } from '../../components/Toasts'
+import { descreverMudanca, rotuloCampo } from '../../lib/alteracoes'
 import { dataEHora, dataNumerica, hora } from '../../lib/formatar'
 import { mapearErro } from '../../lib/erros'
 import { aplicarErrosDosCampos, useTitulo } from '../../lib/formulario'
@@ -292,13 +293,8 @@ function AbaAlteracoes({ eventoId }: { eventoId: string }) {
           <ul className="lista-simples">
             {consulta.data.map((a, i) => (
               <li key={`${a.campo}-${a.criadoEm}-${i}`}>
-                <strong>{a.campo}</strong>
-                {a.valorAnterior && a.valorNovo && (
-                  <span className="texto-suave">
-                    {' '}
-                    — de “{a.valorAnterior}” para “{a.valorNovo}”
-                  </span>
-                )}
+                <strong>{rotuloCampo(a.campo)}</strong>
+                {descreverMudanca(a) && <span className="texto-suave"> — {descreverMudanca(a)}</span>}
                 <p className="texto-suave texto-pequeno">
                   {a.motivo} · {dataEHora(a.criadoEm)}
                 </p>
@@ -440,7 +436,10 @@ export function GestaoEventoPage() {
         <h2 style={{ fontSize: 20, fontWeight: 700 }}>{evento.titulo}</h2>
         <p className="cartao__meta">
           {inscritos !== null ? `${inscritos} ${inscritos === 1 ? 'inscrito' : 'inscritos'} • ` : ''}
-          {evento.capacidade !== null ? `${evento.capacidade} vagas` : 'Vagas ilimitadas'} • {dataNumerica(evento.dataInicio)}
+          {evento.capacidade !== null
+            ? `${evento.vagasRestantes ?? evento.capacidade} de ${evento.capacidade} ${evento.capacidade === 1 ? 'vaga restante' : 'vagas restantes'}`
+            : 'Vagas ilimitadas'}{' '}
+          • {dataNumerica(evento.dataInicio)}
         </p>
         {organizador && !encerrado && (
           <div className="linha espaco-topo">

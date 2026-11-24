@@ -15,6 +15,7 @@ import { CpfModal } from '../inscricoes/CpfModal'
 import { Seletor } from '../../components/Seletor'
 import { Selo, SeloStatusEvento } from '../../components/Selo'
 import { useToast } from '../../components/Toasts'
+import { descreverMudanca, rotuloCampo } from '../../lib/alteracoes'
 import { dataLonga, dataEHora, hora, moeda, precoOuGratuito } from '../../lib/formatar'
 import { mapearErro } from '../../lib/erros'
 import { aplicarErrosDosCampos, useTitulo } from '../../lib/formulario'
@@ -39,16 +40,6 @@ function motivoFechado(e: EventoDetalhe, agora = new Date()) {
   if (agora > new Date(e.inscricaoFim)) return 'Inscrições encerradas'
   if (e.vagasRestantes === 0) return 'Evento lotado'
   return null
-}
-
-const ROTULO_CAMPO: Record<string, string> = {
-  titulo: 'Título',
-  dataInicio: 'Início',
-  dataFim: 'Término',
-  local: 'Local',
-  programacao: 'Programação',
-  preco: 'Preço',
-  capacidade: 'Capacidade',
 }
 
 function DenunciaModal({ eventoId, aoFechar }: { eventoId: string; aoFechar: () => void }) {
@@ -266,13 +257,8 @@ export function DetalhePage() {
             <ul className="lista-simples">
               {alteracoes.slice(0, 3).map((a, i) => (
                 <li key={`${a.campo}-${i}`}>
-                  <strong>{ROTULO_CAMPO[a.campo] ?? a.campo}</strong>
-                  {a.valorAnterior && a.valorNovo && (
-                    <span className="texto-suave">
-                      {' '}
-                      — de “{a.valorAnterior}” para “{a.valorNovo}”
-                    </span>
-                  )}
+                  <strong>{rotuloCampo(a.campo)}</strong>
+                  {descreverMudanca(a) && <span className="texto-suave"> — {descreverMudanca(a)}</span>}
                   <p className="texto-suave texto-pequeno">
                     {a.motivo} · {dataEHora(a.criadoEm)}
                   </p>
@@ -358,7 +344,7 @@ export function DetalhePage() {
                 <button
                   type="button"
                   className={`botao botao--bloco${gestor ? ' botao--secundario' : ''}`}
-                  disabled={inscricao.isPending || (logado && !abertas)}
+                  disabled={inscricao.isPending || !abertas}
                   onClick={() => (logado ? inscricao.mutate() : irParaLogin())}
                 >
                   {!inscricao.isPending && <Icone nome="check" tamanho={18} />}

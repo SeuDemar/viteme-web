@@ -25,6 +25,7 @@ export function PagamentoPage() {
   const agora = useAgora(15_000)
   const [inicio] = useState(() => Date.now())
   const [mensagem, setMensagem] = useState<string | null>(null)
+  const [aviso, setAviso] = useState<string | null>(null)
   const [esgotado, setEsgotado] = useState(false)
   const [pedindoCpf, setPedindoCpf] = useState(false)
   const [copiado, setCopiado] = useState(false)
@@ -96,8 +97,13 @@ export function PagamentoPage() {
 
   const irParaPagamento = async () => {
     setMensagem(null)
+    setAviso(null)
     const resultado = await cobranca.mutateAsync().catch(() => null)
-    if (resultado?.urlPagamento) window.location.assign(resultado.urlPagamento)
+    // O simulador só existe com o gateway stub, cujo endereço de pagamento é fictício: sair do site deixaria a tela em branco.
+    if (resultado && SIMULADOR) {
+      void pagamento.refetch()
+      setAviso('Cobrança gerada. Use o modo demonstração abaixo para aprovar ou recusar o pagamento.')
+    } else if (resultado?.urlPagamento) window.location.assign(resultado.urlPagamento)
     else if (resultado) setMensagem('A cobrança foi criada, mas o endereço de pagamento ainda não está disponível. Tente novamente em instantes.')
   }
 
@@ -194,6 +200,11 @@ export function PagamentoPage() {
             {mensagem && (
               <p className="alerta alerta--erro" role="alert">
                 {mensagem}
+              </p>
+            )}
+            {aviso && (
+              <p className="alerta alerta--aviso" role="status">
+                {aviso}
               </p>
             )}
             {pix.data && (
